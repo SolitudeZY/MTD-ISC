@@ -1,0 +1,806 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}检测结果可视化{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>检测指标可视化分析</h2>
+        <div class="btn-group">
+            <a href="{% url 'detection_records' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-table"></i> 查看表格数据
+            </a>
+            <button id="export-all" class="btn btn-outline-primary">
+                <i class="fas fa-download"></i> 导出图表
+            </button>
+            <div class="dropdown ml-2">
+                <a href="{% url 'dataset_model_distribution' %}" class="btn btn-primary">
+                    <i class="fas fa-chart-bar"></i> 查看模型及数据集分布饼状图
+                </a>
+{#                <button class="btn btn-outline-info dropdown-toggle" type="button" id="chartTypeDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">#}
+{#                    <i class="fas fa-chart-bar"></i> 查看模型及数据集分布饼状图#}
+{#                </button>#}
+{#                <div class="dropdown-menu" aria-labelledby="chartTypeDropdown">#}
+{#                    <a class="dropdown-item chart-type" href="#" data-type="bar">柱状图</a>#}
+{#                    <a class="dropdown-item chart-type" href="#" data-type="line">折线图</a>#}
+{#                    <a class="dropdown-item chart-type" href="#" data-type="radar">雷达图</a>#}
+{#                </div>#}
+            </div>
+        </div>
+    </div>
+
+    <!-- 筛选器 -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="modelFilter">模型筛选</label>
+                        <select id="modelFilter" class="form-control">
+                            <option value="all">所有模型</option>
+                            <!-- 模型选项将通过JavaScript动态填充 -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="datasetFilter">数据集筛选</label>
+                        <select id="datasetFilter" class="form-control">
+                            <option value="all">所有数据集</option>
+                            <!-- 数据集选项将通过JavaScript动态填充 -->
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="timeRangeFilter">时间范围</label>
+                        <select id="timeRangeFilter" class="form-control">
+                            <option value="all">全部时间</option>
+                            <option value="week">最近一周</option>
+                            <option value="month">最近一个月</option>
+                            <option value="quarter">最近三个月</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <button id="applyFilters" class="btn btn-primary">应用筛选</button>
+                <button id="resetFilters" class="btn btn-secondary ml-2">重置</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图表容器 -->
+    <div id="charts-container">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">准确率 (Accuracy)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="accuracy-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">F1 分数 (F1 Score)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="f1-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">真阳性率 (TPR)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="tpr-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">假阳性率 (FPR)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="fpr-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 综合分析 -->
+    <div id="radar-container" class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">模型性能综合分析</h5>
+        </div>
+        <div class="card-body">
+            <div id="radar-chart" style="width: 100%; height: 500px;"></div>
+        </div>
+    </div>
+
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+    <!-- 引入导出图片功能 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script type="text/javascript">
+        // 数据准备（从Django模板变量获取）
+        let originalData, data, charts = {}, currentChartType = 'bar';
+
+        try {
+            // 安全地解析JSON数据
+            originalData = {{ chart_data|safe }};
+
+            // 检查数据是否有效
+            if (!originalData || !originalData.models || !originalData.datasets || !originalData.metrics) {
+                console.error('图表数据无效或格式不正确');
+                // 显示错误消息给用户
+                showErrorMessage('图表数据加载失败，请刷新页面或联系管理员。');
+                // 提供默认数据结构以防止错误
+                originalData = {
+                    models: [],
+                    datasets: [],
+                    metrics: {
+                        accuracy: {},
+                        F1_score: {},
+                        TPR: {},
+                        FPR: {}
+                    }
+                };
+            }
+
+            // 过滤数据集和模型
+            filterValidData();
+
+            // 深拷贝，用于筛选
+            data = JSON.parse(JSON.stringify(originalData));
+
+            // 更新筛选器选项
+            updateFilterOptions();
+
+        } catch (error) {
+            console.error('解析图表数据时出错:', error);
+            showErrorMessage('图表数据解析失败，请刷新页面或联系管理员。');
+            // 提供默认数据结构以防止错误
+            originalData = {
+                models: [],
+                datasets: [],
+                metrics: {
+                    accuracy: {},
+                    F1_score: {},
+                    TPR: {},
+                    FPR: {}
+                }
+            };
+            data = JSON.parse(JSON.stringify(originalData));
+        }
+
+        // 过滤有效数据（有检测记录的数据集和模型）
+        function filterValidData() {
+            // 1. 过滤有效数据集
+            let validDatasets = originalData.datasets.filter(dataset => {
+                return ['accuracy', 'F1_score', 'TPR', 'FPR'].some(metric => {
+                    return originalData.metrics[metric] &&
+                           originalData.metrics[metric][dataset] &&
+                           originalData.metrics[metric][dataset].length > 0;
+                });
+            });
+
+            // 2. 过滤有效模型（至少在一个数据集上有检测记录）
+            let validModels = originalData.models.filter(model => {
+                return validDatasets.some(dataset => {
+                    return ['accuracy', 'F1_score', 'TPR', 'FPR'].some(metric => {
+                        if (!originalData.metrics[metric] || !originalData.metrics[metric][dataset]) {
+                            return false;
+                        }
+                        return originalData.metrics[metric][dataset].some(m => m.model === model);
+                    });
+                });
+            });
+
+            // 3. 更新原始数据
+            originalData.datasets = validDatasets;
+            originalData.models = validModels;
+        }
+
+        // 更新筛选器选项
+        function updateFilterOptions() {
+            // 更新模型筛选器
+            const modelFilter = document.getElementById('modelFilter');
+            if (modelFilter) {
+                // 清空现有选项
+                modelFilter.innerHTML = '<option value="all">所有模型</option>';
+
+                // 添加有效模型选项
+                originalData.models.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.textContent = model;
+                    modelFilter.appendChild(option);
+                });
+            }
+
+            // 更新数据集筛选器
+            const datasetFilter = document.getElementById('datasetFilter');
+            if (datasetFilter) {
+                // 清空现有选项
+                datasetFilter.innerHTML = '<option value="all">所有数据集</option>';
+
+                // 添加有效数据集选项
+                originalData.datasets.forEach(dataset => {
+                    const option = document.createElement('option');
+                    option.value = dataset;
+                    option.textContent = dataset;
+                    datasetFilter.appendChild(option);
+                });
+            }
+        }
+
+        // 显示错误消息
+        function showErrorMessage(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger mt-3';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `<strong>错误:</strong> ${message}`;
+
+            // 插入到图表容器前面
+            const chartsContainer = document.getElementById('charts-container');
+            chartsContainer.parentNode.insertBefore(alertDiv, chartsContainer);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 初始化图表
+                initializeCharts();
+
+                // 初始化雷达图
+                initializeRadarChart();
+
+                // 窗口大小改变时重绘图表
+                window.addEventListener('resize', function() {
+                    for (const chartId in charts) {
+                        if (charts[chartId]) {
+                            charts[chartId].resize();
+                        }
+                    }
+                });
+
+                // 导出所有图表
+                document.getElementById('export-all').addEventListener('click', function() {
+                    exportAllCharts();
+                });
+
+                // 图表类型切换
+                document.querySelectorAll('.chart-type').forEach(item => {
+                    item.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        currentChartType = this.getAttribute('data-type');
+                        updateAllCharts();
+                    });
+                });
+
+                // 应用筛选
+                document.getElementById('applyFilters').addEventListener('click', function() {
+                    applyFilters();
+                });
+
+                // 重置筛选
+                document.getElementById('resetFilters').addEventListener('click', function() {
+                    resetFilters();
+                });
+            } catch (error) {
+                console.error('初始化错误:', error);
+                showErrorMessage('图表初始化失败: ' + error.message);
+            }
+        });
+
+        // 应用筛选
+        function applyFilters() {
+            try {
+                const modelFilter = document.getElementById('modelFilter').value;
+                const datasetFilter = document.getElementById('datasetFilter').value;
+                const timeFilter = document.getElementById('timeRangeFilter').value;
+
+                // 重置数据
+                data = JSON.parse(JSON.stringify(originalData));
+
+                // 应用模型筛选
+                if (modelFilter !== 'all') {
+                    data.models = data.models.filter(model => model === modelFilter);
+                }
+
+                // 应用数据集筛选
+                if (datasetFilter !== 'all') {
+                    data.datasets = data.datasets.filter(dataset => dataset === datasetFilter);
+                }
+
+                // 更新图表
+                updateAllCharts();
+            } catch (error) {
+                console.error('应用筛选时出错:', error);
+                showErrorMessage('应用筛选失败: ' + error.message);
+            }
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            try {
+                document.getElementById('modelFilter').value = 'all';
+                document.getElementById('datasetFilter').value = 'all';
+                document.getElementById('timeRangeFilter').value = 'all';
+
+                data = JSON.parse(JSON.stringify(originalData));
+                updateAllCharts();
+            } catch (error) {
+                console.error('重置筛选时出错:', error);
+                showErrorMessage('重置筛选失败: ' + error.message);
+            }
+        }
+
+        // 更新所有图表
+        function updateAllCharts() {
+            try {
+                createChart('accuracy-chart', 'accuracy', '准确率', currentChartType);
+                createChart('f1-chart', 'F1_score', 'F1 分数', currentChartType);
+                createChart('tpr-chart', 'TPR', '真阳性率', currentChartType);
+                createChart('fpr-chart', 'FPR', '假阳性率', currentChartType);
+                initializeRadarChart();
+            } catch (error) {
+                console.error('更新图表时出错:', error);
+                showErrorMessage('更新图表失败: ' + error.message);
+            }
+        }
+
+        // 图表配置函数
+        function createChart(containerId, metricName, metricDisplayName, chartType = 'bar') {
+            try {
+                const chartDom = document.getElementById(containerId);
+                if (!chartDom) {
+                    console.error(`找不到图表容器: ${containerId}`);
+                    return null;
+                }
+
+                let myChart = charts[containerId];
+
+                if (!myChart) {
+                    myChart = echarts.init(chartDom);
+                    charts[containerId] = myChart;
+                }
+
+                // 为每个模型生成不同的颜色
+                const colors = [
+                    '#5470c6', '#91cc75', '#fac858', '#ee6666',
+                    '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
+                ];
+
+                // 检查数据集和模型是否为空
+                if (!data.datasets.length || !data.models.length) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有可用数据',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return myChart;
+                }
+
+                // 设置Y轴范围
+                let yAxisMin = 50;  // 默认最小值为50
+                let yAxisMax = 100; // 默认最大值为100
+
+                // FPR特殊处理
+                if (metricName === 'FPR') {
+                    yAxisMin = 0;  // FPR从0开始
+                    yAxisMax = 5;  // FPR最大值为5
+                }
+
+                // 过滤掉没有有效数据的模型（对所有图表应用）
+                let filteredModels = data.models.filter(model => {
+                    // 检查该模型是否在任何数据集上有有效值
+                    return data.datasets.some(ds => {
+                        if (!data.metrics[metricName] || !data.metrics[metricName][ds]) {
+                            return false;
+                        }
+                        const metricObj = data.metrics[metricName][ds].find(m => m.model === model);
+                        // 对于FPR，值大于0即为有效；对于其他指标，值大于50才为有效
+                        const validThreshold = metricName === 'FPR' ? 0 : 50;
+                        return metricObj && metricObj.value > validThreshold;
+                    });
+                });
+
+                // 基本配置
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: chartType === 'bar' ? 'shadow' : 'line'
+                        },
+                        formatter: function(params) {
+                            let result = `<div style="font-weight:bold;margin-bottom:5px;">${params[0].name}</div>`;
+                            params.forEach(param => {
+                                // 根据指标类型格式化数值
+                                let value = param.value;
+                                if (typeof value === 'number') {
+                                    value = value.toFixed(2) + '%';
+                                } else if (value === null) {
+                                    value = '无数据';
+                                }
+
+                                result += `<div style="display:flex;justify-content:space-between;align-items:center;margin:3px 0;">
+                                    <span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;background-color:${param.color};"></span>
+                                    <span style="flex:1;">${param.seriesName}:</span>
+                                    <span style="font-weight:bold;">${value}</span>
+                                </div>`;
+                            });
+                            return result;
+                        }
+                    },
+                    legend: {
+                        data: filteredModels,
+                        top: 'bottom',
+                        type: 'scroll',
+                        orient: 'horizontal'
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '15%',
+                        top: '8%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: data.datasets,
+                        axisLabel: {
+                            rotate: 45,
+                            interval: 0
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: metricDisplayName,
+                        nameLocation: 'middle',
+                        nameGap: 40,
+                        min: yAxisMin,
+                        max: yAxisMax,
+                        axisLabel: {
+                            formatter: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    },
+                    series: filteredModels.map((model, index) => {
+                        // 为每个模型准备数据
+                        const seriesData = data.datasets.map(ds => {
+                            // 检查该数据集的指标数据是否存在
+                            if (!data.metrics[metricName] || !data.metrics[metricName][ds]) {
+                                return null;
+                            }
+
+                            const metricObj = data.metrics[metricName][ds].find(m => m.model === model);
+
+                            // 根据指标类型确定有效值的阈值
+                            const validThreshold = metricName === 'FPR' ? 0 : 50;
+
+                            // 只返回大于阈值的值，否则返回null（不显示）
+                            return (metricObj && metricObj.value > validThreshold) ? metricObj.value : null;
+                        });
+
+                        return {
+                            name: model,
+                            type: chartType,
+                            data: seriesData,
+                            itemStyle: {
+                                color: colors[index % colors.length]
+                            },
+                            emphasis: {
+                                itemStyle: {
+                                    shadowBlur: 10,
+                                    shadowOffsetX: 0,
+                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                }
+                            },
+                            label: chartType === 'bar' ? {
+                                show: true,
+                                position: 'top',
+                                formatter: function(params) {
+                                    return params.value ? params.value.toFixed(2) + '%' : '';
+                                }
+                            } : undefined,
+                            // 折线图特有配置
+                            smooth: chartType === 'line',
+                            symbol: chartType === 'line' ? 'circle' : undefined,
+                            symbolSize: chartType === 'line' ? 8 : undefined,
+                            // 雷达图特有配置
+                            areaStyle: chartType === 'radar' ? {} : undefined,
+                            // 设置连接空值的方式
+                            connectNulls: chartType === 'line'
+                        };
+                    })
+                };
+
+                // 雷达图特殊处理
+                if (chartType === 'radar') {
+                    option.radar = {
+                        indicator: data.datasets.map(ds => ({
+                            name: ds,
+                            max: metricName === 'FPR' ? 5 : 100
+                        }))
+                    };
+                    delete option.xAxis;
+                    delete option.yAxis;
+                }
+
+                myChart.setOption(option, true);
+
+                // 添加点击事件
+                myChart.on('click', function(params) {
+                    // 高亮显示被点击的数据
+                    const highlightOption = {
+                        series: option.series.map((series, index) => {
+                            if (index === params.seriesIndex) {
+                                return {
+                                    ...series,
+                                    emphasis: {
+                                        focus: 'series'
+                                    }
+                                };
+                            }
+                            return series;
+                        })
+                    };
+                    myChart.setOption(highlightOption);
+                });
+
+                return myChart;
+            } catch (error) {
+                console.error(`创建图表 ${containerId} 时出错:`, error);
+                showErrorMessage(`创建图表 ${metricDisplayName} 失败: ${error.message}`);
+                return null;
+            }
+        }
+
+        // 初始化雷达图
+        function initializeRadarChart() {
+            try {
+                const chartDom = document.getElementById('radar-chart');
+                if (!chartDom) {
+                    console.error('找不到雷达图容器');
+                    return;
+                }
+
+                let myChart = charts['radar-chart'];
+
+                if (!myChart) {
+                    myChart = echarts.init(chartDom);
+                    charts['radar-chart'] = myChart;
+                }
+
+                // 检查数据是否为空
+                if (!data.models.length) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有可用数据',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return;
+                }
+
+                // 计算每个模型的平均指标值
+                const modelMetrics = {};
+                data.models.forEach(model => {
+                    const accuracyAvg = calculateAverage(model, 'accuracy');
+                    const f1Avg = calculateAverage(model, 'F1_score');
+                    const tprAvg = calculateAverage(model, 'TPR');
+
+                    modelMetrics[model] = {
+                        accuracy: accuracyAvg,
+                        f1: f1Avg,
+                        tpr: tprAvg
+                    };
+                });
+
+                // 过滤掉指标不在正常范围内的模型（所有指标都必须在80-100之间）
+                const validModels = data.models.filter(model => {
+                    const metrics = modelMetrics[model];
+                    return metrics.accuracy >= 80 && metrics.accuracy <= 100 &&
+                           metrics.f1 >= 80 && metrics.f1 <= 100 &&
+                           metrics.tpr >= 80 && metrics.tpr <= 100;
+                });
+
+                // 如果没有符合条件的模型，显示提示信息
+                if (validModels.length === 0) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有指标在正常范围内的模型',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return;
+                }
+
+                // 为每个有效模型准备雷达图数据
+                const radarData = validModels.map((model) => {
+                    const metrics = modelMetrics[model];
+
+                    return {
+                        name: model,
+                        value: [
+                            metrics.accuracy,
+                            metrics.f1,
+                            metrics.tpr
+                        ],
+                        // 存储原始值用于提示框显示
+                        rawValues: metrics
+                    };
+                });
+
+                const option = {
+                    title: {
+                        text: '模型性能综合评估',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function(params) {
+                            let result = `<div style="font-weight:bold;margin-bottom:5px;">${params.name}</div>`;
+
+                            // 使用原始值进行显示
+                            const rawValues = params.data.rawValues;
+
+                            result += `<div style="display:flex;justify-content:space-between;margin:3px 0;">
+                                <span>准确率:</span>
+                                <span style="font-weight:bold;">${rawValues.accuracy.toFixed(2)}%</span>
+                            </div>`;
+
+                            result += `<div style="display:flex;justify-content:space-between;margin:3px 0;">
+                                <span>F1分数:</span>
+                                <span style="font-weight:bold;">${rawValues.f1.toFixed(2)}%</span>
+                            </div>`;
+
+                            result += `<div style="display:flex;justify-content:space-between;margin:3px 0;">
+                                <span>真阳性率:</span>
+                                <span style="font-weight:bold;">${rawValues.tpr.toFixed(2)}%</span>
+                            </div>`;
+
+                            return result;
+                        }
+                    },
+                    legend: {
+                        data: validModels,
+                        bottom: 0
+                    },
+                    radar: {
+                        // 只使用三个指标
+                        indicator: [
+                            { name: '准确率', max: 100, min: 80 },
+                            { name: 'F1分数', max: 100, min: 80 },
+                            { name: '真阳性率', max: 100, min: 80 }
+                        ],
+                        radius: '65%',
+                        center: ['50%', '50%'],
+                        // 确保角度均匀分布
+                        startAngle: 90,
+                        splitNumber: 4,
+                        shape: 'polygon',
+                        axisName: {
+                            formatter: '{value}',
+                            color: '#333'
+                        }
+                    },
+                    series: [{
+                        type: 'radar',
+                        data: radarData.map((item, index) => ({
+                            value: item.value,
+                            name: item.name,
+                            rawValues: item.rawValues,
+                            symbolSize: 6,
+                            lineStyle: {
+                                width: 2
+                            },
+                            areaStyle: {
+                                opacity: 0.3
+                            }
+                        }))
+                    }]
+                };
+
+                myChart.setOption(option, true);
+            } catch (error) {
+                console.error('初始化雷达图时出错:', error);
+                showErrorMessage('初始化雷达图失败: ' + error.message);
+            }
+        }
+
+        // 计算平均值 - 只考虑大于50的值为有效值
+        function calculateAverage(model, metric) {
+            try {
+                let sum = 0;
+                let count = 0;
+
+                data.datasets.forEach(ds => {
+                    // 检查该数据集的指标数据是否存在
+                    if (!data.metrics[metric] || !data.metrics[metric][ds]) {
+                        return;
+                    }
+
+                    const metricObj = data.metrics[metric][ds].find(m => m.model === model);
+                    // 只有当值大于50时才认为是有效值
+                    if (metricObj && typeof metricObj.value === 'number' && !isNaN(metricObj.value) && metricObj.value > 50) {
+                        sum += metricObj.value;
+                        count++;
+                    }
+                });
+
+                // 只有当有有效数据时才计算平均值，否则返回0
+                return count > 0 ? sum / count : 0;
+            } catch (error) {
+                console.error(`计算平均值时出错 (${model}, ${metric}):`, error);
+                return 0;
+            }
+        }
+
+        // 初始化所有图表
+        function initializeCharts() {
+            try {
+                createChart('accuracy-chart', 'accuracy', '准确率');
+                createChart('f1-chart', 'F1_score', 'F1 分数');
+                createChart('f1-chart', 'F1_score', 'F1 分数');
+                createChart('tpr-chart', 'TPR', '真阳性率');
+                createChart('fpr-chart', 'FPR', '假阳性率');
+            } catch (error) {
+                console.error('初始化图表时出错:', error);
+                showErrorMessage('初始化图表失败: ' + error.message);
+            }
+        }
+
+        // 导出所有图表为图片
+        function exportAllCharts() {
+            const chartIds = ['accuracy-chart', 'f1-chart', 'tpr-chart', 'fpr-chart', 'radar-chart'];
+
+            try {
+                // 逐个导出图表
+                chartIds.forEach((chartId) => {
+                    const chart = charts[chartId];
+                    if (!chart) return;
+
+                    try {
+                        // 获取图表的数据URL
+                        const url = chart.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff'
+                        });
+
+                        // 创建下载链接
+                        const link = document.createElement('a');
+                        link.download = `${chartId}.png`;
+                        link.href = url;
+                        link.click();
+                    } catch (chartError) {
+                        console.error(`导出图表 ${chartId} 时出错:`, chartError);
+                    }
+                });
+            } catch (error) {
+                console.error('导出图表错误:', error);
+                alert('导出图表时发生错误，请稍后再试。');
+            }
+        }
+    </script>
+</div>
+{% endblock %}

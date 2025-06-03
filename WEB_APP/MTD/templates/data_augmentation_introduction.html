@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模型介绍</title>
+</head>
+<body>
+{% block content %}
+    <!-- 在model_introduction.html的body部分添加 -->
+<iframe
+    src="{% static 'assets/DDP-DAR.pdf' %}"
+    width="100%"
+    height="800px"
+    style="border: 1px solid #ddd; border-radius: 8px;"
+>
+</iframe>
+
+<!-- 添加下载链接 -->
+<p style="text-align: right; margin-top: -30px;">
+    <a href="{% static 'assets/DDP-DAR.pdf' %}"
+       class="btn btn-primary btn-sm"
+       download
+    >
+        下载PDF文档
+    </a>
+</p>
+{% endblock content %}
+</body>
+</html>

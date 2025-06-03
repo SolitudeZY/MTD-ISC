@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}网络入侵检测{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>模型检测配置</h2>
+    <form id="detection-form" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="model" class="form-label">选择模型</label>
+            <select class="form-select" name="model_id" required>
+                <option value="">请选择模型</option>
+                {% for model in models %}
+                <option value="{{ model.id }}">{{ model.name }} ({{ model.get_category_display }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="dataset" class="form-label">选择数据集</label>
+            <select class="form-select" name="dataset_id" required>
+                <option value="">请选择数据集</option>
+                {% for dataset in datasets %}
+                <option value="{{ dataset.id }}">{{ dataset.name }} ({{ dataset.get_category_display }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">开始检测</button>
+    </form>
+
+    <!-- 新增进度条容器 -->
+    <div id="progress-wrapper" style="display: none; margin-top: 2rem;">
+        <div class="progress">
+            <div class="progress-bar bg-info" role="progressbar" id="progress-bar"
+                style="width: 0%; transition: width 0.3s ease;">
+                <span id="progress-text">0%</span>
+            </div>
+        </div>
+    </div>
+</div>
+    
+<style>
+.progress-bar {
+   transition: width 0.3s ease !important;
+}
+</style>
+<!-- 新增脚本 -->
+{#<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>#}
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('#detection-form').submit(function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const formData = new FormData(form[0]);
+
+        // 发送AJAX请求
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                const detectionId = response.detection_id;
+                showProgressAnimation(detectionId);
+            },
+            error: function() {
+                alert('检测初始化失败');
+            }
+        });
+    });
+
+    // 进度条动画函数
+    function showProgressAnimation(detectionId) {
+        const progressBar = $('#progress-bar');
+        const progressText = $('#progress-text');
+        const steps = [
+            { time: 1000, value: 10 },
+            { time: 1700, value: 17 },
+            { time: 1990, value: 20 },
+            { time: 2300, value: 28 },
+            { time: 3000, value: 50 },
+            { time: 3500, value: 70 },
+            { time: 4000, value: 100 }
+        ];
+        let currentStep = 0;
+        let startTime = Date.now();
+
+        // 显示进度条容器并隐藏表单
+        $('#progress-wrapper').show();
+        $('#detection-form').hide();
+
+        // 定时更新进度
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+
+            // 更新到当前步骤
+            while (currentStep < steps.length && elapsed >= steps[currentStep].time) {
+                const step = steps[currentStep++];
+                progressBar.width(`${step.value}%`);
+                progressText.text(`${step.value}%`);
+            }
+
+            // 动画结束时跳转
+            if (currentStep >= steps.length) {
+                clearInterval(interval);
+                window.location.href = "{% url 'detection_results' 0 %}".replace('0', detectionId);
+            }
+        }, 100);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}集成数据增强的恶意流量检测平台{% endblock %}
+
+{% block extra_css %}
+<style>
+  .card {
+    border: none;
+    border-radius: .5rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    transition: all .3s ease;
+    height: 100%;
+    background-color: #fff;
+    color: #212529;
+  }
+
+  .card:hover {
+      background-color: #0d6efd;
+      color: #fff;
+      transform: translateY(-5px);
+      box-shadow: 0 .5rem 1rem rgba(0,0,0,.15);
+  }
+
+  .card a {
+      color: inherit;
+      transition: color 0.3s ease;
+  }
+
+  .card:hover a {
+      color: inherit;
+  }
+
+  .card .feather {
+      color: inherit;
+  }
+
+  .card-block {
+    padding: 1.5rem;
+  }
+
+  .f-40 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #4e73df;
+  }
+
+  .modal-content {
+    border-radius: .5rem;
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="jumbotron">
+    <h1 class="display-5 fw-bold text-center">集成数据增强的恶意流量检测平台</h1>
+    <p class="lead text-center mt-3">欢迎使用集成数据增强的恶意流量检测平台，祝您使用愉快！</p>
+    <div class="text-center mt-4">
+      <p>想要进一步了解该系统，请点击系统使用说明按钮：</p>
+      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#systemInfoModal">系统使用说明</button>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- 模型管理 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'model_management' %}?chapter_id=-1" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-box f-40"></i>
+              <h5 class="card-title">模型管理</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据集管理 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'dataset_management' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-command f-40"></i>
+              <h5 class="card-title">数据集管理</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 数据增强 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'data_augmentation' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-file-plus f-40"></i>
+              <h5 class="card-title">数据增强</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 网络入侵检测 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'model_detection' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-anchor f-40"></i>
+              <h5 class="card-title">流量检测</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 检测记录 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'detection_records' %}?chapter_id=-1" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-book f-40"></i>
+              <h5 class="card-title">检测记录</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 结果可视化 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'visualization' %}?chapter_id=-1" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-bar-chart f-40"></i>
+              <h5 class="card-title">结果展示</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 攻击态势感知 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'attack_situation_awareness' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-trending-down f-40"></i>
+              <h5 class="card-title">恶意流量展示</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 个人信息 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'personal_information' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-user f-40"></i>
+              <h5 class="card-title">个人信息</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 系统使用说明模态框 -->
+<div class="modal fade" id="systemInfoModal" tabindex="-1" aria-labelledby="systemInfoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="systemInfoModalLabel">系统各模块使用说明</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <h6 class="fw-bold">1. 模型管理模块：</h6>
+          <p>（1）管理系统集成的网络入侵流量识别模型；</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">2. 数据增强模块：</h6>
+          <p>支持使用数据增强技术对网络流量数据集进行增强，包含的功能有：</p>
+          <p>（1）根据输入的数据集训练Improved-Diffusion扩散模型；</p>
+          <p>（2）使用预训练的去噪扩散模型对数据集进行增强，生成扩散后的数据集样本；</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">3. 数据集管理模块：</h6>
+          <p>（1）管理上传系统的网络流量数据集信息；</p>
+          <p>（2）编辑网络流量数据集信息。</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">4. 模型检测模块：</h6>
+          <p>（1）能用于检测网络入侵所产生的恶意流量，支持多种算法进行检测，包含使用深度学习的CNN模型、LSTM模型、BiLSTM模型、TCN模型、BiTCN模型以及我们团队自主研发的采用stacking集成堆叠框架的DMSE模型。</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">5. 检测记录及可视化模块：</h6>
+          <p>（1）用表格的形式展现出网络入侵检测模型在不同网络流量数据集上的检测结果；</p>
+          <p>（2）能展现出各网络入侵检测模型在不同网络流量数据集上不同指标（accuracy、precision、recall和FPR）上的对比柱状图和accuracy、precision、recall三项指标的综合性能雷达图；</p>
+          <p>（3）能展现出当前上传模型和数据集的分布饼状图以及数据集的上传时间折线图。</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">6. 攻击态势感知模块：</h6>
+          <p>更加直观地反应网络流量的流向以及所属的物理地址以便于用户加强自身安全建设和防控意识。</p>
+        </div>
+
+        <div class="mb-3">
+          <h6 class="fw-bold">7. 个人信息管理：</h6>
+          <p>（1）查看用户个人信息；</p>
+          <p>（2）修改用户个人信息，包括昵称、姓名、性别、电话、个人简介等；</p>
+          <p>（3）修改用户个人密码。</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

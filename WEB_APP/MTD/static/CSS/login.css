@@ -1,0 +1,157 @@
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f4f4f9, #e0e0e0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-10px);
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    margin-right: 10px;
+    flex: 0 0 100px; /* 固定标签宽度 */
+}
+
+.form-group input {
+    flex: 1;
+    min-width: 200px; /* 设置最小宽度 */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
+    text-align: left;
+}
+
+.form-group input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+button, button.reset-password, button.register-button {
+    padding: 10px 20px;
+    background-color: #fff; /* 默认背景颜色为白色 */
+    color: #007bff; /* 默认文字颜色为蓝色 */
+    border: 1px solid #007bff; /* 边框颜色为蓝色 */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-top: 10px;
+    width: 100%;
+    background-image: none; /* 移除背景渐变 */
+}
+
+button:hover, button.reset-password:hover, button.register-button:hover {
+    background-color: #007bff; /* 鼠标悬停时背景颜色为蓝色 */
+    color: #fff;  /* 悬停时文字颜色为白色 */
+    border: 1px solid #007bff;
+}
+
+button.reset-password {
+    margin-left: 10px;
+    padding: 7px 12px; /* 调整按钮大小 */
+    white-space: nowrap; /* 防止文字换行 */
+}
+
+button.register-button {
+    margin-top: 20px;
+    width: 80%;
+}
+h2 .icon {
+    width: 16px; /* 图标宽度 */
+    height: 16px; /* 图标高度 */
+    margin-left: 5px; /* 与文字的间距 */
+    vertical-align: middle; /* 垂直居中对齐 */
+    fill: #0098fd; /* 图标颜色 */
+}
+
+h2 i.icon {
+    font-size: 16px; /* 图标大小 */
+    margin-left: 5px; /* 与文字的间距 */
+    color: #61b7e1; /* 图标颜色 */
+    vertical-align: middle; /* 垂直居中对齐 */
+}
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+/* 媒体查询 */
+@media (min-width: 768px) {
+    .container {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center; /* 文本居中 */
+    }
+
+    .container h2 {
+        margin-bottom: 20px;
+    }
+
+    .container form {
+        width: 100%;
+    }
+
+    .container form .form-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .container form .form-group label {
+        margin-right: 10px;
+    }
+
+    .container form .form-group input {
+        flex: 1;
+        min-width: 200px;
+        width: calc(100% - 120px); /* 调整输入框宽度 */
+    }
+
+    .container form .form-group button.reset-password {
+        margin-left: 10px;
+    }
+
+    .container form .register-button {
+        margin-top: 20px;
+        width: 100%;
+    }
+}

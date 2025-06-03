@@ -1,0 +1,353 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}模型介绍中心{% endblock %}
+
+{% block extra_styles %}
+<!-- 引入粒子动画样式 -->
+<link rel="stylesheet" href="{% static 'css/particles.css' %}">
+<style>
+body {
+    overflow: hidden;
+    margin: 0;
+}
+
+#particles-js {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.container {
+    position: relative;
+    z-index: 1;
+    padding-top: 100px;
+}
+
+.card {
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.9);
+    transition: transform 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* 添加框架图按钮样式 */
+.btn-framework {
+    margin-top: 10px;
+}
+
+/* 模态框中的图片样式 */
+.modal-body img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 全屏按钮样式 */
+.btn-fullscreen {
+    margin-right: 10px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="particles-js"></div>
+
+<div class="container mt-5">
+    <h1 class="text-center mb-5">模型介绍导航</h1>
+    <div class="row justify-content-center">
+        <!-- 恶意流量检测模型卡片 -->
+        <div class="col-md-5 mb-4">
+            <div class="card model-card h-100 shadow-lg">
+                <div class="card-body">
+                    <h2 class="card-title text-primary">
+                        <i data-feather="shield" class="me-2"></i>恶意流量检测模型
+                    </h2>
+                    <p class="card-text">
+                        基于深度学习的网络入侵检测系统<br>
+                        支持流量分析与威胁识别
+                    </p>
+                    <div class="d-flex flex-column mt-3">
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="{% url 'malicious_model_introduction' %}"
+                               class="btn btn-primary">
+                                <i class="bi-arrow-right-circle"></i> 详细说明
+                            </a>
+                            <button type="button" class="btn btn-outline-primary"
+                                    data-bs-toggle="modal" data-bs-target="#maliciousFrameworkModal">
+                                <i data-feather="layout" class="me-1"></i> 查看框架图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据增强模型卡片 -->
+        <div class="col-md-5 mb-4">
+            <div class="card model-card h-100 shadow-lg">
+                <div class="card-body">
+                    <h2 class="card-title text-success">
+                        <i data-feather="database" class="me-2"></i>数据增强模型
+                    </h2>
+                    <p class="card-text">
+                        基于Improved-Diffusion的智能数据扩增技术<br>
+                        解决小样本数据训练难题
+                    </p>
+                    <div class="d-flex flex-column mt-3">
+                        <div class="d-grid gap-2 mt-3">
+                            <a href="{% url 'data_augmentation_introduction' %}"
+                               class="btn btn-success">
+                                <i class="bi-arrow-right-circle"></i> 详细说明
+                            </a>
+                            <button type="button" class="btn btn-outline-success"
+                                    data-bs-toggle="modal" data-bs-target="#augmentationFrameworkModal">
+                                <i data-feather="layout" class="me-1"></i> 查看框架图
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 恶意流量检测模型框架图模态框 -->
+<div class="modal fade" id="maliciousFrameworkModal" tabindex="-1" aria-labelledby="maliciousFrameworkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maliciousFrameworkModalLabel">恶意流量检测模型框架图</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="maliciousFrameworkCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#maliciousFrameworkCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#maliciousFrameworkCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#maliciousFrameworkCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="{% static 'assets/DMSE-CN_.png' %}" class="d-block w-100" alt="DMSE模型框架图1">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{% static 'assets/stack-cn.png' %}" class="d-block w-100" alt="堆叠集成框架图">
+                        </div>
+{#                        <div class="carousel-item">#}
+{#                            <img src="{% static 'assets/malicious_framework_3.png' %}" class="d-block w-100" alt="恶意流量检测模型框架图3">#}
+{#                        </div>#}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#maliciousFrameworkCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#maliciousFrameworkCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-fullscreen" id="maliciousFullscreenBtn">
+                    <i data-feather="maximize-2" class="me-1"></i> 全屏查看
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 数据增强模型框架图模态框 -->
+<div class="modal fade" id="augmentationFrameworkModal" tabindex="-1" aria-labelledby="augmentationFrameworkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="augmentationFrameworkModalLabel">数据增强模型框架图</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="augmentationFrameworkCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#augmentationFrameworkCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#augmentationFrameworkCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#augmentationFrameworkCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="{% static 'assets/DDP-DAR.png' %}" class="d-block w-100" alt="数据增强模型模型框架图">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{% static 'assets/NT-DDPM.png' %}" class="d-block w-100" alt="扩散模型示意图">
+                        </div>
+{#                        <div class="carousel-item">#}
+{#                            <img src="{% static 'assets/augmentation_framework_3.png' %}" class="d-block w-100" alt="数据增强模型框架图3">#}
+{#                        </div>#}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#augmentationFrameworkCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#augmentationFrameworkCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success btn-fullscreen" id="augmentationFullscreenBtn">
+                    <i data-feather="maximize-2" class="me-1"></i> 全屏查看
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // 初始化Feather图标
+    feather.replace();
+
+    // 模态框显示后重新初始化Feather图标
+    document.querySelectorAll('.modal').forEach(function(modal) {
+        modal.addEventListener('shown.bs.modal', function() {
+            feather.replace();
+        });
+    });
+
+    // 恶意流量检测模型全屏按钮
+    document.getElementById('maliciousFullscreenBtn').addEventListener('click', function() {
+        // 获取当前活动的轮播图片
+        const activeItem = document.querySelector('#maliciousFrameworkCarousel .carousel-item.active');
+        if (activeItem) {
+            // 获取图片元素
+            const imgElement = activeItem.querySelector('img');
+            if (imgElement) {
+                // 获取图片src
+                const imageUrl = imgElement.getAttribute('src');
+                // 在新窗口中打开图片
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>全屏查看</title>
+                        <style>
+                            body, html {
+                                margin: 0;
+                                padding: 0;
+                                height: 100%;
+                                width: 100%;
+                                background-color: #000;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            }
+                            img {
+                                max-width: 100%;
+                                max-height: 100%;
+                                object-fit: contain;
+                            }
+                            .close-btn {
+                                position: absolute;
+                                top: 20px;
+                                right: 20px;
+                                color: white;
+                                background: rgba(0,0,0,0.5);
+                                border: none;
+                                border-radius: 50%;
+                                width: 40px;
+                                height: 40px;
+                                font-size: 20px;
+                                cursor: pointer;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <button class="close-btn" onclick="window.close()">×</button>
+                        <img src="${imageUrl}" alt="全屏图片" />
+                    </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            }
+        }
+    });
+
+    // 数据增强模型全屏按钮
+    document.getElementById('augmentationFullscreenBtn').addEventListener('click', function() {
+        // 获取当前活动的轮播图片
+        const activeItem = document.querySelector('#augmentationFrameworkCarousel .carousel-item.active');
+        if (activeItem) {
+            // 获取图片元素
+            const imgElement = activeItem.querySelector('img');
+            if (imgElement) {
+                // 获取图片src
+                const imageUrl = imgElement.getAttribute('src');
+                // 在新窗口中打开图片
+                const newWindow = window.open('', '_blank');
+                newWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>全屏查看</title>
+                        <style>
+                            body, html {
+                                margin: 0;
+                                padding: 0;
+                                height: 100%;
+                                width: 100%;
+                                background-color: #000;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            }
+                            img {
+                                max-width: 100%;
+                                max-height: 100%;
+                                object-fit: contain;
+                            }
+                            .close-btn {
+                                position: absolute;
+                                top: 20px;
+                                right: 20px;
+                                color: white;
+                                background: rgba(0,0,0,0.5);
+                                border: none;
+                                border-radius: 50%;
+                                width: 40px;
+                                height: 40px;
+                                font-size: 20px;
+                                cursor: pointer;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <button class="close-btn" onclick="window.close()">×</button>
+                        <img src="${imageUrl}" alt="全屏图片" />
+                    </body>
+                    </html>
+                `);
+                newWindow.document.close();
+            }
+        }
+    });
+});
+</script>
+<script>
+// 确保轮播图正常工作
+var maliciousCarousel = new bootstrap.Carousel(document.getElementById('maliciousFrameworkCarousel'), {
+    interval: 5000
+});
+var augmentationCarousel = new bootstrap.Carousel(document.getElementById('augmentationFrameworkCarousel'), {
+    interval: 5000
+});
+</script>
+{% endblock %}

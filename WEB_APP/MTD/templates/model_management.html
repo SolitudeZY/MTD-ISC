@@ -1,0 +1,156 @@
+<!-- model_management.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}模型管理{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>模型管理</h2>
+
+    <!-- 分页信息 -->
+    <p>共 {{ models.paginator.count }} 条记录</p>
+
+    <!-- 模型列表 -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <!-- 添加排序功能 -->
+                <th>
+                    {% if current_sort == 'name' %}
+                        <a href="?sort={% if direction == 'asc' %}-name{% else %}name{% endif %}">
+                            模型名称
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=name">
+                            模型名称
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if current_sort == 'category' %}
+                        <a href="?sort={% if direction == 'asc' %}-category{% else %}category{% endif %}">
+                            类别
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=category">
+                            类别
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+                <th>
+                    {% if current_sort == 'upload_time' %}
+                        <a href="?sort={% if direction == 'asc' %}-upload_time{% else %}upload_time{% endif %}">
+                            上传时间
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=upload_time">
+                            上传时间
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for model in models %}
+            <tr>
+                <td>{{ model.name }}</td>
+                <td>{{ model.get_category_display }}</td>
+                <td>{{ model.upload_time|date:"Y-m-d H:i" }}</td>
+                <td>
+                    <a href="{% url 'model_detail' model.id %}" class="btn btn-info btn-sm">查看描述</a>
+                    <a href="{% url 'delete_model' model.id %}"
+                       class="btn btn-danger btn-sm"
+                       onclick="return confirm('确定删除该模型？')">删除</a>
+                </td>
+            </tr>
+            {% empty %}
+                <tr><td colspan="4">暂无模型</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 分页控件 -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <!-- 分页导航 -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if models.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&page_size={{ page_size }}&sort={{ sort_field }}">&laquo;</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ models.previous_page_number }}&page_size={{ page_size }}&sort={{ sort_field }}">{{ models.previous_page_number }}</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active"><span class="page-link">{{ models.number }}</span></li>
+
+                {% if models.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ models.next_page_number }}&page_size={{ page_size }}&sort={{ sort_field }}">{{ models.next_page_number }}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ models.paginator.num_pages }}&page_size={{ page_size }}&sort={{ sort_field }}">&raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- 每页数量选择 -->
+        <div class="form-group mb-0">
+            <select class="form-select form-select-sm" onchange="location=this.value">
+                <option value="?page_size=10{% if page %}&page={{ page }}{% endif %}{% if sort_field %}&sort={{ sort_field }}{% endif %}" {% if page_size == 10 %}selected{% endif %}>10条/页</option>
+                <option value="?page_size=20{% if page %}&page={{ page }}{% endif %}{% if sort_field %}&sort={{ sort_field }}{% endif %}" {% if page_size == 20 %}selected{% endif %}>20条/页</option>
+                <option value="?page_size=50{% if page %}&page={{ page }}{% endif %}{% if sort_field %}&sort={{ sort_field }}{% endif %}" {% if page_size == 50 %}selected{% endif %}>50条/页</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 上传表单保持不变 -->
+    <h3>上传新模型</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>模型名称</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>模型类别</label>
+            <select name="category" class="form-select" required>
+                {% for choice in MODEL_TYPE_CHOICES %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>模型文件</label>
+            <input type="file" name="model_file" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>描述</label>
+            <textarea name="description" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">上传模型</button>
+    </form>
+</div>
+{% endblock %}

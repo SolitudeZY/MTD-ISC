@@ -1,0 +1,11 @@
+numpy==1.21.0
+torch==2.4.1+cu118
+blobfile==3.0.0
+torchvision==0.19.1+cu118
+tqdm==4.64.0
+pillow==9.1.1
+setuptools==61.2.0
+matplotlib==3.3.4
+scikit-learn==1.0.2
+prettytable==3.10.2
+mpi4py==4.0.3

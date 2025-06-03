@@ -1,0 +1,28 @@
+     {
+         "particles": {
+             "number": {"value": 80},
+             "color": {"value": "#e6f2ff"},
+             "shape": {"type": "circle"},
+             "size": {"value": 3},
+             "opacity": {
+                 "value": 0.7,
+                 "random": true
+             },
+             "move": {
+                 "enable": true,
+                 "speed": 1,
+                 "direction": "top",
+                 "out_mode": "out",
+                "straight": true
+             },
+           "density": {
+               "enable": true,
+               "value_area": 800
+           }
+         },
+         "interactivity": {
+             "events": {
+                 "onClick": {"enable": true, "mode": "push"}
+             }
+         }
+     }

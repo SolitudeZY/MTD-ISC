@@ -1,0 +1,371 @@
+<!-- WEB_APP/MTD/templates/sidebar.html -->
+{% load static %}
+
+<style>
+    /* 侧边栏基础样式 */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 260px;
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        color: #e2e8f0;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        z-index: 1000;
+        overflow-y: auto;
+        padding-top: 20px;
+    }
+
+    /* 自定义滚动条 */
+    .sidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* 侧边栏列表样式 */
+    .sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    /* 侧边栏项目样式 */
+    .sidebar li {
+        margin: 8px 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    /* 侧边栏链接样式 */
+    .sidebar a {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        color: rgba(255, 255, 255, 0.8) !important;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border-radius: 8px;
+    }
+
+    /* 悬停效果 */
+    .sidebar li:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .sidebar a:hover {
+        color: #fff !important;
+        transform: translateX(5px);
+    }
+
+    /* 图标样式 */
+    .sidebar-icon {
+        stroke: rgba(255, 255, 255, 0.8);
+        stroke-width: 2;
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar a:hover .sidebar-icon {
+        stroke: #fff;
+        transform: scale(1.1);
+    }
+
+    /* 活动项目样式 */
+    .sidebar li.active {
+        background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 100%);
+    }
+
+    .sidebar li.active a {
+        color: #fff !important;
+    }
+
+    .sidebar li.active .sidebar-icon {
+        stroke: #3b82f6;
+        filter: drop-shadow(0 0 5px rgba(59, 130, 246, 0.5));
+    }
+
+    /* 活动指示器 */
+    .sidebar li.active::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: #3b82f6;
+        border-radius: 0 2px 2px 0;
+    }
+
+    /* 下拉菜单样式 */
+    .has-dropdown > a::after {
+        content: '\f107';
+        font-family: 'Font Awesome 5 Free';
+        font-weight: 900;
+        margin-left: auto;
+        transition: transform 0.3s ease;
+    }
+
+    .dropdown-menu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        padding-left: 20px;
+        margin-top: 5px;
+    }
+
+    .has-dropdown:hover .dropdown-menu {
+        max-height: 200px;
+    }
+
+    /* 分隔线 */
+    .sidebar li:nth-child(5)::after {
+        content: '';
+        display: block;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 10px 0;
+    }
+
+    .sidebar li:nth-child(9)::after {
+        content: '';
+        display: block;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.1);
+        margin: 10px 0;
+    }
+
+    /* 退出登录按钮特殊样式 */
+    .sidebar li:last-child a {
+        color: #f87171 !important;
+    }
+
+    .sidebar li:last-child .sidebar-icon {
+        stroke: #f87171;
+    }
+
+    .sidebar li:last-child:hover {
+        background-color: rgba(248, 113, 113, 0.1);
+    }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sidebar li {
+        animation: fadeIn 0.3s ease forwards;
+        opacity: 0;
+    }
+
+    .sidebar li:nth-child(1) { animation-delay: 0.05s; }
+    .sidebar li:nth-child(2) { animation-delay: 0.1s; }
+    .sidebar li:nth-child(3) { animation-delay: 0.15s; }
+    .sidebar li:nth-child(4) { animation-delay: 0.2s; }
+    .sidebar li:nth-child(5) { animation-delay: 0.25s; }
+    .sidebar li:nth-child(6) { animation-delay: 0.3s; }
+    .sidebar li:nth-child(7) { animation-delay: 0.35s; }
+    .sidebar li:nth-child(8) { animation-delay: 0.4s; }
+    .sidebar li:nth-child(9) { animation-delay: 0.45s; }
+    .sidebar li:nth-child(10) { animation-delay: 0.5s; }
+    .sidebar li:nth-child(11) { animation-delay: 0.55s; }
+
+    /* 响应式设计 */
+    @media (max-width: 992px) {
+        .sidebar {
+            width: 240px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.show {
+            transform: translateX(0);
+        }
+
+        .sidebar-toggle {
+            display: block;
+        }
+    }
+
+    /* 侧边栏标题 */
+    .sidebar-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #fff;
+        padding: 0 20px 20px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-title img {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+
+    /* 侧边栏底部 */
+    .sidebar-footer {
+        padding: 15px 20px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 20px;
+    }
+</style>
+
+<div class="sidebar">
+    <!-- 添加标题 -->
+    <div class="sidebar-title">
+        <img src="{% static 'images/logo-thumb.png' %}" alt="Logo">
+        集成数据增强的恶意流量检测平台
+    </div>
+
+    <ul>
+        <!-- 主页 -->
+        <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <a href="{% url 'home' %}">
+                <i data-feather="home" class="sidebar-icon"></i> 主页
+            </a>
+        </li>
+
+        <!-- 模型管理 -->
+        <li class="{% if request.resolver_match.url_name == 'model_management' %}active{% endif %}">
+            <a href="{% url 'model_management' %}">
+                <i data-feather="settings" class="sidebar-icon"></i> 模型管理
+            </a>
+        </li>
+
+        <!-- 模型介绍 -->
+         <li class=" {% if request.resolver_match.url_name == 'model_introduction' %}active{% endif %}">
+            <a href="{% url 'model_introduction' %}">
+                <i data-feather="info" class="sidebar-icon"></i> 模型介绍
+            </a>
+        </li>
+
+        <!-- 数据集管理 -->
+        <li class="{% if request.resolver_match.url_name == 'dataset_management' %}active{% endif %}">
+            <a href="{% url 'dataset_management' %}">
+                <i data-feather="database" class="sidebar-icon"></i> 数据集管理
+            </a>
+        </li>
+
+        <!-- 数据增强 -->
+        <li class="{% if request.resolver_match.url_name == 'data_augmentation' %}active{% endif %}">
+            <a href="{% url 'data_augmentation' %}">
+                <i data-feather="plus-square" class="sidebar-icon"></i> 数据增强
+            </a>
+        </li>
+
+        <!-- 模型检测 -->
+        <li class="{% if request.resolver_match.url_name == 'model_detection' %}active{% endif %}">
+            <a href="{% url 'model_detection' %}">
+                <i data-feather="eye" class="sidebar-icon"></i> 流量检测
+            </a>
+        </li>
+
+        <!-- 检测记录 -->
+        <li class="{% if request.resolver_match.url_name == 'detection_records' %}active{% endif %}">
+            <a href="{% url 'detection_records' %}">
+                <i data-feather="clipboard" class="sidebar-icon"></i> 检测记录
+            </a>
+        </li>
+
+        <!-- 结果展示 -->
+        <li class="{% if request.resolver_match.url_name == 'visualization' %}active{% endif %}">
+            <a href="{% url 'visualization' %}">
+                <i data-feather="bar-chart" class="sidebar-icon"></i> 结果展示与分析
+            </a>
+        </li>
+
+        <!-- 攻击态势感知 -->
+        <li class="{% if request.resolver_match.url_name == 'attack_situation_awareness' %}active{% endif %}">
+            <a href="{% url 'attack_situation_awareness' %}">
+                <i data-feather="shield" class="sidebar-icon"></i> 攻击地图展示
+            </a>
+        </li>
+
+{#        <!-- 展示大地球 基于WEBGL  但是不会用这玩意，AI也写不出能用的代码，放弃了 -->#}
+{#        <li class="{% if request.resolver_match.url_name == 'globe' %}active{% endif %}">#}
+{#            <a href="{% url 'globe' %}">#}
+{#                <i data-feather="shield" class="sidebar-icon"></i> 地球#}
+{#            </a>#}
+{#        </li>#}
+
+        <!-- 个人信息 -->
+        <li class="{% if request.resolver_match.url_name == 'personal_information' %}active{% endif %}">
+            <a href="{% url 'personal_information' %}">
+                <i data-feather="user" class="sidebar-icon"></i> 个人信息
+            </a>
+        </li>
+
+        <!-- 退出登录--直接重定向到登录界面 -->
+        <li>
+            <a href="{% url 'login' %}">
+                <i data-feather="log-out" class="sidebar-icon"></i> 退出登录
+            </a>
+        </li>
+    </ul>
+
+    <!-- 添加底部版权信息 -->
+    <div class="sidebar-footer">
+        © 2024 恶意流量检测平台 | 版本 1.0
+    </div>
+</div>
+
+<script>
+    // 确保图标正确加载
+    document.addEventListener('DOMContentLoaded', function() {
+        // 修复数据集管理图标
+        const datasetIcon = document.querySelector('li[class*="dataset_management"] .sidebar-icon');
+        if (datasetIcon && datasetIcon.getAttribute('data-feather') === 'info') {
+            datasetIcon.setAttribute('data-feather', 'database');
+        }
+
+        // 初始化图标
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+
+        // 添加点击展开/折叠下拉菜单功能
+        const dropdownItems = document.querySelectorAll('.has-dropdown');
+        dropdownItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (e.target.closest('a')) {
+                    e.preventDefault();
+                    this.classList.toggle('open');
+                    const dropdownMenu = this.querySelector('.dropdown-menu');
+                    if (dropdownMenu) {
+                        if (this.classList.contains('open')) {
+                            dropdownMenu.style.maxHeight = dropdownMenu.scrollHeight + 'px';
+                        } else {
+                            dropdownMenu.style.maxHeight = '0';
+                        }
+                    }
+                }
+            });
+        });
+    });
+</script>

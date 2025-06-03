@@ -1,0 +1,23 @@
+{# task_status.html #}
+{% extends 'base.html' %}
+{% block content %}
+<h1>任务状态 - {{ task.id }}</h1>
+<div class="progress">
+    <div class="progress-bar" role="progressbar" 
+         style="width: {{ job.meta.progress }}%;"
+         aria-valuenow="{{ job.meta.progress }}" 
+         aria-valuemin="0" aria-valuemax="100">
+        {{ job.meta.progress }}%
+    </div>
+</div>
+
+<pre class="log-output">
+    {% for line in log_lines %}
+        {{ line|escape }}<br>
+    {% endfor %}
+</pre>
+
+{% if task.status == 'running' %}
+    <a href="{% url 'stop_task' task.id %}" class="btn btn-danger">终止任务</a>
+{% endif %}
+{% endblock %}

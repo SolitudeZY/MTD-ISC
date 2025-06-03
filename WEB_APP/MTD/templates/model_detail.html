@@ -1,0 +1,20 @@
+<!-- WEB_APP/MTD/templates/model_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}模型详情{% endblock %}
+{% block content %}
+    <div class="container mt-5">
+        <h2>模型详情 - {{ model.name }}</h2>
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ model.name }}</h5>
+                <p class="card-text">
+                    <strong>类别：</strong>{{ model.get_category_display }}<br>
+                    <strong>上传时间：</strong>{{ model.upload_time }}<br>
+                    <strong>描述：</strong>{{ model.description|default:"暂无描述" }}
+                </p>
+            </div>
+        </div>
+        <a href="{% url 'model_management' %}" class="btn btn-secondary mt-2">返回</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,404 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ alt }} - 全屏查看{% endblock %}
+
+{% block extra_styles %}
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.fullscreen-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.image-container {
+    position: relative;
+    max-width: 100%;
+    max-height: 80vh;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.fullscreen-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+}
+
+.controls button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.controls button:hover {
+    background-color: #555;
+}
+
+.header {
+    padding: 15px;
+    background-color: #111;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.header .close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.header .close-btn:hover {
+    color: #ccc;
+}
+
+.navigation {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.navigation button {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 15px 10px;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+.navigation button:hover {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+.zoom-controls {
+    display: flex;
+    gap: 10px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1 id="image-title">{{ alt }}</h1>
+    <button class="close-btn" onclick="window.close()">
+        <i data-feather="x"></i>
+    </button>
+</div>
+
+<div class="fullscreen-container">
+    <div class="image-container">
+        <img id="fullscreen-image" class="fullscreen-image" src="{{ src }}" alt="{{ alt }}">
+        
+        <div class="navigation">
+            <button id="prev-btn" title="上一张">
+                <i data-feather="chevron-left"></i>
+            </button>
+            <button id="next-btn" title="下一张">
+                <i data-feather="chevron-right"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="zoom-controls">
+            <button id="zoom-in" title="放大">
+                <i data-feather="zoom-in"></i> 放大
+            </button>
+            <button id="zoom-out" title="缩小">
+                <i data-feather="zoom-out"></i> 缩小
+            </button>
+            <button id="zoom-reset" title="重置">
+                <i data-feather="maximize"></i> 重置
+            </button>
+        </div>
+        <button id="download-btn" title="下载图片">
+            <i data-feather="download"></i> 下载
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化Feather图标
+    feather.replace();
+    
+    // 获取URL参数
+    const urlParams = new URLSearchParams(window.location.search);
+    const imageType = urlParams.get('type');
+    let currentIndex = parseInt(urlParams.get('index'));
+    
+    // 图片数据
+    const imageData = {
+        malicious: [
+            {
+                src: "{% static 'assets/DMSE-CN_.png' %}",
+                alt: "DMSE模型框架图"
+            },
+            {
+                src: "{% static 'assets/stack-cn.png' %}",
+                alt: "堆叠集成框架图"
+            }
+        ],
+        augmentation: [
+            {
+                src: "{% static 'assets/DDP-DAR.png' %}",
+                alt: "数据增强模型模型框架图"
+            },
+            {
+                src: "{% static 'assets/NT-DDPM.png' %}",
+                alt: "扩散模型示意图"
+            }
+        ]
+    };
+    
+    // 获取元素
+    const fullscreenImage = document.getElementById('fullscreen-image');
+    const imageTitle = document.getElementById('image-title');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const zoomIn = document.getElementById('zoom-in');
+    const zoomOut = document.getElementById('zoom-out');
+    const zoomReset = document.getElementById('zoom-reset');
+    const downloadBtn = document.getElementById('download-btn');
+    
+    // 缩放状态
+    let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    // 导航到上一张/下一张图片
+    function navigateImage(direction) {
+        const images = imageData[imageType];
+        currentIndex += direction;
+        
+        if (currentIndex < 0) currentIndex = images.length - 1;
+        if (currentIndex >= images.length) currentIndex = 0;
+        
+        // 重置缩放
+        scale = 1;
+        offsetX = 0;
+        offsetY = 0;
+        updateTransform();
+        
+        // 更新图片
+        fullscreenImage.src = images[currentIndex].src;
+        imageTitle.textContent = images[currentIndex].alt;
+        
+        // 更新URL参数（不刷新页面）
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('index', currentIndex);
+        newUrl.searchParams.set('src', images[currentIndex].src);
+        newUrl.searchParams.set('alt', images[currentIndex].alt);
+        window.history.replaceState({}, '', newUrl);
+    }
+    
+    // 更新图片变换
+    function updateTransform() {
+        fullscreenImage.style.transform = `scale(${scale}) translate(${offsetX}px, ${offsetY}px)`;
+        fullscreenImage.style.cursor = scale > 1 ? 'grab' : 'default';
+    }
+    
+    // 按钮事件
+    prevBtn.addEventListener('click', function() {
+        navigateImage(-1);
+    });
+    
+    nextBtn.addEventListener('click', function() {
+        navigateImage(1);
+    });
+    
+    zoomIn.addEventListener('click', function() {
+        scale += 0.1;
+        updateTransform();
+    });
+    
+    zoomOut.addEventListener('click', function() {
+        if (scale > 0.5) {
+            scale -= 0.1;
+            updateTransform();
+        }
+    });
+    
+    zoomReset.addEventListener('click', function() {
+        scale = 1;
+        offsetX = 0;
+        offsetY = 0;
+        updateTransform();
+    });
+    
+    downloadBtn.addEventListener('click', function() {
+        const a = document.createElement('a');
+        a.href = fullscreenImage.src;
+        a.download = imageData[imageType][currentIndex].alt + '.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    });
+    
+    // 键盘导航
+    document.addEventListener('keydown', function(e) {
+        switch(e.key) {
+            case 'ArrowLeft':
+                navigateImage(-1);
+                break;
+            case 'ArrowRight':
+                navigateImage(1);
+                break;
+            case 'Escape':
+                window.close();
+                break;
+            case '+':
+                scale += 0.1;
+                updateTransform();
+                break;
+            case '-':
+                if (scale > 0.5) {
+                    scale -= 0.1;
+                    updateTransform();
+                }
+                break;
+            case '0':
+                scale = 1;
+                offsetX = 0;
+                offsetY = 0;
+                updateTransform();
+                break;
+        }
+    });
+    
+    // 拖动功能
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let initialOffsetX = 0;
+    let initialOffsetY = 0;
+    
+    fullscreenImage.addEventListener('mousedown', function(e) {
+        if (scale > 1) {
+            isDragging = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            initialOffsetX = offsetX;
+            initialOffsetY = offsetY;
+            fullscreenImage.style.cursor = 'grabbing';
+            e.preventDefault();
+        }
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (isDragging) {
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            offsetX = initialOffsetX + dx / scale;
+            offsetY = initialOffsetY + dy / scale;
+            updateTransform();
+        }
+    });
+    
+    document.addEventListener('mouseup', function() {
+        if (isDragging) {
+            isDragging = false;
+            fullscreenImage.style.cursor = 'grab';
+        }
+    });
+    
+    // 鼠标滚轮缩放
+    fullscreenImage.addEventListener('wheel', function(e) {
+        e.preventDefault();
+        
+        // 确定缩放方向
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        
+        // 应用缩放限制
+        const newScale = scale + delta;
+        if (newScale >= 0.5 && newScale <= 3) {
+            // 获取鼠标相对于图片的位置
+            const rect = fullscreenImage.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // 计算鼠标在图片上的相对位置 (0-1)
+            const relativeX = mouseX / rect.width;
+            const relativeY = mouseY / rect.height;
+            
+            // 计算新的偏移量，使缩放以鼠标位置为中心
+            offsetX = offsetX - (relativeX - 0.5) * (delta / scale) * rect.width;
+            offsetY = offsetY - (relativeY - 0.5) * (delta / scale) * rect.height;
+            
+            scale = newScale;
+            updateTransform();
+        }
+    });
+    
+    // 双击切换缩放
+    fullscreenImage.addEventListener('dblclick', function(e) {
+        if (scale === 1) {
+            // 放大到2倍，以点击位置为中心
+            const rect = fullscreenImage.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // 计算鼠标在图片上的相对位置 (0-1)
+            const relativeX = mouseX / rect.width;
+            const relativeY = mouseY / rect.height;
+            
+            // 计算新的偏移量，使缩放以鼠标位置为中心
+            offsetX = (0.5 - relativeX) * rect.width / 2;
+            offsetY = (0.5 - relativeY) * rect.height / 2;
+            
+            scale = 2;
+        } else {
+            // 重置为1倍
+            scale = 1;
+            offsetX = 0;
+            offsetY = 0;
+        }
+        updateTransform();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}检测记录{% endblock %}
+
+{% block content %}
+
+<style>
+    .table th a {
+        text-decoration: none;
+        color: #212529;
+    }
+
+    .table th i {
+        font-size: 0.8em;
+        vertical-align: middle;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>检测历史记录</h2>
+        <div>
+            <span>每页显示：</span>
+            <select id="perPageSelect" class="form-select form-select-sm" style="width: auto;">
+                <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                <option value="20" {% if per_page == 20 %}selected{% endif %}>20</option>
+                <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+            </select>
+        </div>
+    </div>
+    <p>共 {{ detection_history.paginator.count }} 条记录</p>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <!-- 检测时间 -->
+                <th>
+                    {% if current_sort == 'detection_time' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            检测时间
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=detection_time&per_page={{ per_page }}">
+                            检测时间
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <!-- 模型名称 -->
+                <th>
+                    {% if current_sort == 'model__name' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            模型名称
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=model__name&per_page={{ per_page }}">
+                            模型名称
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <!-- 数据集名称 -->
+                <th>
+                    {% if current_sort == 'dataset__name' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            数据集名称
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=dataset__name&per_page={{ per_page }}">
+                            数据集名称
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <!-- 其他字段同理（准确率、F1分数等） -->
+                <th>检测结果</th>
+                <th>
+                    {% if current_sort == 'accuracy' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            准确率
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=accuracy&per_page={{ per_page }}">
+                            准确率
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <th>
+                    {% if current_sort == 'F1_score' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            F1分数
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=F1_score&per_page={{ per_page }}">
+                            F1分数
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <th>
+                    {% if current_sort == 'TPR' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            TPR
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=TPR&per_page={{ per_page }}">
+                            TPR
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <th>
+                    {% if current_sort == 'FPR' %}
+                        <a href="?sort={% if direction == 'asc' %}-{{ current_sort}}{% else %}{{ current_sort }}{% endif %}&per_page={{ per_page }}">
+                            FPR
+                            {% if direction == 'asc' %}
+                                <i class="fas fa-sort-up ml-1"></i>
+                            {% else %}
+                                <i class="fas fa-sort-down ml-1"></i>
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <a href="?sort=FPR&per_page={{ per_page }}">
+                            FPR
+                            <i class="fas fa-sort ml-1"></i>
+                        </a>
+                    {% endif %}
+                </th>
+
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in detection_history %}
+                <tr>
+                    <td>{{ record.detection_time|date:"Y-m-d H:i" }}</td>
+                    <td>{{ record.model.name }}</td>
+                    <td>{{ record.dataset.name }}</td>
+                    <td>{{ record.is_malicious|yesno:"恶意流量,正常" }}</td>
+                    <td>{{ record.accuracy }}%</td>
+                    <td>{{ record.F1_score }}%</td>
+                    <td>{{ record.FPR }}%</td>
+                    <td>{{ record.TPR }}%</td>
+                    <td>
+                        {% if record.report %}
+                            <a href="{{ record.report.url }}" class="btn btn-info btn-sm">下载报告</a>
+                        {% else %}
+                            <span class="text-muted">暂无报告</span>
+                        {% endif %}
+                        <!-- 删除按钮 -->
+                        <form action="{% url 'delete_detection_record' record.id %}" method="post" style="display:inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm ml-2" onclick="return confirm('确定删除该记录？')">删除</button>
+                        </form>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="9">暂无检测记录</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 在表格下方添加分页控件 -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if detection_history.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&sort={{ sort_field }}&per_page={{ per_page }}">&laquo;</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ detection_history.previous_page_number }}&sort={{ sort_field }}&per_page={{ per_page }}">{{ detection_history.previous_page_number }}</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active"><span class="page-link">{{ detection_history.number }}</span></li>
+
+                {% if detection_history.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ detection_history.next_page_number }}&sort={{ sort_field }}&per_page={{ per_page }}">{{ detection_history.next_page_number }}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ detection_history.paginator.num_pages }}&sort={{ sort_field }}&per_page={{ per_page }}">&raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    document.getElementById('perPageSelect').addEventListener('change', function() {
+        const perPage = this.value;
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', perPage);
+        window.location.href = url.toString();
+    });
+</script>
+
+{% endblock %}

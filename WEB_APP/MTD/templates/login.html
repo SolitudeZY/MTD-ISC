@@ -1,0 +1,404 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="height-full" data-a11y-animated-images="system" data-a11y-link-underlines="true">
+<head>
+  <meta charset="utf-8">
+  <link media="all" rel="stylesheet" href="{% static 'CSS/primer.css' %}" />
+  <link media="all" rel="stylesheet" href="{% static 'CSS/site.css' %}" />
+  <link media="all" rel="stylesheet" href="{% static 'CSS/signup.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <title>登录</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* 彩色星星效果 */
+    .signup-stars::before,
+    .signup-stars::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: 200%;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    /* 添加彩色星星层 */
+    .colorful-stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: twinkle 5s infinite;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.2; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0.2; }
+    }
+
+    /* 鼠标跟随效果 */
+    .cursor-effect {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle,
+        rgba(88, 166, 255, 0.15) 0%,
+        rgba(88, 166, 255, 0.05) 40%,
+        transparent 70%
+      );
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      mix-blend-mode: screen;
+    }
+
+    .container {
+      position: relative;
+      background-color: rgba(22, 27, 34, 0.8); /* GitHub卡片背景色 */
+      padding: 30px;
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(48, 54, 61, 0.6);
+      width: 450px;
+      max-width: 90%;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+      margin: auto;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+      border-color: rgba(88, 166, 255, 0.4);
+    }
+
+    h2 {
+      text-align: center;
+      color: #f0f6fc;
+      margin-bottom: 25px;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .icon {
+      color: #58a6ff; /* GitHub蓝色 */
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #c9d1d9;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: all 0.3s;
+      box-sizing: border-box;
+      background-color: #0d1117;
+      color: #c9d1d9;
+    }
+
+    .form-group input:focus {
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.3);
+      outline: none;
+    }
+
+    .error {
+      color: #f85149;
+      background-color: rgba(248, 81, 73, 0.1);
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      border: 1px solid rgba(248, 81, 73, 0.2);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #238636; /* GitHub绿色按钮 */
+      color: white;
+      border: 1px solid rgba(240, 246, 252, 0.1);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background-color: #2ea043;
+      transform: translateY(-2px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .register-button {
+      background-color: transparent;
+      color: #58a6ff;
+      border: 1px solid #30363d;
+    }
+
+    .register-button:hover {
+      background-color: rgba(56, 139, 253, 0.1);
+      border-color: #58a6ff;
+    }
+
+    /* 添加响应式设计 */
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+        width: 90%;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .form-group input {
+        padding: 10px;
+      }
+
+      button {
+        padding: 10px;
+      }
+    }
+
+    /* 确保表单容器居中 */
+    .content-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="height-full d-flex" style="word-wrap: break-word;">
+  <!-- 背景 -->
+  <div class="js-warp-hide bg-gray-dark-mktg d-flex flex-auto flex-column overflow-hidden position-relative">
+    <div class="signup-space">
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+    </div>
+    <!-- 彩色星星层 -->
+    <div class="colorful-stars" id="colorful-stars"></div>
+    <!-- 鼠标跟随效果 -->
+    <div class="cursor-effect" id="cursor-effect"></div>
+    <img src="{% static 'images/hero-glow.svg' %}" alt="Glowing universe"
+      class="js-warp-hide position-absolute overflow-hidden events-none"
+      style="top: 50%; left: 50%; width: 200%; transform: translate(-50%, -50%);">
+  </div>
+
+  <!-- 内容区域 -->
+  <div class="content-wrapper">
+    {% block content %}
+    <!-- 居中容器 -->
+    <div class="container">
+      <h2>登录 <i class="fa-solid fa-arrow-right-to-bracket icon"></i></h2>
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="username">用户名:</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+          <label for="password">密码:</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">登录</button>
+      </form>
+      <button type="button" class="register-button" onclick="window.location.href='{% url 'register' %}'">点击注册</button>
+    </div>
+    {% endblock %}
+  </div>
+
+  <script>
+    // 添加交互效果
+    document.addEventListener('DOMContentLoaded', function() {
+      // 创建彩色星星
+      createColorfulStars();
+
+      // 鼠标跟随效果
+      const cursorEffect = document.getElementById('cursor-effect');
+
+      document.addEventListener('mousemove', function(e) {
+        // 更新鼠标跟随效果位置
+        cursorEffect.style.left = e.clientX + 'px';
+        cursorEffect.style.top = e.clientY + 'px';
+
+        // 移动附近的星星
+        moveNearbyStars(e.clientX, e.clientY);
+
+        // 添加鼠标移动效果
+        const container = document.querySelector('.container');
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+
+        // 计算容器的轻微移动
+        const moveX = (x - 0.5) * 10;
+        const moveY = (y - 0.5) * 10;
+
+        // 应用3D效果
+        container.style.transform = `translateY(-5px) translateX(${moveX}px) translateY(${moveY}px)`;
+      });
+
+      // 鼠标离开时恢复原位
+      document.addEventListener('mouseleave', function() {
+        const container = document.querySelector('.container');
+        container.style.transform = 'translateY(-5px)';
+      });
+
+      // 添加输入框焦点效果
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.parentElement.style.transform = 'scale(1.02)';
+        });
+
+        input.addEventListener('blur', function() {
+          this.parentElement.style.transform = 'scale(1)';
+        });
+      });
+
+      // 添加按钮点击效果
+      const buttons = document.querySelectorAll('button');
+      buttons.forEach(button => {
+        button.addEventListener('mousedown', function() {
+          this.style.transform = 'scale(0.98)';
+        });
+
+        button.addEventListener('mouseup', function() {
+          this.style.transform = '';
+        });
+
+        button.addEventListener('mouseleave', function() {
+          this.style.transform = '';
+        });
+      });
+    });
+
+    // 创建彩色星星
+    function createColorfulStars() {
+      const starsContainer = document.getElementById('colorful-stars');
+      const colors = [
+        '#58a6ff', // 蓝色
+        '#3fb950', // 绿色
+        '#f85149', // 红色
+        '#d29922', // 黄色
+        '#a371f7', // 紫色
+        '#f778ba'  // 粉色
+      ];
+
+      // 创建500个彩色星星
+      for (let i = 0; i < 500; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+
+        // 随机位置
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+
+        // 随机大小
+        const size = Math.random() * 3 + 1;
+        star.style.width = size + 'px';
+        star.style.height = size + 'px';
+
+        // 随机颜色
+        star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+        // 随机动画延迟
+        star.style.animationDelay = Math.random() * 5 + 's';
+
+        // 添加到容器
+        starsContainer.appendChild(star);
+      }
+    }
+
+    // 移动鼠标附近的星星
+    function moveNearbyStars(mouseX, mouseY) {
+      const stars = document.querySelectorAll('.star');
+      const radius = 100; // 影响半径
+
+      stars.forEach(star => {
+        const rect = star.getBoundingClientRect();
+        const starX = rect.left + rect.width / 2;
+        const starY = rect.top + rect.height / 2;
+
+        // 计算距离
+        const dx = mouseX - starX;
+        const dy = mouseY - starY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        // 如果星星在影响半径内
+        if (distance < radius) {
+          // 计算移动方向（远离鼠标）
+          const angle = Math.atan2(dy, dx);
+          const force = (radius - distance) / radius * 5; // 最大移动5px
+
+          // 应用移动效果
+          const translateX = -Math.cos(angle) * force;
+          const translateY = -Math.sin(angle) * force;
+
+          star.style.transform = `translate(${translateX}px, ${translateY}px)`;
+          star.style.transition = 'transform 0.3s ease-out';
+        } else {
+          // 恢复原位
+          star.style.transform = 'translate(0, 0)';
+          star.style.transition = 'transform 1s ease-out';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="height-full" data-a11y-animated-images="system" data-a11y-link-underlines="true">
+<head>
+  <meta charset="utf-8">
+  <!-- 基础样式 -->
+  <link media="all" rel="stylesheet" href="{% static 'CSS/primer.css' %}" />
+  <link media="all" rel="stylesheet" href="{% static 'CSS/site.css' %}" />
+  <link media="all" rel="stylesheet" href="{% static 'CSS/signup.css' %}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <title>用户注册</title>
+
+  <style>
+
+   /* ===== 新增验证图标样式 ===== */
+    .input-icon {
+      position: absolute;
+      right: 15px;
+      top: 38px;
+      font-size: 14px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .input-valid {
+      color: #6be996;
+      opacity: 1;
+    }
+
+    .input-invalid {
+      color: #ff6b8a;
+      opacity: 1;
+    }
+
+    /* ===== 进度条样式 ===== */
+    .progress-container {
+      margin-bottom: 30px;
+      height: 8px;
+      background: rgba(88, 166, 255, 0.2);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #58a6ff, #764ba2);
+      transition: width 0.3s ease;
+    }
+
+    .progress-text {
+      position: absolute;
+      top: -25px;
+      right: 0;
+      font-size: 13px;
+      color: #a5b6c9;
+      transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* ===== 星空背景核心样式 ===== */
+    .signup-stars::before,
+    .signup-stars::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: 200%;
+      opacity: 0.3;
+      pointer-events: none;
+    }
+
+    .colorful-stars {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      border-radius: 50%;
+      opacity: 0.7;
+      animation: twinkle 5s infinite;
+    }
+
+    @keyframes twinkle {
+      0% { opacity: 0.2; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0.2; }
+    }
+
+    .cursor-effect {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle,
+        rgba(88, 166, 255, 0.15) 0%,
+        rgba(88, 166, 255, 0.05) 40%,
+        transparent 70%
+      );
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      mix-blend-mode: screen;
+    }
+
+    /* ===== 深空容器样式 ===== */
+    .container {
+      position: relative;
+      background-color: rgba(22, 27, 34, 0.8);
+      padding: 30px;
+      border-radius: 6px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(48, 54, 61, 0.6);
+      width: 450px;
+      max-width: 90%;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+      margin: auto;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+      border-color: rgba(88, 166, 255, 0.4);
+    }
+
+    h2 {
+      text-align: center;
+      color: #f0f6fc;
+      margin-bottom: 25px;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .icon {
+      color: #58a6ff;
+    }
+
+    /* ===== 注册表单专属样式 ===== */
+    body, html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+      background: #0d1117;
+    }
+
+    .register-container {
+      max-width: 420px;
+      margin: 80px auto;
+      padding: 35px;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 12px;
+      box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.4),
+        0 0 15px rgba(88, 166, 255, 0.15) inset;
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(88, 166, 255, 0.2);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid rgba(88, 166, 255, 0.3);
+      border-radius: 8px;
+      font-size: 15px;
+      background: rgba(22, 27, 34, 0.8);
+      color: #e6e9ec;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .register-title {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #f0f6fc;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0 0 5px rgba(88, 166, 255, 0.3);
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 600;
+      color: #a5b6c9;
+      text-shadow: 0 0 2px rgba(255,255,255,0.1);
+      transition: color 0.3s ease;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid rgba(88, 166, 255, 0.3);
+      border-radius: 8px;
+      font-size: 15px;
+      background: rgba(22, 27, 34, 0.8);
+      color: #e6e9ec;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-control:focus {
+      border-color: #58a6ff;
+      box-shadow:
+        0 0 0 2px rgba(88, 166, 255, 0.2),
+        0 0 12px rgba(88, 166, 255, 0.3);
+      outline: none;
+      background: rgba(25, 32, 47, 0.9);
+    }
+
+    .error-text {
+      color: #ff6b8a;
+      font-size: 13px;
+      margin-top: 6px;
+      display: block;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-register {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      background: linear-gradient(135deg, #58a6ff 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 4px 14px rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(88, 166, 255, 0.2);
+    }
+
+    .btn-register:hover {
+      transform: translateY(-2px);
+      box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.4),
+        0 0 18px rgba(88, 166, 255, 0.4);
+    }
+
+    .btn-register:active {
+      transform: translateY(0);
+      box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        0 0 8px rgba(88, 166, 255, 0.3);
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 15px;
+    }
+
+    .login-link a {
+      color: #a371f7;
+      text-decoration: none;
+      font-weight: 600;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    .login-link a:hover::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #a371f7, transparent);
+    }
+
+    .alert {
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid;
+      font-size: 14px;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .alert-danger {
+      color: #ff6b8a;
+      background-color: rgba(255, 107, 138, 0.1);
+      border-color: rgba(255, 107, 138, 0.2);
+    }
+
+    .alert-success {
+      color: #6be996;
+      background-color: rgba(107, 233, 150, 0.1);
+      border-color: rgba(107, 233, 150, 0.2);
+    }
+
+    @media (max-width: 480px) {
+      .register-container {
+        padding: 20px;
+        width: 90%;
+      }
+
+      .register-title {
+        font-size: 24px;
+      }
+
+      .form-control {
+        padding: 12px;
+      }
+    }
+
+    .content-wrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1;
+    }
+  </style>
+</head>
+<body class="height-full d-flex" style="word-wrap: break-word;">
+  <!-- ===== 星空背景容器 ===== -->
+  <div class="js-warp-hide bg-gray-dark-mktg d-flex flex-auto flex-column overflow-hidden position-relative">
+    <div class="signup-space">
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+      <div class="signup-stars"></div>
+    </div>
+    <div class="colorful-stars" id="colorful-stars"></div>
+    <div class="cursor-effect" id="cursor-effect"></div>
+    <img src="{% static 'images/hero-glow.svg' %}" alt="Glowing universe"
+         class="js-warp-hide position-absolute overflow-hidden events-none"
+         style="top: 50%; left: 50%; width: 200%; transform: translate(-50%, -50%);">
+  </div>
+
+  <!-- ===== 注册表单容器 ===== -->
+  <div class="content-wrapper">
+    <div class="container register-container">
+      <h2>快速注册 <i class="fa-solid fa-user-plus icon"></i></h2>
+
+      <!-- 进度条 -->
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div class="progress-text" id="progress-text">0% 完成</div>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+          {% for error in form.non_field_errors %}
+            {{ error }}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" id="register-form">
+        {% csrf_token %}
+
+      <!-- 用户名 -->
+        <div class="form-group">
+          <label for="id_username">用户名</label>
+          <input type="text" name="username" id="id_username" class="form-control" required
+                 value="{{ form.username.value|default:'' }}" maxlength="150">
+          <span class="input-icon" id="username-status">
+            <i class="fas fa-check"></i>
+          </span>
+          {% if form.username.errors %}
+            <div class="error-text">{{ form.username.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- 邮箱 -->
+        <div class="form-group">
+          <label for="id_email">电子邮件</label>
+          <input type="email" name="email" id="id_email" class="form-control" required
+                 value="{{ form.email.value|default:'' }}">
+          <span class="input-icon" id="email-status">
+            <i class="fas fa-check"></i>
+          </span>
+          {% if form.email.errors %}
+            <div class="error-text">{{ form.email.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- 密码 -->
+        <div class="form-group">
+          <label for="id_password1">密码</label>
+          <input type="password" name="password1" id="id_password1" class="form-control" required>
+          <span class="input-icon" id="password-status">
+            <i class="fas fa-check"></i>
+          </span>
+          {% if form.password1.errors %}
+            <div class="error-text">{{ form.password1.errors }}</div>
+          {% endif %}
+        </div>
+
+        <!-- 确认密码 -->
+        <div class="form-group">
+          <label for="id_password2">确认密码</label>
+          <input type="password" name="password2" id="id_password2" class="form-control" required>
+          <span class="input-icon" id="confirm-status">
+            <i class="fas fa-check"></i>
+          </span>
+          {% if form.password2.errors %}
+            <div class="error-text">{{ form.password2.errors }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn-register" id="submit-btn">立即注册</button>
+      </form>
+
+      <div class="login-link">
+        <a href="{% url 'login' %}">已有账户？立即登录</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 动态特效脚本 ===== -->
+  <script>
+       // 验证函数
+    function validateForm() {
+      const username = document.getElementById('id_username');
+      const email = document.getElementById('id_email');
+      const password = document.getElementById('id_password1');
+      const confirmPassword = document.getElementById('id_password2');
+
+      const usernameStatus = document.getElementById('username-status');
+      const emailStatus = document.getElementById('email-status');
+      const passwordStatus = document.getElementById('password-status');
+      const confirmStatus = document.getElementById('confirm-status');
+
+      const progressBar = document.getElementById('progress-bar');
+      const progressText = document.getElementById('progress-text');
+      const submitBtn = document.getElementById('submit-btn');
+
+      // 验证规则
+      const validators = [
+        {
+          input: username,
+          status: usernameStatus,
+          validate: () => username.value.length >= 3
+        },
+        {
+          input: email,
+          status: emailStatus,
+          validate: () => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)
+        },
+        {
+          input: password,
+          status: passwordStatus,
+          validate: () => password.value.length >= 8
+        },
+        {
+          input: confirmPassword,
+          status: confirmStatus,
+          validate: () => confirmPassword.value === password.value
+        }
+      ];
+
+      // 计算进度
+      function updateProgress() {
+        let validCount = 0;
+
+        validators.forEach(validator => {
+          const isValid = validator.validate();
+          validator.status.classList.toggle('input-valid', isValid);
+          validator.status.classList.toggle('input-invalid', !isValid && validator.input.value);
+
+          if (validator.input.value) {
+            validCount += isValid ? 1 : 0;
+          }
+        });
+
+        const progress = Math.round((validCount / validators.length) * 100);
+        progressBar.style.width = progress + '%';
+        progressText.textContent = progress + '% 完成';
+
+        // 进度条颜色变化
+        progressBar.style.background = progress === 100
+          ? 'linear-gradient(90deg, #6be996, #3fb950)'
+          : 'linear-gradient(90deg, #58a6ff, #764ba2)';
+
+        // 启用提交按钮
+        submitBtn.disabled = validCount < validators.length;
+        if (validCount < validators.length) {
+          submitBtn.style.opacity = '0.7';
+          submitBtn.style.cursor = 'not-allowed';
+        } else {
+          submitBtn.style.opacity = '1';
+          submitBtn.style.cursor = 'pointer';
+        }
+      }
+
+      // 验证输入
+      function validateInput(input, status, customValidation = null) {
+        const isValid = customValidation ? customValidation(input) : input.checkValidity();
+        status.classList.toggle('input-valid', isValid && input.value);
+        status.classList.toggle('input-invalid', !isValid && input.value);
+      }
+
+      // 事件监听器
+      validators.forEach(validator => {
+        validator.input.addEventListener('input', () => {
+          validateInput(validator.input, validator.status, validator.validate);
+          updateProgress();
+        });
+      });
+
+      // 特殊处理密码确认
+      confirmPassword.addEventListener('input', () => {
+        const isValid = confirmPassword.value === password.value && confirmPassword.value !== '';
+        confirmStatus.classList.toggle('input-valid', isValid && confirmPassword.value);
+        confirmStatus.classList.toggle('input-invalid', !isValid && confirmPassword.value);
+        updateProgress();
+      });
+
+      // 初始验证
+      document.addEventListener('DOMContentLoaded', () => {
+        validators.forEach(validator => {
+          validateInput(validator.input, validator.status, validator.validate);
+        });
+        updateProgress();
+      });
+
+      // 表单提交验证
+      document.getElementById('register-form').addEventListener('submit', function(e) {
+        let isValid = true;
+        validators.forEach(validator => {
+          if (!validator.validate() || !validator.input.value) {
+            validator.status.classList.add('input-invalid');
+            isValid = false;
+          }
+        });
+        if (!isValid) {
+          e.preventDefault();
+          alert('请确保所有字段都正确填写');
+        }
+      });
+    }
+
+    // 执行验证函数
+    document.addEventListener('DOMContentLoaded', validateForm);
+    document.addEventListener('DOMContentLoaded', function () {
+      // 创建彩色星星
+      createColorfulStars();
+
+      // 鼠标跟随光晕
+      const cursorEffect = document.getElementById('cursor-effect');
+      document.addEventListener('mousemove', function (e) {
+        cursorEffect.style.left = e.clientX + 'px';
+        cursorEffect.style.top = e.clientY + 'px';
+        moveNearbyStars(e.clientX, e.clientY);
+      });
+
+      // 星星位移算法
+      function moveNearbyStars(mouseX, mouseY) {
+        const stars = document.querySelectorAll('.star');
+        const radius = 100;
+        stars.forEach(star => {
+          const rect = star.getBoundingClientRect();
+          const dx = mouseX - rect.left;
+          const dy = mouseY - rect.top;
+          const distance = Math.sqrt(dx*dx + dy*dy);
+
+          if (distance < radius) {
+            const angle = Math.atan2(dy, dx);
+            const force = (radius - distance) / radius * 5;
+            const translateX = -Math.cos(angle) * force;
+            const translateY = -Math.sin(angle) * force;
+            star.style.transform = `translate(${translateX}px, ${translateY}px)`;
+            star.style.transition = 'transform 0.3s ease-out';
+          } else {
+            star.style.transform = 'translate(0, 0)';
+            star.style.transition = 'transform 1s ease-out';
+          }
+        });
+      }
+
+      // 创建500颗彩色星星
+      function createColorfulStars() {
+        const starsContainer = document.getElementById('colorful-stars');
+        const colors = ['#58a6ff', '#3fb950', '#f85149', '#d29922', '#a371f7', '#f778ba'];
+
+        for (let i = 0; i < 500; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          star.style.left = Math.random() * 100 + '%';
+          star.style.top = Math.random() * 100 + '%';
+          const size = Math.random() * 3 + 1;
+          star.style.width = size + 'px';
+          star.style.height = size + 'px';
+          star.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+          star.style.animationDelay = Math.random() * 5 + 's';
+          starsContainer.appendChild(star);
+        }
+      }
+    });
+  </script>
+</body>
+</html>

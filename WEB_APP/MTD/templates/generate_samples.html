@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>生成样本</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>选择模型</label>
+            <select name="task_id" class="form-control">
+                {% for task in tasks %}
+                    <option value="{{ task.id }}">{{ task.created_at }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>生成数量</label>
+            <input type="number" name="num_samples" value="10" required>
+        </div>
+        <button type="submit" class="btn btn-primary">开始生成</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+<!-- dataset_management.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}数据集管理{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>数据集管理</h2>
+
+    <!-- 分页信息 -->
+    <p>共 {{ datasets.paginator.count }} 条记录</p>
+
+    <!-- 数据集列表 -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>类别</th>
+                <th>上传时间</th>
+                <th>数据量</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for dataset in datasets %}
+            <tr id="dataset-{{ dataset.id }}">
+                <td>{{ dataset.name }}</td>
+                <td>{{ dataset.get_category_display }}</td>
+                <td>{{ dataset.upload_time|date:"Y-m-d H:i" }}</td>
+                <td>{{ dataset.size }}条</td>
+                <td>
+                    <form action="{% url 'dataset_management' %}" method="post" class="delete-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="delete_id" value="{{ dataset.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">暂无数据集</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 分页控件 -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <!-- 分页导航 -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if datasets.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&page_size={{ page_size }}">&laquo;</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ datasets.previous_page_number }}&page_size={{ page_size }}">{{ datasets.previous_page_number }}</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active"><span class="page-link">{{ datasets.number }}</span></li>
+
+                {% if datasets.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ datasets.next_page_number }}&page_size={{ page_size }}">{{ datasets.next_page_number }}</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ datasets.paginator.num_pages }}&page_size={{ page_size }}">&raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+
+        <!-- 每页数量选择 -->
+        <div class="form-group mb-0">
+            <select class="form-select form-select-sm" onchange="location=this.value">
+                <option value="?page_size=10{% if page %}&page={{ page }}{% endif %}" {% if page_size == 10 %}selected{% endif %}>10条/页</option>
+                <option value="?page_size=20{% if page %}&page={{ page }}{% endif %}" {% if page_size == 20 %}selected{% endif %}>20条/页</option>
+                <option value="?page_size=50{% if page %}&page={{ page }}{% endif %}" {% if page_size == 50 %}selected{% endif %}>50条/页</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 上传表单保持不变 -->
+    <h3>上传新数据集</h3>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label>名称</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>类别</label>
+            <select name="category" class="form-select" required>
+                {% for choice in DATASET_TYPE_CHOICES %}
+                <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label>数据文件</label>
+            <input type="file" name="data_file" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label>数据量</label>
+            <input type="number" name="size" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">上传</button>
+    </form>
+</div>
+
+<!-- 保留原有删除操作的JavaScript -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    $('.delete-form').submit(function(e) {
+        e.preventDefault();
+        const form = $(this);
+        const datasetRow = form.closest('tr');
+
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: form.serialize(),
+            success: function(response) {
+                if (response.status === 'success') {
+                    datasetRow.remove();
+                    alert(response.message);
+                } else {
+                    alert('删除失败: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('请求失败，请重试');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

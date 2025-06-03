@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}检测结果{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h2>检测结果详情</h2>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ detection.model.name }}</h5>
+            <p class="card-text">
+                <strong>数据集：</strong>{{ detection.dataset.name }}<br>
+                <strong>检测时间：</strong>{{ detection.detection_time }}<br>
+                <strong>是否恶意：</strong>{{ detection.is_malicious|yesno:"恶意,正常" }}<br>
+                <strong>准确率：</strong>{{ detection.accuracy }}%<br>
+                <strong>TPR：</strong>{{ detection.TPR }}%<br>
+                <strong>FPR：</strong>{{ detection.FPR }}%<br>
+                <strong>F1分数：</strong>{{ detection.F1_score }}
+            </p>
+        </div>
+    </div>
+    <a href="{% url 'model_detection' %}" class="btn btn-secondary mt-2">重新检测</a>
+</div>
+{% endblock %}

@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}
+        集成数据增强的恶意流量检测平台
+        {% endblock %}
+    </title>
+    <!-- Meta -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="author" content="CodedThemes"/>
+
+    <!-- Favicon icon -->
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+    <!-- fontawesome icon -->
+    <link rel="stylesheet" href="{% static 'fonts/fontawesome/css/fontawesome-all.min.css' %}">
+
+    <!-- animation css -->
+    <link rel="stylesheet" href="{% static 'plugins/animation/css/animate.min.css' %}">
+
+    <!-- vendor css -->
+    <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+{#    <link rel="stylesheet" href="{% static 'CSS/sidebar.css' %}">#}
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.5-dist/css/bootstrap.min.css' %}"> <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- 自定义全局样式 -->
+    <style>
+        /* 可在此处添加全局样式覆盖 */
+        .jumbotron {
+            background-color: #f8f9fa;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            border-radius: .5rem;
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1);
+        }
+
+        /* 导航栏词云容器样式 */
+        .nav-word-cloud-container {
+            height: 100px;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* 词云加载动画 */
+        @keyframes wordCloudFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-word-cloud-container {
+            animation: wordCloudFadeIn 0.8s ease-out forwards;
+        }
+    </style>
+
+    {% block extra_css %}
+
+    {% endblock %}
+</head>
+<body>
+    <!-- 侧边栏 -->
+    {% include 'sidebar.html' %}
+
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            {% include 'navigation.html' %}
+            {% block content %}
+
+            {% endblock content %}
+        </div>
+    </div>
+
+    <!-- 核心JS库 - 只加载一次 -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'feather-icons/dist/feather.min.js' %}"></script>
+
+    <!-- ECharts库 -->
+    <script src="{% static 'echarts-5.6-dist/echarts.min.js' %}"></script>
+    <script src="{% static 'js/echarts-wordcloud.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2/dist/echarts-wordcloud.min.js"></script>
+
+    <!-- 初始化Feather图标 -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            feather.replace();
+        });
+    </script>
+
+    <!-- 页面特定的JavaScript -->
+    {% block javascripts %}
+
+    {% endblock javascripts %}
+</body>
+</html>

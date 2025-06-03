@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ECharts Example</title>
+    <!-- 引入 ECharts 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+</head>
+<body>
+    <!-- 用于放置图表的 DOM -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+
+    <script>
+        // 初始化 ECharts 图表实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 配置项
+        var option = {
+            title: {
+                text: '折线图示例'
+            },
+            tooltip: {},
+            xAxis: {
+                data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+            },
+            yAxis: {},
+            series: [{
+                name: '销量',
+                type: 'line',
+                data: [5, 20, 36, 10, 10, 20]
+            }]
+        };
+
+        // 使用配置项实例化图表
+        myChart.setOption(option);
+    </script>
+</body>
+</html>

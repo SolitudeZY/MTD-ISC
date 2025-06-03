@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}检测结果图表{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>检测指标可视化</h2>
+        <div class="btn-group">
+            <a href="{% url 'detection_records' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-table"></i> 查看表格数据
+            </a>
+            <button id="export-all" class="btn btn-outline-primary">
+                <i class="fas fa-download"></i> 导出图表
+            </button>
+        </div>
+    </div>
+
+    <!-- 图表容器 -->
+    <div id="charts-container">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div id="accuracy-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div id="fpr-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div id="f1-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div id="tpr-chart" class="chart-container" style="width: 100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 加载指示器 -->
+    <div id="loading-overlay" class="position-fixed d-flex justify-content-center align-items-center" style="top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.7); z-index: 9999; display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">加载中...</span>
+        </div>
+    </div>
+
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+    <!-- 引入导出图片功能 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script type="text/javascript">
+        // 数据准备（从Django模板变量获取）
+        const data = {{ chart_data|safe }};
+        const charts = {}; // 存储图表实例
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 初始化四个图表
+                initializeCharts();
+                
+                // 窗口大小改变时重绘图表
+                window.addEventListener('resize', function() {
+                    for (const chartId in charts) {
+                        if (charts[chartId]) {
+                            charts[chartId].resize();
+                        }
+                    }
+                });
+                
+                // 导出所有图表
+                document.getElementById('export-all').addEventListener('click', function() {
+                    exportAllCharts();
+                });
+            } catch (error) {
+                console.error('初始化错误:', error);
+            }
+        });
+
+        // 图表配置函数
+        function createBarChart(containerId, metricName, metricDisplayName) {
+            const chartDom = document.getElementById(containerId);
+            const myChart = echarts.init(chartDom);
+            charts[containerId] = myChart;
+            
+            // 为每个模型生成不同的颜色
+            const colors = [
+                '#5470c6', '#91cc75', '#fac858', '#ee6666', 
+                '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
+            ];
+            
+            const option = {
+                title: { 
+                    text: metricDisplayName || metricName,
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'shadow'
+                    },
+                    formatter: function(params) {
+                        let result = `<div style="font-weight:bold;margin-bottom:5px;">${params[0].name}</div>`;
+                        params.forEach(param => {
+                            const value = param.value.toFixed(4);
+                            result += `<div style="display:flex;justify-content:space-between;align-items:center;margin:3px 0;">
+                                <span style="display:inline-block;margin-right:5px;border-radius:50%;width:10px;height:10px;background-color:${param.color};"></span>
+                                <span style="flex:1;">${param.seriesName}:</span>
+                                <span style="font-weight:bold;">${value}</span>
+                            </div>`;
+                        });
+                        return result;
+                    }
+                },
+                legend: {
+                    data: data.models,
+                    top: 'bottom',
+                    type: 'scroll',
+                    orient: 'horizontal'
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '15%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    data: data.datasets,
+                    axisLabel: {
+                        rotate: 45,
+                        interval: 0
+                    }
+                },
+                yAxis: { 
+                    type: 'value',
+                    name: metricDisplayName || metricName,
+                    nameLocation: 'middle',
+                    nameGap: 40,
+                    min: 0,
+                    max: metricName === 'Accuracy' || metricName === 'F1 Score' || metricName === 'TPR' ? 1 : undefined,
+                    axisLabel: {
+                        formatter: function(value) {
+                            return value.toFixed(2);
+                        }
+                    }
+                },
+                series: data.models.map((model, index) => ({
+                    name: model,
+                    type: 'bar',
+                    data: data.datasets.map(ds => {
+                        const metricObj = data.metrics[metricName][ds].find(m => m.model === model);
+                        return metricObj ? metricObj.value : 0;
+                    }),
+                    itemStyle: {
+                        color: colors[index % colors.length]
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    label: {
+                        show: true,
+                        position: 'top',
+                        formatter: function(params) {
+                            return params.value.toFixed(2);
+                        }
+                    }
+                }))
+            };
+
+            myChart.setOption(option);
+            
+            // 添加点击事件
+            myChart.on('click', function(params) {
+                // 高亮显示被点击的数据
+                const highlightOption = {
+                    series: option.series.map((series, index) => {
+                        if (index === params.seriesIndex) {
+                            return {
+                                ...series,
+                                emphasis: {
+                                    focus: 'series'
+                                }
+                            };
+                        }
+                        return series;
+                    })
+                };
+                myChart.setOption(highlightOption);
+            });
+            
+            return myChart;
+        }
+        
+        // 初始化所有图表
+        function initializeCharts() {
+            createBarChart('accuracy-chart', 'Accuracy', '准确率');
+            createBarChart('fpr-chart', 'FPR', '假阳性率');
+            createBarChart('f1-chart', 'F1 Score', 'F1 分数');
+            createBarChart('tpr-chart', 'TPR', '真阳性率');
+        }
+        
+        // 导出所有图表为图片
+        function exportAllCharts() {
+            const chartIds = ['accuracy-chart', 'fpr-chart', 'f1-chart', 'tpr-chart'];
+            
+            // 显示加载指示器
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            try {
+                // 逐个导出图表
+                let exportedCount = 0;
+                
+                chartIds.forEach((chartId) => {
+                    const chart = charts[chartId];
+                    if (!chart) return;
+                    
+                    // 获取图表的数据URL
+                    const url = chart.getDataURL({
+                        pixelRatio: 2,
+                        backgroundColor: '#fff'
+                    });
+                    
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    link.download = `${chartId}.png`;
+                    link.href = url;
+                    link.click();
+                    
+                    exportedCount++;
+                    
+                    // 所有图表都已导出
+                    if (exportedCount === chartIds.length) {
+                        setTimeout(() => {
+                            document.getElementById('loading-overlay').style.display = 'none';
+                        }, 1000);
+                    }
+                });
+            } catch (error) {
+                console.error('导出图表错误:', error);
+                document.getElementById('loading-overlay').style.display = 'none';
+                alert('导出图表时发生错误，请稍后再试。');
+            }
+        }
+    </script>
+</div>
+{% endblock %}

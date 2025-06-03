@@ -1,0 +1,97 @@
+/*!
+ * Default button
+ */
+
+.button {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  box-shadow: none;
+  background: var(--color-gray-8);
+  margin: 0;
+  padding: 0.75rem 2rem;
+  border: 0.063rem solid var(--color-border);
+  border-radius: var(--roundness-1);
+  font-size: var(--base-font-size);
+  color: var(--color-gray-1);
+  text-align: center;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.button:hover,
+.button:focus,
+.button:active {
+  background: var(--color-gray-6);
+  text-decoration: none;
+  color: var(--color-gray-1);
+}
+
+.button:disabled {
+  opacity: var(--disabled-opacity);
+}
+
+/*!
+ * Primary button
+ */
+
+.primary-button {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  box-shadow: none;
+  background: var(--color-primary);
+  margin: 0;
+  padding: 0.75rem 2rem;
+  border: 0.063rem solid var(--color-primary);
+  border-radius: var(--roundness-1);
+  font-size: var(--base-font-size);
+  color: #ffffff;
+  text-align: center;
+  transition: background-color var(--transition-speed) ease,
+    border-color var(--transition-speed) ease;
+}
+
+.primary-button:hover,
+.primary-button:focus,
+.primary-button:active {
+  background: var(--color-primary-focus);
+  border-color: var(--color-primary-focus);
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.primary-button:disabled {
+  opacity: var(--disabled-opacity);
+}
+
+/*!
+ * Clear button
+ */
+
+.clear-button {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  box-shadow: none;
+  background: transparent;
+  margin: 0;
+  padding: 0.75rem 2rem;
+  border: 0;
+  border-radius: var(--roundness-1);
+  font-size: var(--base-font-size);
+  color: var(--color-gray-1);
+  text-align: center;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.clear-button:hover,
+.clear-button:focus,
+.clear-button:active {
+  background: var(--color-gray-6);
+  text-decoration: none;
+  color: var(--color-gray-1);
+}
+
+.clear-button:disabled {
+  opacity: var(--disabled-opacity);
+}

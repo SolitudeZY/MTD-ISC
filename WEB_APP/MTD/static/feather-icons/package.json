@@ -1,0 +1,41 @@
+{
+  "name": "feathercss",
+  "version": "1.1.0",
+  "description": "FeatherCSS is a Dark Mode ready minimalist CSS Framework with support for RTL and Accessibility.",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run clean; npm run autoprefix; npm run merge; npm run minify",
+    "clean": "rimraf dist",
+    "autoprefix": "npx postcss src/*.css src/**/*.css src/**/**/*.css --base src --dir dist/ --use autoprefixer --no-map --verbose",
+    "merge": "npx cleancss --level 2 --format beautify -o dist/feather.css dist/components/variables.css dist/components/global.css dist/components/typography.css dist/**/*.css dist/**/**/*.css",
+    "minify": "npx cleancss --level 2 -o dist/feather.min.css dist/components/variables.css dist/components/global.css dist/components/typography.css dist/**/*.css dist/**/**/*.css",
+    "prettier": "npx prettier src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elishaterada/feathercss.git"
+  },
+  "keywords": [
+    "css",
+    "framework",
+    "css3",
+    "front-end",
+    "html",
+    "html5",
+    "bootstrap"
+  ],
+  "author": "Elisha Terada",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elishaterada/feathercss/issues"
+  },
+  "homepage": "https://github.com/elishaterada/feathercss#readme",
+  "devDependencies": {
+    "autoprefixer": "^9.8.0",
+    "clean-css-cli": "^4.3.0",
+    "postcss-cli": "^7.1.1",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2"
+  },
+  "style": "dist/feather.css"
+}

@@ -1,0 +1,611 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}数据集与模型分布{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>数据集与模型类型分布</h2>
+        <button id="export-charts" class="btn btn-outline-primary">
+            <i class="fas fa-download"></i> 导出图表
+        </button>
+    </div>
+
+    <!-- 数据集和模型分布饼图 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">数据集类型分布</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 增加高度 -->
+                    <div id="dataset-pie-chart" style="width: 100%; height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">模型类型分布</h5>
+                </div>
+                <div class="card-body">
+                    <!-- 增加高度 -->
+                    <div id="model-pie-chart" style="width: 100%; height: 500px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据集大小分布 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">数据集大小分布</h5>
+                </div>
+                <div class="card-body">
+                    <div id="dataset-size-chart" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 数据集上传时间分布 -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">数据集上传时间分布</h5>
+                </div>
+                <div class="card-body">
+                    <div id="model-time-chart" style="width: 100%; height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.3.2/dist/echarts.min.js"></script>
+    <!-- 引入导出图片功能 -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <script type="text/javascript">
+        // 图表实例存储
+        const charts = {};
+
+        // 数据集分布数据
+        let datasetDistribution = [];
+        try {
+            datasetDistribution = {{ dataset_distribution|safe }};
+            console.log('Dataset distribution data:', datasetDistribution);
+        } catch (e) {
+            console.error('Error parsing dataset distribution data:', e);
+            datasetDistribution = [];
+        }
+
+        // 模型分布数据
+        let modelDistribution = [];
+        try {
+            modelDistribution = {{ model_distribution|safe }};
+            console.log('Model distribution data:', modelDistribution);
+        } catch (e) {
+            console.error('Error parsing model distribution data:', e);
+            modelDistribution = [];
+        }
+
+        // 数据集大小分布数据
+        let datasetSizeDistribution = [];
+        try {
+            datasetSizeDistribution = {{ dataset_size_distribution|safe }};
+            console.log('Dataset size distribution data:', datasetSizeDistribution);
+        } catch (e) {
+            console.error('Error parsing dataset size distribution data:', e);
+            datasetSizeDistribution = [];
+        }
+
+        // 数据集上传时间分布数据
+        let modelTimeDistribution = [];
+        try {
+            modelTimeDistribution = {{ model_time_distribution|safe }};
+            console.log('Dataset time distribution data:', modelTimeDistribution);
+        } catch (e) {
+            console.error('Error parsing dataset time distribution data:', e);
+            modelTimeDistribution = [];
+        }
+
+        // 页面加载完成后初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 初始化饼图
+                initializeDatasetPieChart();
+                initializeModelPieChart();
+                initializeDatasetSizeChart();
+                initializeModelTimeChart();
+
+                // 窗口大小改变时重绘图表
+                window.addEventListener('resize', function() {
+                    for (const chartId in charts) {
+                        if (charts[chartId]) {
+                            charts[chartId].resize();
+                        }
+                    }
+                });
+
+                // 导出图表按钮
+                document.getElementById('export-charts').addEventListener('click', function() {
+                    exportAllCharts();
+                });
+            } catch (error) {
+                console.error('初始化图表时出错:', error);
+                showErrorMessage('图表初始化失败: ' + error.message);
+            }
+        });
+
+        // 显示错误消息
+        function showErrorMessage(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger mt-3';
+            alertDiv.role = 'alert';
+            alertDiv.innerHTML = `<strong>错误:</strong> ${message}`;
+
+            // 插入到页面中
+            document.querySelector('.container').prepend(alertDiv);
+        }
+
+        // 初始化数据集分布饼图
+        function initializeDatasetPieChart() {
+            try {
+                const chartDom = document.getElementById('dataset-pie-chart');
+                if (!chartDom) {
+                    console.error('找不到数据集饼图容器');
+                    return;
+                }
+
+                let myChart = echarts.init(chartDom);
+                charts['dataset-pie-chart'] = myChart;
+
+                // 如果没有数据，显示提示信息
+                if (!datasetDistribution || !Array.isArray(datasetDistribution) || datasetDistribution.length === 0) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有数据集分布数据',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return;
+                }
+
+                // 饼图配色方案
+                const colors = [
+                    '#5470c6', '#91cc75', '#fac858', '#ee6666',
+                    '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
+                ];
+
+                const option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c} ({d}%)'
+                    },
+                    legend: {
+                        // 将图例放在底部
+                        orient: 'horizontal',
+                        bottom: 0,
+                        left: 'center',
+                        data: datasetDistribution.map(item => item.name)
+                    },
+                    series: [
+                        {
+                            name: '数据集类型',
+                            type: 'pie',
+                            radius: ['30%', '60%'], // 适当的饼图半径
+                            center: ['50%', '45%'], // 将饼图向上移动，为底部图例留出空间
+                            avoidLabelOverlap: true, // 确保标签不重叠
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                formatter: '{b}: {c} ({d}%)',
+                                position: 'outside', // 将标签放在饼图外部
+                                distanceToLabelLine: 5 // 减小标签与引导线之间的距离
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '16',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: true,
+                                length: 10, // 减小第一段引导线长度
+                                length2: 15, // 减小第二段引导线长度
+                                smooth: true // 平滑引导线
+                            },
+                            data: datasetDistribution.map((item, index) => ({
+                                value: item.value,
+                                name: item.name,
+                                itemStyle: {
+                                    color: colors[index % colors.length]
+                                }
+                            }))
+                        }
+                    ]
+                };
+
+                myChart.setOption(option);
+                console.log('数据集饼图初始化完成');
+            } catch (error) {
+                console.error('初始化数据集饼图时出错:', error);
+                showErrorMessage('初始化数据集分布图失败: ' + error.message);
+            }
+        }
+
+        // 初始化模型分布饼图
+        function initializeModelPieChart() {
+            try {
+                const chartDom = document.getElementById('model-pie-chart');
+                if (!chartDom) {
+                    console.error('找不到模型饼图容器');
+                    return;
+                }
+
+                let myChart = echarts.init(chartDom);
+                charts['model-pie-chart'] = myChart;
+
+                // 如果没有数据，显示提示信息
+                if (!modelDistribution || !Array.isArray(modelDistribution) || modelDistribution.length === 0) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有模型分布数据',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return;
+                }
+
+                // 饼图配色方案
+                const colors = [
+                    '#5470c6', '#91cc75', '#fac858', '#ee6666',
+                    '#73c0de', '#3ba272', '#fc8452', '#9a60b4',
+                    '#9a60b4', '#ea7ccc', '#5470c6', '#91cc75'
+                ];
+
+                const option = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{a} <br/>{b}: {c} ({d}%)'
+                    },
+                    legend: {
+                        // 将图例放在底部
+                        orient: 'horizontal',
+                        bottom: 0,
+                        left: 'center',
+                        data: modelDistribution.map(item => item.name)
+                    },
+                    series: [
+                        {
+                            name: '模型类型',
+                            type: 'pie',
+                            radius: ['30%', '60%'], // 适当的饼图半径
+                            center: ['50%', '45%'], // 将饼图向上移动，为底部图例留出空间
+                            avoidLabelOverlap: true,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#fff',
+                                borderWidth: 2
+                            },
+                            label: {
+                                show: true,
+                                formatter: '{b}: {c} ({d}%)',
+                                position: 'outside', // 将标签放在饼图外部
+                                distanceToLabelLine: 5 // 减小标签与引导线之间的距离
+                            },
+                            emphasis: {
+                                label: {
+                                    show: true,
+                                    fontSize: '16',
+                                    fontWeight: 'bold'
+                                }
+                            },
+                            labelLine: {
+                                show: true,
+                                length: 10, // 减小第一段引导线长度
+                                length2: 15, // 减小第二段引导线长度
+                                smooth: true // 平滑引导线
+                            },
+                            data: modelDistribution.map((item, index) => ({
+                                value: item.value,
+                                name: item.name,
+                                itemStyle: {
+                                    color: colors[index % colors.length]
+                                }
+                            }))
+                        }
+                    ]
+                };
+
+                myChart.setOption(option);
+                console.log('模型饼图初始化完成');
+            } catch (error) {
+                console.error('初始化模型饼图时出错:', error);
+                showErrorMessage('初始化模型分布图失败: ' + error.message);
+            }
+        }
+
+        // 初始化数据集大小分布图
+        function initializeDatasetSizeChart() {
+            try {
+                const chartDom = document.getElementById('dataset-size-chart');
+                if (!chartDom) {
+                    console.error('找不到数据集大小图表容器');
+                    return;
+                }
+
+                let myChart = echarts.init(chartDom);
+                charts['dataset-size-chart'] = myChart;
+
+                // 如果没有数据，显示提示信息
+                if (!datasetSizeDistribution || !Array.isArray(datasetSizeDistribution) || datasetSizeDistribution.length === 0) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有数据集大小分布数据',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return;
+                }
+
+                // 排序数据
+                datasetSizeDistribution.sort((a, b) => a.range.localeCompare(b.range));
+
+                const option = {
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: datasetSizeDistribution.map(item => item.range),
+                        axisLabel: {
+                            rotate: 45,
+                            interval: 0
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '数据集数量',
+                        minInterval: 1 // 确保y轴刻度是整数
+                    },
+                    series: [
+                        {
+                            name: '数据集数量',
+                            type: 'bar',
+                            data: datasetSizeDistribution.map(item => ({
+                                value: item.count,
+                                itemStyle: {
+                                    color: '#5470c6'
+                                }
+                            })),
+                            label: {
+                                show: true,
+                                position: 'top'
+                            }
+                        }
+                    ]
+                };
+
+                myChart.setOption(option);
+                console.log('数据集大小图表初始化完成');
+            } catch (error) {
+                console.error('初始化数据集大小图表时出错:', error);
+                showErrorMessage('初始化数据集大小图表失败: ' + error.message);
+            }
+        }
+
+        // 初始化数据集上传时间分布图
+        function initializeModelTimeChart() {
+            try {
+                const chartDom = document.getElementById('model-time-chart');
+                if (!chartDom) {
+                    console.error('找不到数据集时间图表容器');
+                    return;
+                }
+
+                let myChart = echarts.init(chartDom);
+                charts['model-time-chart'] = myChart;
+
+                // 如果没有数据，显示提示信息
+                if (!modelTimeDistribution || !Array.isArray(modelTimeDistribution) || modelTimeDistribution.length === 0) {
+                    myChart.setOption({
+                        title: {
+                            text: '没有数据集上传时间分布数据',
+                            left: 'center',
+                            top: 'center'
+                        }
+                    });
+                    return;
+                }
+
+                // 排序数据
+                modelTimeDistribution.sort((a, b) => a.period.localeCompare(b.period));
+
+                console.log('Dataset time distribution data for chart:', modelTimeDistribution);
+
+                // 检查是否是按天统计的数据（格式为YYYY-MM-DD）
+                const isDailyData = modelTimeDistribution.length > 0 &&
+                                   modelTimeDistribution[0].period.match(/^\d{4}-\d{2}-\d{2}$/);
+
+                const option = {
+                    title: {
+                        text: '数据集上传时间分布',
+                        left: 'center',
+                        top: 0
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'line'
+                        },
+                        formatter: function(params) {
+                            const data = params[0];
+                            return `${data.name}<br/>${data.seriesName}: ${data.value}`;
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '10%',
+                        top: '15%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: modelTimeDistribution.map(item => item.period),
+                        axisLabel: {
+                            rotate: 45,
+                            interval: 0,
+                            formatter: function(value) {
+                                // 显示日期，格式为YYYY-MM-DD
+                                return value;
+                            }
+                        },
+                        name: '上传日期',
+                        nameLocation: 'middle',
+                        nameGap: 35
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '数据集数量',
+                        nameLocation: 'middle',
+                        nameGap: 40,
+                        minInterval: 1, // 确保y轴刻度是整数
+                        min: 0 // 从0开始
+                    },
+                    series: [
+                        {
+                            name: '数据集数量',
+                            type: 'line',
+                            data: modelTimeDistribution.map(item => item.count),
+                            smooth: true,
+                            symbol: 'circle',
+                            symbolSize: 8,
+                            lineStyle: {
+                                width: 3
+                            },
+                            itemStyle: {
+                                color: '#91cc75'
+                            },
+                            areaStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    {
+                                        offset: 0,
+                                        color: 'rgba(145, 204, 117, 0.5)'
+                                    },
+                                    {
+                                        offset: 1,
+                                        color: 'rgba(145, 204, 117, 0.1)'
+                                    }
+                                ])
+                            },
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '{c}'
+                            },
+                            markLine: {
+                                data: [
+                                    {
+                                        type: 'average',
+                                        name: '平均值'
+                                    }
+                                ],
+                                label: {
+                                    formatter: '平均: {c}'
+                                }
+                            }
+                        }
+                    ],
+                    dataZoom: [
+                        {
+                            type: 'inside',
+                            start: 0,
+                            end: 100
+                        },
+                        {
+                            type: 'slider',
+                            start: 0,
+                            end: 100,
+                            bottom: 10
+                        }
+                    ],
+                    // 添加工具箱
+                    toolbox: {
+                        feature: {
+                            dataZoom: {
+                                yAxisIndex: 'none'
+                            },
+                            restore: {},
+                            saveAsImage: {}
+                        },
+                        right: 20
+                    }
+                };
+
+                myChart.setOption(option);
+                console.log('数据集时间图表初始化完成');
+            } catch (error) {
+                console.error('初始化数据集时间图表时出错:', error);
+                showErrorMessage('初始化数据集时间图表失败: ' + error.message);
+            }
+        }
+
+        // 导出所有图表为图片
+        function exportAllCharts() {
+            const chartIds = ['dataset-pie-chart', 'model-pie-chart', 'dataset-size-chart', 'model-time-chart'];
+
+            try {
+                // 逐个导出图表
+                chartIds.forEach((chartId) => {
+                    const chart = charts[chartId];
+                    if (!chart) return;
+
+                    try {
+                        // 获取图表的数据URL
+                        const url = chart.getDataURL({
+                            pixelRatio: 2,
+                            backgroundColor: '#fff'
+                        });
+
+                        // 创建下载链接
+                        const link = document.createElement('a');
+                        link.download = `${chartId}.png`;
+                        link.href = url;
+                        link.click();
+                    } catch (chartError) {
+                        console.error(`导出图表 ${chartId} 时出错:`, chartError);
+                    }
+                });
+            } catch (error) {
+                console.error('导出图表错误:', error);
+                alert('导出图表时发生错误，请稍后再试。');
+            }
+        }
+    </script>
+</div>
+{% endblock %}

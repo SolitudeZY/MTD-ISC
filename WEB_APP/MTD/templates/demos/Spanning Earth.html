@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Globe Example</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <!-- 引入旧版three.js -->
+    <script src="../../static/webgl-globe/polymer-globe/three.min.js"></script>
+    <!-- 引入globe.js -->
+    <script src="../../static/webgl-globe/globe/globe.js"></script>
+    <script>(function() {
+
+        var container = document.getElementById('container');
+        var globe = new DAT.Globe(container);
+
+        // Fetch texture data (Empty data or mock data can be used here)
+        var textureData = [];
+        for (var i = 0; i < 1000; i++) {
+            textureData.push(0); // Lons
+            textureData.push(0); // Lats
+            textureData.push(0); // Magnitude
+        }
+        globe.addData(textureData, {format: 'magnitude'});
+        globe.createPoints();
+
+        // This method rotates the globe using requestAnimationFrame.
+        function animate() {
+            requestAnimationFrame(animate);
+            globe.rotateToTime(new Date().getTime() * 0.00005);
+            globe.render();
+        }
+
+        animate();
+
+    })();</script>
+</body>
+</html>

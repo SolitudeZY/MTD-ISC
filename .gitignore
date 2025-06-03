@@ -1,0 +1,10 @@
+# created by virtualenv automatically
+media/
+.idea/
+*.zip
+WEB_APP/media/source/ema_0.9999_017000.pt
+WEB_APP/media/source/ema_0.9999_017000.pt
+*.pt
+WEB_APP/media/source/ema_0.9999_017000.pt
+*.pt
+/WEB_APP/staticfiles

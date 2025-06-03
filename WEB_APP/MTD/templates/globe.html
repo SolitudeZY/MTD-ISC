@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}简单地球测试{% endblock %}
+
+{% block extra_css %}
+<style>
+  #globe-container {
+    width: 100%;
+    height: 80vh;
+    background-color: #000;
+  }
+
+  .status-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    font-family: monospace;
+    z-index: 100;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12 position-relative">
+      <div id="globe-container"></div>
+      <div id="status-panel" class="status-panel">状态: 准备中...</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- 使用本地Three.js库 -->
+<script src="{% static 'webgl-globe/globe/third-party/three.min.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const statusPanel = document.getElementById('status-panel');
+  const container = document.getElementById('globe-container');
+
+  // 更新状态
+  function updateStatus(message) {
+    console.log(message);
+    statusPanel.textContent = "状态: " + message;
+  }
+
+  // 检查Three.js是否加载
+  if (typeof THREE === 'undefined') {
+    updateStatus("Three.js未加载");
+    return;
+  }
+
+  updateStatus("Three.js已加载，创建简单地球...");
+
+  try {
+    // 创建场景
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    // 创建相机
+    const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.z = 200;
+
+    // 创建渲染器
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+    updateStatus("渲染器创建成功");
+
+    // 添加环境光
+    const ambientLight = new THREE.AmbientLight(0x404040, 1);
+    scene.add(ambientLight);
+
+    // 添加方向光
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1);
+    scene.add(directionalLight);
+
+    // 创建简单地球
+    const geometry = new THREE.SphereGeometry(50, 32, 32);
+    const material = new THREE.MeshPhongMaterial({
+      color: 0x1a4d7c, // 蓝色
+      shininess: 5
+    });
+
+    const globe = new THREE.Mesh(geometry, material);
+    scene.add(globe);
+
+    updateStatus("地球已添加到场景");
+
+    // 添加一些绿色大陆（简化版）
+    addContinents(globe);
+
+    // 添加星空背景
+    addStars(scene);
+
+    // 添加轨道控制
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.rotateSpeed = 0.5;
+    controls.minDistance = 100;
+    controls.maxDistance = 500;
+
+    updateStatus("控制器已添加");
+
+    // 渲染函数
+    function animate() {
+      requestAnimationFrame(animate);
+
+      // 缓慢旋转地球
+      globe.rotation.y += 0.0005;
+
+      // 更新控制器
+      controls.update();
+
+      renderer.render(scene, camera);
+    }
+
+    // 开始渲染
+    animate();
+
+    updateStatus("渲染循环已启动，您应该能看到一个旋转的蓝色地球");
+
+    // 处理窗口大小变化
+    window.addEventListener('resize', function() {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  } catch (e) {
+    updateStatus("错误: " + e.message);
+    console.error(e);
+  }
+
+  // 添加简化的大陆
+  function addContinents(globe) {
+    try {
+      // 北美洲
+      addContinent(globe, 20, 40, 20, 15);
+
+      // 南美洲
+      addContinent(globe, 10, -10, 10, 20);
+
+      // 欧洲和非洲
+      addContinent(globe, 45, 10, 15, 30);
+
+      // 亚洲和大洋洲
+      addContinent(globe, 80, 30, 30, 20);
+      addContinent(globe, 100, -20, 15, 10);
+
+      updateStatus("大陆已添加到地球");
+    } catch (error) {
+      updateStatus("添加大陆时出错: " + error.message);
+    }
+  }
+
+  // 添加一个大陆
+  function addContinent(globe, lon, lat, width, height) {
+    const position = latLongToVector3(lat, lon, 50.5);
+
+    const continentGeometry = new THREE.SphereGeometry(width, 16, 16);
+    const continentMaterial = new THREE.MeshPhongMaterial({
+      color: 0x2ecc71, // 绿色
+      shininess: 0
+    });
+
+    const continent = new THREE.Mesh(continentGeometry, continentMaterial);
+    continent.position.set(position.x, position.y, position.z);
+    continent.lookAt(0, 0, 0);
+    continent.scale.set(1, 1, 0.1);
+
+    globe.add(continent);
+  }
+
+  // 添加星空背景
+  function addStars(scene) {
+    try {
+      const starsGeometry = new THREE.BufferGeometry();
+      const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 1,
+        sizeAttenuation: false
+      });
+
+      const starsVertices = [];
+      for (let i = 0; i < 5000; i++) {
+        const x = THREE.MathUtils.randFloatSpread(2000);
+        const y = THREE.MathUtils.randFloatSpread(2000);
+        const z = THREE.MathUtils.randFloatSpread(2000);
+        starsVertices.push(x, y, z);
+      }
+
+      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+      const stars = new THREE.Points(starsGeometry, starsMaterial);
+      scene.add(stars);
+
+      updateStatus("星空背景已添加");
+    } catch (error) {
+      updateStatus("创建星空背景时出错: " + error.message);
+    }
+  }
+
+  // 将经纬度转换为3D坐标
+  function latLongToVector3(lat, lon, radius) {
+    const phi = (90 - lat) * (Math.PI / 180);
+    const theta = (lon + 180) * (Math.PI / 180);
+
+    const x = -radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.cos(phi);
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+
+    return new THREE.Vector3(x, y, z);
+  }
+
+  // OrbitControls简化实现
+  function OrbitControls(camera, domElement) {
+    this.camera = camera;
+    this.domElement = domElement;
+
+    this.enableDamping = false;
+    this.dampingFactor = 0.05;
+    this.rotateSpeed = 0.5;
+    this.minDistance = 0;
+    this.maxDistance = Infinity;
+
+    // 更新方法
+    this.update = function() {
+      // 简化版，实际上不做任何事情
+      return true;
+    };
+
+    // 添加鼠标事件监听
+    let isMouseDown = false;
+    let previousMousePosition = { x: 0, y: 0 };
+
+    domElement.addEventListener('mousedown', (e) => {
+      isMouseDown = true;
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    domElement.addEventListener('mousemove', (e) => {
+      if (!isMouseDown) return;
+
+      const deltaMove = {
+        x: e.clientX - previousMousePosition.x,
+        y: e.clientY - previousMousePosition.y
+      };
+
+      // 旋转相机
+      camera.position.x += deltaMove.x * 0.1;
+      camera.position.y += deltaMove.y * 0.1;
+
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    });
+
+    domElement.addEventListener('mouseup', () => {
+      isMouseDown = false;
+    });
+
+    // 添加滚轮事件监听
+    domElement.addEventListener('wheel', (e) => {
+      e.preventDefault();
+
+      // 缩放相机
+      camera.position.z += e.deltaY * 0.1;
+
+      // 限制缩放范围
+      if (camera.position.z < this.minDistance) camera.position.z = this.minDistance;
+      if (camera.position.z > this.maxDistance) camera.position.z = this.maxDistance;
+    });
+  }
+});
+</script>
+{% endblock %}

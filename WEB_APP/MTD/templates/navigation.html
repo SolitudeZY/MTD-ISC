@@ -1,0 +1,235 @@
+{% load static %}
+<!-- NOT IMPLEMENTED -->
+<nav class="navbar navbar-light justify-content-between">
+  <div class="col-12 d-flex align-items-center position-relative">
+    <!-- 左侧图片 -->
+    <div style="width: 24%; flex-shrink: 0;">
+      <img src="{% static 'images/bird-6831573_640.png' %}" style="object-fit: cover; width: 100%; height: auto;" alt="demo">
+    </div>
+
+    <!-- 右侧词云 - 铺满鸟图片右侧空白区域 -->
+    <div class="nav-word-cloud-container flex-grow-1" id="nav-word-cloud"></div>
+
+    <!-- 右侧用户信息 - 固定在最右上角 -->
+    <div class="nav-item dropdown position-absolute" style="top: 10px; right: 15px; z-index: 1000;">
+      <h6
+        class="nav-link dropdown-toggle"
+        href="#"
+        id="navbarDropdown"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="false"
+      >
+        <img src="{% static 'images/user/avatar-2.jpg' %}" style="width:30px;height:30px;border-radius:50%;" alt="">
+        {{ user.username }}
+      </h6>
+      <p id="hidden_userid" hidden="hidden">{{user.id}}</p>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+          <li><a href="javascript:" class="full-screen" onclick="javascript:toggleFullScreen()"><i
+                  class="feather icon-maximize"></i></a></li>
+        </ul>
+      </div>
+      <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+        <a class="dropdown-item" href="{% url 'personal_information' %}">个人中心</a>
+        <a class="dropdown-item" href="{% url 'login' %}">退出</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- 词云初始化脚本 -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // 确保容器存在
+    var chartDom = document.getElementById('nav-word-cloud');
+    if (!chartDom) {
+      console.error("找不到ID为'nav-word-cloud'的DOM元素");
+      return;
+    }
+
+    // 确保echarts已加载
+    if (typeof echarts === 'undefined') {
+      console.error("ECharts未定义，请检查是否正确加载了echarts.min.js");
+      return;
+    }
+
+    // 预定义一组鲜艳的颜色
+    var vibrantColors = [
+      // 红色系
+      '#FF0000', '#DC143C', '#FF4500', '#FF6347', '#FF7F50',
+      '#CD5C5C', '#F08080', '#E9967A', '#FA8072', '#FFA07A',
+      // 橙色系
+      '#FFA500', '#FF8C00', '#FF7F00', '#FF6700', '#FF4500',
+      // 黄色系
+      '#FFFF00', '#FFD700', '#FFBF00', '#FFAE42', '#FFD600',
+      // 绿色系
+      '#008000', '#228B22', '#32CD32', '#90EE90', '#98FB98',
+      '#3CB371', '#2E8B57', '#00FF7F', '#00FA9A', '#8FBC8F',
+      // 青色系
+      '#00FFFF', '#00CED1', '#40E0D0', '#48D1CC', '#20B2AA',
+      // 蓝色系
+      '#0000FF', '#0000CD', '#4169E1', '#1E90FF', '#6495ED',
+      '#87CEEB', '#87CEFA', '#4682B4', '#B0C4DE', '#ADD8E6',
+      // 紫色系
+      '#800080', '#8B008B', '#9400D3', '#9932CC', '#BA55D3',
+      '#9370DB', '#8A2BE2', '#7B68EE', '#6A5ACD', '#483D8B',
+      // 粉色系
+      '#FFC0CB', '#FFB6C1', '#FF69B4', '#FF1493', '#DB7093',
+      // 棕色系
+      '#A52A2A', '#8B4513', '#A0522D', '#D2691E', '#CD853F',
+      // 其他鲜艳颜色
+      '#FF00FF', '#DA70D6', '#C71585', '#FF0080', '#DC143C'
+    ];
+
+    // 词云数据
+    var wordCloudData = [
+      { name: "IP", value: 6181 },
+      { name: "IPv6", value: 965 },
+      { name: "TCP", value: 6181 },
+      { name: "UDP", value: 4386 },
+      { name: "ARP", value: 4055 },
+      { name: "RARP", value: 2467 },
+      { name: "ICMP", value: 1898 },
+      { name: "PPTP", value: 1484 },
+      { name: "L2TP", value: 1112 },
+      { name: "ICMPv6", value: 965 },
+      { name: "IGMP", value: 847 },
+      { name: "IPsec", value: 582 },
+      { name: "TLS", value: 555 },
+      { name: "SCTP", value: 550 },
+      { name: "RSVP", value: 462 },
+      { name: "OSPF", value: 366 },
+      { name: "DHCP", value: 282 },
+      { name: "FTP", value: 273 },
+      { name: "DNS", value: 265 },
+      { name: "HTTP", value: 273 },
+      { name: "HTTPS", value: 273 },
+      { name: "IRC", value: 273 },
+      { name: "NNTP", value: 273 },
+      { name: "XMPP", value: 273 },
+      { name: "POP3", value: 273 },
+      { name: "SMTP", value: 273 },
+      { name: "SNMP", value: 273 },
+      { name: "SSH", value: 273 },
+      { name: "TELNET", value: 273 },
+      { name: "RPC", value: 273 },
+      { name: "RTCP", value: 273 },
+      { name: "QUIC", value: 273 },
+      { name: "RTSP", value: 273 },
+      { name: "SDP", value: 273 },
+      { name: "SOAP", value: 273 },
+      { name: "SSDP", value: 273 },
+      { name: "BGP", value: 273 },
+      { name: "RIP", value: 273 },
+      { name: "网络安全", value: 5000 },
+      { name: "恶意流量", value: 4800 },
+      { name: "数据增强", value: 4600 },
+      { name: "入侵检测", value: 4400 },
+      { name: "深度学习", value: 4200 },
+      { name: "CNN", value: 4000 },
+      { name: "LSTM", value: 3800 },
+      { name: "BiLSTM", value: 3600 },
+      { name: "TCN", value: 3400 },
+      { name: "BiTCN", value: 3200 },
+      { name: "DMSE", value: 3000 },
+      { name: "态势感知", value: 2800 },
+      { name: "概念漂移", value: 2600 },
+      { name: "扩散模型", value: 2400 },
+      { name: "流量分析", value: 2200 }
+    ];
+
+    // 打乱颜色数组，确保随机性
+    function shuffleArray(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+      }
+      return array;
+    }
+
+    // 打乱颜色数组
+    vibrantColors = shuffleArray(vibrantColors);
+
+    // 为每个词添加颜色和初始位置
+    wordCloudData.forEach(function(item, index) {
+      // 直接从颜色数组中按顺序分配颜色
+      var colorIndex = index % vibrantColors.length;
+      item.textStyle = {
+        color: vibrantColors[colorIndex]
+      };
+
+      // 添加初始位置 - 从更远的四面八方开始
+      var angle = Math.random() * Math.PI * 2; // 随机角度 0-360度
+      var distance = 200 + Math.random() * 300; // 更远的距离 200-500
+
+      // 使用极坐标计算初始位置
+      var x = Math.cos(angle) * distance;
+      var y = Math.sin(angle) * distance;
+
+      // 设置初始位置
+      item.x = x;
+      item.y = y;
+
+      // 为每个词设置不同的动画效果
+      item.emphasis = {
+        focus: 'self',
+        textStyle: {
+          shadowBlur: 10,
+          shadowColor: '#333',
+          fontWeight: 'bold'
+        }
+      };
+    });
+
+    // 初始化图表
+    try {
+      var myChart = echarts.init(chartDom);
+
+      // 词云配置 - 导航栏版本
+      var option = {
+        tooltip: {
+          show: false
+        },
+        series: [{
+          name: 'Protocal',
+          type: 'wordCloud',
+          size: ['100%', '100%'],
+          textRotation: [0, 45, 90, -45],
+          textPadding: 0,
+          // 设置更慢的动画效果
+          animationDuration: 10000, // 动画持续时间增加到10秒
+          animationEasing: 'elasticOut', // 使用弹性缓动效果，更加明显
+          animationDelay: function(idx) {
+            // 为每个词设置不同的延迟，使它们依次出现
+            return idx * 300; // 每个词延迟300毫秒
+          },
+          autoSize: {
+            enable: true,
+            minSize: 16
+          },
+          // 禁用默认的颜色生成
+          textStyle: {
+            normal: {
+              fontWeight: 'bold'
+            }
+          },
+          // 设置词云布局
+          layoutAnimation: true, // 启用布局动画
+          data: wordCloudData
+        }]
+      };
+
+      myChart.setOption(option);
+
+      // 处理窗口大小变化
+      window.addEventListener('resize', function() {
+        myChart.resize();
+      });
+    } catch (e) {
+      console.error("初始化导航栏词云时出错:", e);
+    }
+  });
+</script>

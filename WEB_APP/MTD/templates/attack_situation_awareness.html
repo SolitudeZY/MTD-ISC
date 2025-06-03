@@ -1,0 +1,835 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %} 攻击态势感知 {% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'CSS/fileinput.min.css' %}">
+<link href="{% static 'CSS/main.css' %}" rel="stylesheet" type="text/css"/>
+<link href="{% static 'CSS/test.css' %}" rel="stylesheet" type="text/css"/>
+<style>
+    .uiduck-input {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-right: 10px;
+        min-width: 200px;
+    }
+    .mybb {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    #ipmap {
+        width: 100%;
+        height: 800px;
+        margin: auto;
+        background-color: #1b1b1b;
+    }
+</style>
+{% endblock  %}
+
+{% block content %}
+<div class="pcoded-content">
+    <div class="pcoded-inner-content">
+        <div class="main-body">
+            <br>
+            <div class="page-wrapper">
+                <div class="row">
+                    <div class="col-xl-12 col-md-12 m-b-30">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>攻击态势感知</h5>
+                            </div>
+                            <div class="nav-item dropdown float-right">
+                                <div id="ud-top" style="text-align:center; padding: 15px;">
+                                    <select id="search_option" class="uiduck-input" title="Select Dataset" onchange="updateMapBasedOnDataset(this.value)">
+                                        <option value="" disabled selected hidden>请选择数据集</option>
+                                        <option value="CIC_IDS">CIC_IDS</option>
+                                        <option value="CTU">CTU</option>
+                                        <option value="USTC-TFC">USTC-TFC</option>
+                                        <option value="ISAC218">ISAC218</option>
+                                        <option value="ISAC219">ISAC219</option>
+                                        <option value="Botnet2014">Botnet2014</option>
+                                        <option value="ISOT_CID">ISOT CID</option>
+                                    </select>
+                                    <button id="btn-show" class="badge btn-success badge-bg mybb">态势感知</button>
+                                    <button id="btn-hide" class="badge btn-danger badge-bg mybb">取消</button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 地图容器 -->
+                        <div id="hidden-element" style="display: none;">
+                            <div class="card-block px-0 py-3">
+                                <div class="table-responsive">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="panel panel-default">
+                                                <div class="panel-body">
+                                                    <div id="ipmap" style="width: 100%; height: 800px; margin: auto;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<!-- 引入 ECharts 5.x -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/extension/bmap.min.js"></script>
+<!-- 引入世界地图数据 -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+
+<script type="text/javascript">
+// 地理坐标数据
+const geoCoordMap = {
+    '中国杭州': [120.1614, 30.2936],
+    '美国芒廷维尤': [-122.0574, 37.4192],
+    '中国北京': [116.3883, 39.9289],
+    '日本东京': [139.7514, 35.685],
+    '中国南京': [118.7778, 32.0617],
+    '中国福州市': [119.3061, 26.0614],
+    '美国马科尔蒂奥': [-122.3042, 47.913],
+    '中国广州': [113.25, 23.1167],
+    '法国': [2.213749, 46.227638],
+    '英国': [-3.435973, 55.378051],
+    '加拿大': [-106.346771, 56.130366],
+    '委内瑞拉': [-66.58973, 6.42375],
+    '土耳其': [35.243322, 38.963745],
+    '澳大利亚': [133.775136, -25.274398],
+    '白俄罗斯': [27.953389, 53.709807],
+    '丹麦': [9.501785, 56.26392],
+    '瑞士': [8.227512, 46.818188],
+    '捷克共和国': [15.472962, 49.817492],
+    '德国': [10.451526, 51.165691],
+    '百慕大': [-64.7505, 32.3078],
+    '南非': [22.937506, -30.559482],
+    '俄罗斯': [105.318756, 61.52401],
+    '巴西': [-51.92528, -14.235004],
+    '印度': [78.96288, 20.593684],
+    '新加坡': [103.819836, 1.352083],
+    '韩国': [127.766922, 35.907757],
+    '西班牙': [-3.74922, 40.463667],
+    '意大利': [12.56738, 41.87194],
+    '荷兰': [5.291266, 52.132633],
+    '墨西哥': [-102.552784, 23.634501]
+};
+
+// 国家名称映射
+const nameMap = {
+    'Afghanistan': '阿富汗',
+    'Angola': '安哥拉',
+    'Albania': '阿尔巴尼亚',
+    'United Arab Emirates': '阿联酋',
+    'Argentina': '阿根廷',
+    'Armenia': '亚美尼亚',
+    'French Southern and Antarctic Lands': '法属南半球和南极领地',
+    'Australia': '澳大利亚',
+    'Austria': '奥地利',
+    'Azerbaijan': '阿塞拜疆',
+    'Burundi': '布隆迪',
+    'Belgium': '比利时',
+    'Benin': '贝宁',
+    'Burkina Faso': '布基纳法索',
+    'Bangladesh': '孟加拉国',
+    'Bulgaria': '保加利亚',
+    'The Bahamas': '巴哈马',
+    'Bosnia and Herzegovina': '波斯尼亚和黑塞哥维那',
+    'Belarus': '白俄罗斯',
+    'Belize': '伯利兹',
+    'Bermuda': '百慕大',
+    'Bolivia': '玻利维亚',
+    'Brazil': '巴西',
+    'Brunei': '文莱',
+    'Bhutan': '不丹',
+    'Botswana': '博茨瓦纳',
+    'Central African Republic': '中非共和国',
+    'Canada': '加拿大',
+    'Switzerland': '瑞士',
+    'Chile': '智利',
+    'China': '中国',
+    'Ivory Coast': '象牙海岸',
+    'Cameroon': '喀麦隆',
+    'Democratic Republic of the Congo': '刚果民主共和国',
+    'Republic of the Congo': '刚果共和国',
+    'Colombia': '哥伦比亚',
+    'Costa Rica': '哥斯达黎加',
+    'Cuba': '古巴',
+    'Northern Cyprus': '北塞浦路斯',
+    'Cyprus': '塞浦路斯',
+    'Czech Republic': '捷克共和国',
+    'Germany': '德国',
+    'Djibouti': '吉布提',
+    'Denmark': '丹麦',
+    'Dominican Republic': '多明尼加共和国',
+    'Algeria': '阿尔及利亚',
+    'Ecuador': '厄瓜多尔',
+    'Egypt': '埃及',
+    'Eritrea': '厄立特里亚',
+    'Spain': '西班牙',
+    'Estonia': '爱沙尼亚',
+    'Ethiopia': '埃塞俄比亚',
+    'Finland': '芬兰',
+    'Fiji': '斐济',
+    'Falkland Islands': '福克兰群岛',
+    'France': '法国',
+    'Gabon': '加蓬',
+    'United Kingdom': '英国',
+    'Georgia': '格鲁吉亚',
+    'Ghana': '加纳',
+    'Guinea': '几内亚',
+    'Gambia': '冈比亚',
+    'Guinea Bissau': '几内亚比绍',
+    'Equatorial Guinea': '赤道几内亚',
+    'Greece': '希腊',
+    'Greenland': '格陵兰',
+    'Guatemala': '危地马拉',
+    'French Guiana': '法属圭亚那',
+    'Guyana': '圭亚那',
+    'Honduras': '洪都拉斯',
+    'Croatia': '克罗地亚',
+    'Haiti': '海地',
+    'Hungary': '匈牙利',
+    'Indonesia': '印尼',
+    'India': '印度',
+    'Ireland': '爱尔兰',
+    'Iran': '伊朗',
+    'Iraq': '伊拉克',
+    'Iceland': '冰岛',
+    'Israel': '以色列',
+    'Italy': '意大利',
+    'Jamaica': '牙买加',
+    'Jordan': '约旦',
+    'Japan': '日本',
+    'Kazakhstan': '哈萨克斯坦',
+    'Kenya': '肯尼亚',
+    'Kyrgyzstan': '吉尔吉斯斯坦',
+    'Cambodia': '柬埔寨',
+    'South Korea': '韩国',
+    'Kosovo': '科索沃',
+    'Kuwait': '科威特',
+    'Laos': '老挝',
+    'Lebanon': '黎巴嫩',
+    'Liberia': '利比里亚',
+    'Libya': '利比亚',
+    'Sri Lanka': '斯里兰卡',
+    'Lesotho': '莱索托',
+    'Lithuania': '立陶宛',
+    'Luxembourg': '卢森堡',
+    'Latvia': '拉脱维亚',
+    'Morocco': '摩洛哥',
+    'Moldova': '摩尔多瓦',
+    'Madagascar': '马达加斯加',
+    'Mexico': '墨西哥',
+    'Macedonia': '马其顿',
+    'Mali': '马里',
+    'Myanmar': '缅甸',
+    'Montenegro': '黑山',
+    'Mongolia': '蒙古',
+    'Mozambique': '莫桑比克',
+    'Mauritania': '毛里塔尼亚',
+    'Malawi': '马拉维',
+    'Malaysia': '马来西亚',
+    'Namibia': '纳米比亚',
+    'New Caledonia': '新喀里多尼亚',
+    'Niger': '尼日尔',
+    'Nigeria': '尼日利亚',
+    'Nicaragua': '尼加拉瓜',
+    'Netherlands': '荷兰',
+    'Norway': '挪威',
+    'Nepal': '尼泊尔',
+    'New Zealand': '新西兰',
+    'Oman': '阿曼',
+    'Pakistan': '巴基斯坦',
+    'Panama': '巴拿马',
+    'Peru': '秘鲁',
+    'Philippines': '菲律宾',
+    'Papua New Guinea': '巴布亚新几内亚',
+    'Poland': '波兰',
+    'Puerto Rico': '波多黎各',
+    'North Korea': '北朝鲜',
+    'Portugal': '葡萄牙',
+    'Paraguay': '巴拉圭',
+    'Qatar': '卡塔尔',
+    'Romania': '罗马尼亚',
+    'Russia': '俄罗斯',
+    'Rwanda': '卢旺达',
+    'Western Sahara': '西撒哈拉',
+    'Saudi Arabia': '沙特阿拉伯',
+    'Sudan': '苏丹',
+    'South Sudan': '南苏丹',
+    'Senegal': '塞内加尔',
+    'Solomon Islands': '所罗门群岛',
+    'Sierra Leone': '塞拉利昂',
+    'El Salvador': '萨尔瓦多',
+    'Somaliland': '索马里兰',
+    'Somalia': '索马里',
+    'Republic of Serbia': '塞尔维亚共和国',
+    'Suriname': '苏里南',
+    'Slovakia': '斯洛伐克',
+    'Slovenia': '斯洛文尼亚',
+    'Sweden': '瑞典',
+    'Swaziland': '斯威士兰',
+    'Syria': '叙利亚',
+    'Chad': '乍得',
+    'Togo': '多哥',
+    'Thailand': '泰国',
+    'Tajikistan': '塔吉克斯坦',
+    'Turkmenistan': '土库曼斯坦',
+    'East Timor': '东帝汶',
+    'Trinidad and Tobago': '特里尼达和多巴哥',
+    'Tunisia': '突尼斯',
+    'Turkey': '土耳其',
+    'United Republic of Tanzania': '坦桑尼亚联合共和国',
+    'Uganda': '乌干达',
+    'Ukraine': '乌克兰',
+    'Uruguay': '乌拉圭',
+    'United States of America': '美国',
+    'Uzbekistan': '乌兹别克斯坦',
+    'Venezuela': '委内瑞拉',
+    'Vietnam': '越南',
+    'Vanuatu': '瓦努阿图',
+    'West Bank': '西岸',
+    'Yemen': '也门',
+    'South Africa': '南非',
+    'Zambia': '赞比亚',
+    'Zimbabwe': '津巴布韦'
+};
+
+// 不同数据集的攻击路径数据
+const datasetAttackPaths = {
+    'CIC_IDS': [
+        [{name: '白俄罗斯'}, {name: '中国杭州', value: 12.72}],
+        [{name: '白俄罗斯'}, {name: '美国芒廷维尤', value: 1.66}],
+        [{name: '白俄罗斯'}, {name: '中国杭州', value: 4.49}],
+        [{name: '白俄罗斯'}, {name: '百慕大', value: 10.7}],
+        [{name: '白俄罗斯'}, {name: '日本东京', value: 7.8}],
+        [{name: '英国'}, {name: '中国北京', value: 2.67}],
+        [{name: '英国'}, {name: '中国福州市', value: 0.16}]
+    ],
+    'CTU': [
+        [{name: '丹麦'}, {name: '加拿大', value: 2.98}],
+        [{name: '丹麦'}, {name: '加拿大', value: 11.99}],
+        [{name: '丹麦'}, {name: '英国', value: 0.54}],
+        [{name: '丹麦'}, {name: '美国芒廷维尤', value: 8.53}],
+        [{name: '丹麦'}, {name: '中国杭州', value: 2.0}],
+        [{name: '丹麦'}, {name: '中国南京', value: 84.25}]
+    ],
+    'USTC-TFC': [
+        [{name: '瑞士'}, {name: '美国芒廷维尤', value: 0.38}],
+        [{name: '瑞士'}, {name: '中国南京', value: 75.28}],
+        [{name: '瑞士'}, {name: '中国南京', value: 25.82}],
+        [{name: '瑞士'}, {name: '美国芒廷维尤', value: 2.88}],
+        [{name: '瑞士'}, {name: '法国', value: 15.53}],
+        [{name: '瑞士'}, {name: '英国', value: 21.95}]
+    ],
+    'ISAC218': [
+        [{name: '德国'}, {name: '澳大利亚', value: 1.01}],
+        [{name: '德国'}, {name: '澳大利亚', value: 1.01}],
+        [{name: '德国'}, {name: '澳大利亚', value: 1.01}],
+        [{name: '捷克共和国'}, {name: '澳大利亚', value: 1.01}],
+        [{name: '俄罗斯'}, {name: '中国北京', value: 5.67}],
+        [{name: '俄罗斯'}, {name: '印度', value: 8.92}]
+    ],
+    'ISAC219': [
+        [{name: '中国南京'}, {name: '南非', value: 10.32}],
+        [{name: '中国南京'}, {name: '南非', value: 42.01}],
+        [{name: '中国南京'}, {name: '澳大利亚', value: 1.01}],
+        [{name: '中国北京'}, {name: '新加坡', value: 15.75}],
+        [{name: '中国北京'}, {name: '韩国', value: 8.32}]
+    ],
+    'Botnet2014': [
+        [{name: '英国'}, {name: '百慕大', value: 0.192}],
+        [{name: '英国'}, {name: '百慕大', value: 0.55}],
+        [{name: '英国'}, {name: '美国马科尔蒂奥', value: 0.06}],
+        [{name: '英国'}, {name: '中国广州', value: 1.84}],
+        [{name: '西班牙'}, {name: '意大利', value: 3.45}],
+        [{name: '西班牙'}, {name: '荷兰', value: 2.78}]
+    ],
+    'ISOT_CID': [
+        [{name: '瑞士'}, {name: '加拿大', value: 3.95}],
+        [{name: '瑞士'}, {name: '委内瑞拉', value: 10.32}],
+        [{name: '瑞士'}, {name: '土耳其', value: 42.01}],
+        [{name: '瑞士'}, {name: '澳大利亚', value: 1.01}],
+        [{name: '墨西哥'}, {name: '巴西', value: 7.65}],
+        [{name: '墨西哥'}, {name: '美国芒廷维尤', value: 12.34}]
+    ]
+};
+
+// 不同数据集的攻击点数据
+const datasetAttackPoints = {
+    'CIC_IDS': [
+        {name: '中国杭州', value: 12.72},
+        {name: '美国芒廷维尤', value: 1.66},
+        {name: '中国杭州', value: 4.49},
+        {name: '百慕大', value: 10.7},
+        {name: '日本东京', value: 7.8},
+        {name: '中国北京', value: 2.67},
+        {name: '中国福州市', value: 0.16},
+        {name: '白俄罗斯', value: 15.0}
+    ],
+    'CTU': [
+        {name: '加拿大', value: 2.98},
+        {name: '加拿大', value: 11.99},
+        {name: '英国', value: 0.54},
+        {name: '美国芒廷维尤', value: 8.53},
+        {name: '中国杭州', value: 2.0},
+        {name: '中国南京', value: 84.25},
+        {name: '丹麦', value: 20.0}
+    ],
+    'USTC-TFC': [
+        {name: '美国芒廷维尤', value: 0.38},
+        {name: '中国南京', value: 75.28},
+        {name: '中国南京', value: 25.82},
+        {name: '美国芒廷维尤', value: 2.88},
+        {name: '法国', value: 15.53},
+        {name: '英国', value: 21.95},
+        {name: '瑞士', value: 25.0}
+    ],
+    'ISAC218': [
+        {name: '澳大利亚', value: 1.01},
+        {name: '澳大利亚', value: 1.01},
+        {name: '澳大利亚', value: 1.01},
+        {name: '澳大利亚', value: 1.01},
+        {name: '德国', value: 18.0},
+        {name: '捷克共和国', value: 12.0},
+        {name: '俄罗斯', value: 30.0},
+        {name: '中国北京', value: 5.67},
+        {name: '印度', value: 8.92}
+    ],
+    'ISAC219': [
+        {name: '南非', value: 10.32},
+        {name: '南非', value: 42.01},
+        {name: '澳大利亚', value: 1.01},
+        {name: '中国南京', value: 30.0},
+        {name: '中国北京', value: 25.0},
+        {name: '新加坡', value: 15.75},
+        {name: '韩国', value: 8.32}
+    ],
+    'Botnet2014': [
+        {name: '百慕大', value: 0.192},
+        {name: '百慕大', value: 0.55},
+        {name: '美国马科尔蒂奥', value: 0.06},
+        {name: '中国广州', value: 1.84},
+        {name: '英国', value: 22.0},
+        {name: '西班牙', value: 18.0},
+        {name: '意大利', value: 3.45},
+        {name: '荷兰', value: 2.78}
+    ],
+    'ISOT_CID': [
+        {name: '加拿大', value: 3.95},
+        {name: '委内瑞拉', value: 10.32},
+        {name: '土耳其', value: 42.01},
+        {name: '澳大利亚', value: 1.01},
+        {name: '瑞士', value: 28.0},
+        {name: '墨西哥', value: 20.0},
+        {name: '巴西', value: 7.65},
+        {name: '美国芒廷维尤', value: 12.34}
+    ]
+};
+
+// 不同数据集的线条样式
+const datasetLineStyles = {
+    'CIC_IDS': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#ff3333' },
+            { offset: 1, color: '#ff9966' }
+        ]),
+        width: 2,
+        curveness: 0.3,
+        opacity: 0.8
+    },
+    'CTU': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#4CAF50' },
+            { offset: 1, color: '#8BC34A' }
+        ]),
+        width: 2,
+        curveness: 0.4,
+        opacity: 0.8
+    },
+    'USTC-TFC': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#2196F3' },
+            { offset: 1, color: '#03A9F4' }
+        ]),
+        width: 2,
+        curveness: 0.5,
+        opacity: 0.8
+    },
+    'ISAC218': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#9C27B0' },
+            { offset: 1, color: '#E91E63' }
+        ]),
+        width: 2,
+        curveness: 0.3,
+        opacity: 0.8
+    },
+    'ISAC219': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#FF9800' },
+            { offset: 1, color: '#FFEB3B' }
+        ]),
+        width: 2,
+        curveness: 0.4,
+        opacity: 0.8
+    },
+    'Botnet2014': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#00BCD4' },
+            { offset: 1, color: '#4DD0E1' }
+        ]),
+        width: 2,
+        curveness: 0.5,
+        opacity: 0.8
+    },
+    'ISOT_CID': {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: '#FFEB3B' },
+            { offset: 1, color: '#FFC107' }
+        ]),
+        width: 2,
+        curveness: 0.3,
+        opacity: 0.8
+    }
+};
+
+// 初始化地图
+let myChart = null;
+
+function initMap() {
+    if (myChart !== null) {
+        myChart.dispose();
+    }
+
+    myChart = echarts.init(document.getElementById('ipmap'));
+
+    // 基础配置
+    const option = {
+        backgroundColor: '#1b1b1b',
+        title: {
+            text: '攻击态势地图',
+            left: 'center',
+            textStyle: {
+                color: '#fff',
+                fontSize: 24,
+                fontWeight: 'bold'
+            },
+            top: 20
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function(params) {
+                if (params.seriesType === 'lines') {
+                    return `${params.data.fromName} -> ${params.data.toName}<br/>攻击值: ${params.data.value}`;
+                } else {
+                    return `${params.name}<br/>攻击值: ${params.value[2]}`;
+                }
+            },
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            borderColor: '#fff',
+            borderWidth: 1,
+            textStyle: {
+                color: '#fff'
+            }
+        },
+        geo: {
+            map: 'world',
+            nameMap: nameMap,
+            roam: true, // 允许缩放和平移
+            zoom: 1.2,
+            itemStyle: {
+                normal: {
+                    areaColor: '#1b1b1b',
+                    borderColor: 'rgba(100,149,237,0.8)',
+                    borderWidth: 0.5
+                },
+                emphasis: {
+                    areaColor: '#2a333d'
+                }
+            },
+            silent: false,
+            label: {
+                emphasis: {
+                    show: false
+                }
+            }
+        },
+        series: []
+    };
+
+    myChart.setOption(option);
+    return myChart;
+}
+
+// 根据数据集更新地图
+function updateMapBasedOnDataset(dataset) {
+    if (!dataset) return;
+
+    console.log("Selected dataset: " + dataset);
+
+    // 显  {
+    if (!dataset) return;
+
+    console.log("Selected dataset: " + dataset);
+
+    // 显示地图容器
+    document.getElementById('hidden-element').style.display = 'block';
+
+    // 如果地图未初始化，则初始化
+    if (!myChart) {
+        myChart = initMap();
+    }
+
+    // 获取当前数据集的攻击路径和点
+    const attackPaths = datasetAttackPaths[dataset] || [];
+    const attackPoints = datasetAttackPoints[dataset] || [];
+    const lineStyle = datasetLineStyles[dataset] || {
+        color: '#ff3333',
+        width: 1,
+        curveness: 0.2
+    };
+
+    // 转换攻击路径数据格式
+    const convertedPaths = attackPaths.map(function(path) {
+        const fromCoord = geoCoordMap[path[0].name];
+        const toCoord = geoCoordMap[path[1].name];
+
+        if (fromCoord && toCoord) {
+            return {
+                fromName: path[0].name,
+                toName: path[1].name,
+                coords: [fromCoord, toCoord],
+                value: path[1].value
+            };
+        }
+        return null;
+    }).filter(item => item !== null);
+
+    // 转换攻击点数据格式
+    const convertedPoints = attackPoints.map(function(point) {
+        const coord = geoCoordMap[point.name];
+
+        if (coord) {
+            return {
+                name: point.name,
+                value: [...coord, point.value]
+            };
+        }
+        return null;
+    }).filter(item => item !== null);
+
+    // 更新地图数据
+    myChart.setOption({
+        series: [
+            {
+                type: 'effectScatter',
+                coordinateSystem: 'geo',
+                data: convertedPoints,
+                symbolSize: function(val) {
+                    return val[2] / 10 + 5;
+                },
+                showEffectOn: 'render',
+                rippleEffect: {
+                    brushType: 'stroke',
+                    scale: 4,
+                    period: 4
+                },
+                hoverAnimation: true,
+                label: {
+                    normal: {
+                        formatter: '{b}',
+                        position: 'right',
+                        show: false
+                    }
+                },
+                itemStyle: {
+                    normal: {
+                        color: function(params) {
+                            // 根据数据集返回不同颜色
+                            const colors = {
+                                'CIC_IDS': '#ff3333',
+                                'CTU': '#4CAF50',
+                                'USTC-TFC': '#2196F3',
+                                'ISAC218': '#9C27B0',
+                                'ISAC219': '#FF9800',
+                                'Botnet2014': '#00BCD4',
+                                'ISOT_CID': '#FFEB3B'
+                            };
+                            return colors[dataset] || '#f4e925';
+                        },
+                        shadowBlur: 10,
+                        shadowColor: '#333'
+                    }
+                },
+                zlevel: 1
+            },
+            {
+                name: '攻击路径',
+                type: 'lines',
+                coordinateSystem: 'geo',
+                zlevel: 2,
+                data: convertedPaths,
+                lineStyle: {
+                    normal: {
+                        color: lineStyle.color,
+                        width: lineStyle.width,
+                        opacity: lineStyle.opacity,
+                        curveness: lineStyle.curveness
+                    }
+                },
+                effect: {
+                    show: true,
+                    period: 6,
+                    trailLength: 0.7,
+                    color: '#fff',
+                    symbolSize: 3,
+                    symbol: 'arrow'
+                }
+            },
+            // 添加飞线效果 - 更炫酷的飞线
+            {
+                name: '飞线效果',
+                type: 'lines',
+                coordinateSystem: 'geo',
+                zlevel: 3,
+                effect: {
+                    show: true,
+                    period: 4,
+                    trailLength: 0.5,
+                    symbol: 'circle',
+                    symbolSize: 5,
+                    loop: true
+                },
+                lineStyle: {
+                    normal: {
+                        color: function(params) {
+                            // 根据数据集返回不同颜色
+                            const colors = {
+                                'CIC_IDS': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#ff3333' },
+                                    { offset: 1, color: '#ffcc33' }
+                                ]),
+                                'CTU': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#4CAF50' },
+                                    { offset: 1, color: '#8BC34A' }
+                                ]),
+                                'USTC-TFC': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#2196F3' },
+                                    { offset: 1, color: '#03A9F4' }
+                                ]),
+                                'ISAC218': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#9C27B0' },
+                                    { offset: 1, color: '#E91E63' }
+                                ]),
+                                'ISAC219': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#FF9800' },
+                                    { offset: 1, color: '#FFEB3B' }
+                                ]),
+                                'Botnet2014': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#00BCD4' },
+                                    { offset: 1, color: '#4DD0E1' }
+                                ]),
+                                'ISOT_CID': new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                    { offset: 0, color: '#FFEB3B' },
+                                    { offset: 1, color: '#FFC107' }
+                                ])
+                            };
+                            return colors[dataset] || '#f4e925';
+                        },
+                        width: 1,
+                        opacity: 0.6,
+                        curveness: 0.3
+                    }
+                },
+                data: convertedPaths
+            }
+        ]
+    });
+}
+
+// 页面加载完成后初始化地图
+document.addEventListener('DOMContentLoaded', function() {
+    initMap();
+});
+
+// 获取按钮元素和隐藏元素
+const btnShow = document.getElementById('btn-show');
+const btnHide = document.getElementById('btn-hide');
+const hiddenElement = document.getElementById('hidden-element');
+
+// 显示元素的函数
+function showElement() {
+    hiddenElement.style.display = 'block';
+
+    // 如果地图已初始化，则重新调整大小
+    if (myChart) {
+        myChart.resize();
+    } else {
+        initMap();
+    }
+}
+
+// 隐藏元素的函数
+function hideElement() {
+    hiddenElement.style.display = 'none';
+}
+
+// 给按钮添加点击事件监听
+btnShow.addEventListener('click', function() {
+    showElement();
+
+    // 如果没有选择数据集，默认显示第一个数据集
+    const selectElement = document.getElementById('search_option');
+    if (selectElement.value === "") {
+        selectElement.selectedIndex = 1; // 选择第一个非默认选项
+        updateMapBasedOnDataset(selectElement.value);
+    }
+});
+
+btnHide.addEventListener('click', hideElement);
+
+// 窗口大小改变时，调整地图大小
+window.addEventListener('resize', function() {
+    if (myChart && hiddenElement.style.display !== 'none') {
+        myChart.resize();
+    }
+});
+
+// 模拟后端API调用获取攻击数据
+function fetchAttackData(dataset) {
+    // 在实际应用中，这里应该是一个AJAX请求到后端API
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                paths: datasetAttackPaths[dataset] || [],
+                points: datasetAttackPoints[dataset] || []
+            });
+        }, 300);
+    });
+}
+
+// 搜索函数，可以被按钮调用
+function search() {
+    const dataset = document.getElementById('search_option').value;
+    if (dataset) {
+        updateMapBasedOnDataset(dataset);
+    } else {
+        alert('请选择数据集');
+    }
+}
+</script>
+{% endblock javascripts %}

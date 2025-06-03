@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+     <!-- 新增源码下载按钮 -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <a href="{% url 'download_source' %}" class="btn btn-info btn-block">
+                    <i class="fas fa-download"></i> 下载模型源码
+                </a>
+            </div>
+        </div>
+
+        <!-- 新增样本生成按钮 -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <a href="{% url 'sample_generation' %}" class="btn btn-success btn-block">
+                    <i class="fas fa-flask"></i> 样本生成
+                </a>
+            </div>
+        </div>
+
+        <!-- 新增使用说明按钮 -->
+        <div class="row justify-content-center mb-4">
+            <div class="col-md-8">
+                <button type="button" class="btn btn-secondary btn-block" data-bs-toggle="modal" data-bs-target="#usageModal">
+                    <i class="fas fa-question-circle"></i> 使用说明
+                </button>
+            </div>
+        </div>
+
+    <div class="row justify-content-center mt-5">
+        <!-- 表单卡片 -->
+        <div class="col-md-8">
+            <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">数据增强配置</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="training-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label>选择数据集文件（ZIP格式）</label>
+                            <input type="file" name="dataset" class="form-control-file" accept=".zip" required>
+                        </div>
+                        <div class="form-group">
+                            <label>噪声调度类型</label>
+                            <select name="noise_schedule" class="form-control" required>
+                                <option value="linear">线性（Linear）</option>
+                                <option value="cosine">余弦（Cosine）</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>学习率（Learning Rate）</label>
+                            <input type="number" name="learning_rate" class="form-control" step="0.001" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Batch Size</label>
+                            <input type="number" name="batch_size" class="form-control" min="1" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">开始处理</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 进度条卡片 -->
+        <div class="col-md-8">
+            <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+                <div class="card-header bg-secondary text-white">
+                    <h4 class="mb-0">处理进度</h4>
+                </div>
+                <div class="card-body">
+                    <div id="progress-container" style="display: none;">
+                        <div class="progress" style="height: 30px;">
+                            <div class="progress-bar" role="progressbar" id="progress-bar"
+                                style="transition: width 0.3s ease; background-color: #007bff;">
+                                <span id="progress-text">0%</span>
+                            </div>
+                        </div>
+                        <div id="download-btn-container" style="display: none; margin-top: 15px;">
+                            <a href="#" id="model-download" class="btn btn-success btn-lg">点击下载模型文件</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- 在表单卡片和进度条卡片之间新增警告提示 -->
+    <div class="alert alert-warning mt-3" role="alert">
+        <strong>注意：</strong> 平台GPU资源有限，生成样本可能较慢。建议下载源码自行运行：
+        <ul>
+            <li>访问项目仓库：<a href="https://github.com/openai/improved-diffusion">Improved Diffusion</a></li>
+            <li>执行生成指令：
+                <pre>
+                    python scripts/image_sample.py \
+                    --model_path "训练好的模型文件路径，如：D:\Python_Project\model.pt" \
+                    --image_size '所需图片大小，例：32*32的图片使用image_size 32' \
+                    --diffusion_steps 50
+                </pre>
+            </li>
+        </ul>
+    </div>
+
+       <!-- 使用说明模态框 -->
+    <div class="modal fade" id="usageModal" tabindex="-1" role="dialog" aria-labelledby="usageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">模型源码使用说明</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>1. 下载并解压源码</h5>
+                    <pre>解压后路径：Improved_diffusion_module</pre>
+
+                    <h5>2. 安装依赖</h5>
+                    <pre>
+                    cd Improved_diffusion_module
+                    pip install -e .
+                    </pre>
+
+                    <h5>3. 配置数据集路径</h5>
+                    <pre>数据集示例路径：
+                D:\Python Project\Deep-Traffic\pre-processing\4_Png_16_CTU\Train\Coinminer
+                    </pre>
+
+                    <h5>4. 启动训练</h5>
+                    <pre>python scripts/image_train.py \
+                        --data_dir "你的数据集路径" \
+                        --image_size 16 \
+                        --num_channels 128 \
+                        --diffusion_steps 50 \
+                        --noise_schedule cosine \
+                        --lr 1e-4 \
+                        --batch_size 16</pre>
+
+                    <h5>5. 生成增强数据</h5>
+                    <pre>python scripts/image_sample.py \
+                        --model_path "训练好的模型路径" \
+                        --image_size 16 \
+                        --diffusion_steps 50</pre>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.getElementById('training-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const form = this;
+    const formData = new FormData(form);
+
+    document.getElementById('progress-container').style.display = 'block';
+
+    fetch('/start_training/', {
+        method: 'POST',
+        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+        body: formData
+    }).then(response => response.json())
+      .then(data => {
+          if (data.success) {
+              const taskId = data.task_id;
+              startProgressPolling(taskId);
+          } else {
+              alert('处理失败：' + data.error);
+              hideProgress();
+          }
+      });
+});
+
+function startProgressPolling(taskId) {
+    let interval = setInterval(() => {
+        fetch(`/get_progress/?task_id=${taskId}`)
+            .then(res => res.json())
+            .then(data => {
+                const progress = data.progress || 0;
+                const datasetName = data.dataset_name || ''; // 获取数据集名称
+
+                updateProgressUI(progress);
+
+                if (progress >= 100 && datasetName) {
+                    clearInterval(interval);
+                    const downloadUrl = `/download_model/${datasetName}/`; // 构建正确URL
+                    showDownloadButton(downloadUrl);
+                }
+            })
+            .catch(() => {
+                clearInterval(interval);
+                alert('进度获取失败');
+                hideProgress();
+            });
+    }, 500); // 每0.5秒轮询
+}
+
+function updateProgressUI(progress) {
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    progressBar.style.width = progress + '%';
+    progressText.textContent = progress + '%';
+
+    let color;
+    if (progress <= 50) {
+        color = `rgb(${progress * 5}, 150, 255)`; // 蓝色渐变
+    } else if (progress <= 80) {
+        color = `rgb(255, ${255 - (progress - 50)*5}, 0)`; // 黄色渐变
+    } else {
+        color = `rgb(0, ${255 - (100 - progress)*5}, 0)`; // 绿色渐变
+    }
+    progressBar.style.backgroundColor = color;
+}
+
+function showDownloadButton(url) {
+    document.getElementById('model-download').href = url;
+    document.getElementById('download-btn-container').style.display = 'block';
+}
+
+function hideProgress() {
+    document.getElementById('progress-container').style.display = 'none';
+}
+</script>
+{% endblock %}

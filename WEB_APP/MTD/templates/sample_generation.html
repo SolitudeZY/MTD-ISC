@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-8">
+            <div class="card shadow-lg p-3 mb-5 bg-white rounded">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">样本生成</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" id="sample-generation-form">
+                        {% csrf_token %}
+                        <div class="form-group mb-4">
+                            <label>上传模型文件（可选）</label>
+                            <input type="file" name="model_file" class="form-control-file" accept=".pt, .pth">
+                            <small class="form-text text-muted">如不上传，将使用系统默认模型</small>
+                        </div>
+                        <div class="d-grid">
+                            <a href="{% url 'download_samples' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-cogs"></i> 样本生成
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

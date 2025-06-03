@@ -1,0 +1,156 @@
+<!-- WEB_APP/MTD/templates/register.html -->
+{% load static %}
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+
+{#   这个注册模版已被弃用！！！   #}
+
+<!--    <link rel="stylesheet" href="{% static 'CSS/register.css' %}">-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 70%;
+            color: black; /* 修改文本颜色为黑色 */
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9); /* 修改背景颜色为白色，增加透明度 */
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 为了提供深度感，可以添加阴影 */
+        }
+
+        .container h2 {
+            color: black; /* 明确指定 h2 标签的文本颜色为黑色 */
+        }
+
+        .password-check-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-match-icon {
+            margin-left: 5px;
+            display: none;
+            position: absolute;
+            right: 10px;
+            font-size: 1.2em;
+        }
+
+        .error {
+            color: red;
+            display: none;
+            margin-top: 5px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <!-- 视频背景 -->
+    <video class="video-background" src="{% static 'video/videoplayback.mp4' %}" muted autoplay loop></video>
+    <div class="container">
+        <h2>注册</h2>
+
+        <!-- WEB_APP/MTD/templates/register.html -->
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="password-check-container">
+<!--                <input type="password" id="id_password2" name="password2" placeholder="确认密码" required>-->
+                <i class="fas password-match-icon" id="password-match-icon"></i>
+            </div>
+            <div class="error" id="password-error"></div>
+            <button type="submit" id="submit-btn">注册</button>
+        </form>
+
+        <a href="{% url 'login' %}">已经有账户？点击登录</a>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $('#password-match-icon').hide(); // 初始隐藏图标
+
+        function checkPasswordMatch() {
+            var password1 = $('#id_password1').val();
+            var password2 = $('#id_password2').val();
+
+            if (password1 !== password2) {
+                $('#password-error').html('两次输入的密码不一致').fadeIn(); // 显示错误信息
+                $('#password-match-icon')
+                    .removeClass('fa-check match')
+                    .addClass('fa-times mismatch')
+                    .css('color', 'red')
+                    .fadeIn(); // 显示不匹配图标
+                return false;
+            } else {
+                $('#password-error').fadeOut(); // 隐藏错误信息
+                $('#password-match-icon')
+                    .removeClass('fa-times mismatch')
+                    .addClass('fa-check match')
+                    .css('color', 'green')
+                    .fadeIn(); // 显示匹配图标
+                return true;
+            }
+        }
+
+        $('#id_password2').on('input', function() {
+            checkPasswordMatch();
+        });
+
+        $('form').on('submit', function(event) {
+            if (!checkPasswordMatch()) {
+                event.preventDefault(); // 阻止提交如果密码不匹配
+            } else {
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: $(this).attr('action'),
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        // 处理成功响应
+                        alert('注册成功！');
+                        window.location.href = '{% url "login" %}';
+                    },
+                    error: function(xhr, status, error) {
+                        // 处理错误响应
+                        $('.error').html('<p>' + xhr.responseText + '</p>').fadeIn();
+                    }
+                });
+
+                event.preventDefault(); // 阻止默认表单提交
+            }
+        });
+    });
+    </script>
+</body>
+</html>

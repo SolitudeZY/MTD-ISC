@@ -1,0 +1,160 @@
+/* WEB_APP/MTD/static/CSS/styles.css */
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #f4f4f9, #e0e0e0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-10px);
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: calc(100% - 22px);
+    transition: border-color 0.3s ease;
+    text-align: left;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+button {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+a {
+    margin-top: 20px; /* 增加链接与表单之间的间距 */
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    text-decoration: underline;
+    color: #0056b3;
+}
+
+/* 找回密码按钮样式 */
+button.reset-password {
+    padding: 10px;
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: auto;
+    margin-left: 10px;
+    transition: background-color 0.3s ease;
+}
+
+button.reset-password:hover {
+    background-color: #c82333;
+}
+
+/* 媒体查询 */
+@media (min-width: 768px) {
+    .container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        text-align: left; /* 文本左对齐 */
+    }
+
+    .container h2 {
+        margin-bottom: 20px;
+        text-align: center; /* 标题居中 */
+    }
+
+    .container form {
+        width: 45%;
+    }
+
+    .container a {
+        margin-top: 20px; /* 增加链接与表单之间的间距 */
+        text-align: center; /* 链接居中 */
+    }
+
+    .container form .form-group {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .container form .form-group label {
+        margin-right: 10px;
+    }
+
+    .container form .form-group input {
+        width: calc(100% - 120px); /* 调整输入框宽度 */
+    }
+
+    .container form .form-group button.reset-password {
+        margin-left: 10px;
+    }
+
+    .container form .form-group button[type="submit"] {
+        margin-top: 15px;
+        width: 100%;
+    }
+
+    .container form .register-button {
+        margin-top: 20px;
+        width: 100%;
+    }
+}
