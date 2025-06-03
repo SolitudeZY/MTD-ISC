@@ -1,4 +1,4 @@
-# 集成数据增强的恶意流量检测平台应用的项目说明
+# 基于数据增强和集成学习的网络入侵检测系统项目说明
 ## 1. 运行项目
 
 ### 安装依赖项
@@ -31,11 +31,13 @@ python manage.py migrate
 ```
 
 ## 项目内容介绍
- -  APP_CORE : 这里存放的是管理整个项目的一些配置文件，比如：settings.py，urls.py，wsgi.py
+
+-  APP_CORE : 存放项目配置文件（settings.py，urls.py，wsgi.py）
  -  MTD : 恶意流量检测平台应用，template存放的是各种模版文件(html)，static存放的是各种静态文件(css,js,img)，views存放的是各种视图函数，models存放的是各种模型，urls存放的是各种url
  -  media: 存放各种媒体文件和平台上传的模型、数据集文件 
 
 ## 额外说明
+- 本系统的数据增强模块依赖于improved-diffusion文件夹
 - 本项目的数据增强模块依赖于improved-diffusion文件夹中的readme.md，请先阅读该文件并安装相关依赖
 - 数据增强模块目录在WEB_APP/MTD/Improved_diffusion_module/中 （[Improved_diffusion_module](WEB_APP%2FMTD%2FImproved_diffusion_module)）
 
