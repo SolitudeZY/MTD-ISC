@@ -184,6 +184,28 @@
                     '#73c0de', '#3ba272', '#fc8452', '#9a60b4'
                 ];
 
+                // 数据聚合 - 按类型合并相同的数据
+                const aggregatedData = {};
+                datasetDistribution.forEach(item => {
+                    if (aggregatedData[item.name]) {
+                        aggregatedData[item.name] += item.value;
+                    } else {
+                        aggregatedData[item.name] = item.value;
+                    }
+                });
+
+                // 转换为数组格式
+                const processedData = Object.keys(aggregatedData).map(name => ({
+                    name: name,
+                    value: aggregatedData[name]
+                }));
+
+                // 为每个类型分配固定颜色
+                const colorMap = {};
+                processedData.forEach((item, index) => {
+                    colorMap[item.name] = colors[index % colors.length];
+                });
+
                 const option = {
                     tooltip: {
                         trigger: 'item',
@@ -194,7 +216,7 @@
                         orient: 'horizontal',
                         bottom: 0,
                         left: 'center',
-                        data: datasetDistribution.map(item => item.name)
+                        data: processedData.map(item => item.name)
                     },
                     series: [
                         {
@@ -227,11 +249,11 @@
                                 length2: 15, // 减小第二段引导线长度
                                 smooth: true // 平滑引导线
                             },
-                            data: datasetDistribution.map((item, index) => ({
+                            data: processedData.map(item => ({
                                 value: item.value,
                                 name: item.name,
                                 itemStyle: {
-                                    color: colors[index % colors.length]
+                                    color: colorMap[item.name]
                                 }
                             }))
                         }
@@ -277,6 +299,28 @@
                     '#9a60b4', '#ea7ccc', '#5470c6', '#91cc75'
                 ];
 
+                // 数据聚合 - 按类型合并相同的数据
+                const aggregatedData = {};
+                modelDistribution.forEach(item => {
+                    if (aggregatedData[item.name]) {
+                        aggregatedData[item.name] += item.value;
+                    } else {
+                        aggregatedData[item.name] = item.value;
+                    }
+                });
+
+                // 转换为数组格式
+                const processedData = Object.keys(aggregatedData).map(name => ({
+                    name: name,
+                    value: aggregatedData[name]
+                }));
+
+                // 为每个类型分配固定颜色
+                const colorMap = {};
+                processedData.forEach((item, index) => {
+                    colorMap[item.name] = colors[index % colors.length];
+                });
+
                 const option = {
                     tooltip: {
                         trigger: 'item',
@@ -287,7 +331,7 @@
                         orient: 'horizontal',
                         bottom: 0,
                         left: 'center',
-                        data: modelDistribution.map(item => item.name)
+                        data: processedData.map(item => item.name)
                     },
                     series: [
                         {
@@ -320,11 +364,11 @@
                                 length2: 15, // 减小第二段引导线长度
                                 smooth: true // 平滑引导线
                             },
-                            data: modelDistribution.map((item, index) => ({
+                            data: processedData.map(item => ({
                                 value: item.value,
                                 name: item.name,
                                 itemStyle: {
-                                    color: colors[index % colors.length]
+                                    color: colorMap[item.name]
                                 }
                             }))
                         }
@@ -418,7 +462,7 @@
             }
         }
 
-        // 初始化数据集上传时间分布图 - 优化版本
+        // 初始化数据集上传时间分布图
         function initializeModelTimeChart() {
             try {
                 const chartDom = document.getElementById('model-time-chart');
@@ -529,7 +573,7 @@
                             color: '#666'
                         },
                         name: axisStrategy === 'year-month' ? '年-月' :
-                              axisStrategy === 'month-day' ? '月-日' : '上传日期',
+                      axisStrategy === 'month-day' ? '月-日' : '上传日期',
                         nameLocation: 'middle',
                         nameGap: 35,
                         axisTick: {
@@ -685,3 +729,4 @@
     </script>
 </div>
 {% endblock %}
+ 
