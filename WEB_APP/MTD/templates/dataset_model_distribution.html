@@ -418,7 +418,7 @@
             }
         }
 
-        // 初始化数据集上传时间分布图
+        // 初始化数据集上传时间分布图 - 优化版本
         function initializeModelTimeChart() {
             try {
                 const chartDom = document.getElementById('model-time-chart');
@@ -447,9 +447,50 @@
 
                 console.log('Dataset time distribution data for chart:', modelTimeDistribution);
 
-                // 检查是否是按天统计的数据（格式为YYYY-MM-DD）
-                const isDailyData = modelTimeDistribution.length > 0 &&
-                                   modelTimeDistribution[0].period.match(/^\d{4}-\d{2}-\d{2}$/);
+                // 动态计算X轴显示策略
+                function calculateAxisStrategy(data) {
+                    const dataLength = data.length;
+                    const firstDate = new Date(data[0].period);
+                    const lastDate = new Date(data[data.length - 1].period);
+                    const daysDiff = Math.ceil((lastDate - firstDate) / (1000 * 60 * 60 * 24));
+
+                    // 根据数据量和时间跨度决定显示策略
+                    if (daysDiff > 365 || dataLength > 100) {
+                        return 'year-month'; // 显示年-月
+                    } else if (daysDiff > 90 || dataLength > 30) {
+                        return 'month-day'; // 显示月-日
+                    } else {
+                        return 'full-date'; // 显示完整日期
+                    }
+                }
+
+                // 格式化X轴标签
+                function formatAxisLabel(value, strategy) {
+                    const date = new Date(value);
+                    switch (strategy) {
+                        case 'year-month':
+                            return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0');
+                        case 'month-day':
+                            return String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+                        case 'full-date':
+                        default:
+                            return value; // 保持原格式 YYYY-MM-DD
+                    }
+                }
+
+                // 计算显示间隔
+                function calculateInterval(dataLength, strategy) {
+                    if (strategy === 'year-month') {
+                        return Math.max(1, Math.floor(dataLength / 12)); // 最多显示12个月份标签
+                    } else if (strategy === 'month-day') {
+                        return Math.max(1, Math.floor(dataLength / 15)); // 最多显示15个日期标签
+                    } else {
+                        return Math.max(1, Math.floor(dataLength / 10)); // 最多显示10个完整日期标签
+                    }
+                }
+
+                const axisStrategy = calculateAxisStrategy(modelTimeDistribution);
+                const labelInterval = calculateInterval(modelTimeDistribution.length, axisStrategy);
 
                 const option = {
                     title: {
@@ -464,13 +505,14 @@
                         },
                         formatter: function(params) {
                             const data = params[0];
-                            return `${data.name}<br/>${data.seriesName}: ${data.value}`;
+                            const originalDate = modelTimeDistribution[data.dataIndex].period;
+                            return `${originalDate}<br/>${data.seriesName}: ${data.value}`;
                         }
                     },
                     grid: {
                         left: '3%',
                         right: '4%',
-                        bottom: '10%',
+                        bottom: '15%', // 增加底部空间
                         top: '15%',
                         containLabel: true
                     },
@@ -478,24 +520,29 @@
                         type: 'category',
                         data: modelTimeDistribution.map(item => item.period),
                         axisLabel: {
-                            rotate: 45,
-                            interval: 0,
+                            rotate: axisStrategy === 'full-date' ? 45 : 0, // 完整日期时旋转，其他情况不旋转
+                            interval: labelInterval - 1, // ECharts的interval是基于0的
                             formatter: function(value) {
-                                // 显示日期，格式为YYYY-MM-DD
-                                return value;
-                            }
+                                return formatAxisLabel(value, axisStrategy);
+                            },
+                            fontSize: 11,
+                            color: '#666'
                         },
-                        name: '上传日期',
+                        name: axisStrategy === 'year-month' ? '年-月' :
+                              axisStrategy === 'month-day' ? '月-日' : '上传日期',
                         nameLocation: 'middle',
-                        nameGap: 35
+                        nameGap: 35,
+                        axisTick: {
+                            alignWithLabel: true
+                        }
                     },
                     yAxis: {
                         type: 'value',
                         name: '数据集数量',
                         nameLocation: 'middle',
                         nameGap: 40,
-                        minInterval: 1, // 确保y轴刻度是整数
-                        min: 0 // 从0开始
+                        minInterval: 1,
+                        min: 0
                     },
                     series: [
                         {
@@ -504,7 +551,7 @@
                             data: modelTimeDistribution.map(item => item.count),
                             smooth: true,
                             symbol: 'circle',
-                            symbolSize: 8,
+                            symbolSize: 6,
                             lineStyle: {
                                 width: 3
                             },
@@ -524,7 +571,7 @@
                                 ])
                             },
                             label: {
-                                show: true,
+                                show: false, // 在密集数据时隐藏标签
                                 position: 'top',
                                 formatter: '{c}'
                             },
@@ -545,16 +592,45 @@
                         {
                             type: 'inside',
                             start: 0,
-                            end: 100
+                            end: 100,
+                            // 缩放时重新计算X轴标签
+                            onDataZoom: function(params) {
+                                const start = params.start;
+                                const end = params.end;
+                                const totalLength = modelTimeDistribution.length;
+                                const visibleLength = Math.ceil((end - start) / 100 * totalLength);
+
+                                // 根据可见数据量重新计算策略
+                                let newStrategy = 'full-date';
+                                if (visibleLength > 50) {
+                                    newStrategy = 'month-day';
+                                } else if (visibleLength > 100) {
+                                    newStrategy = 'year-month';
+                                }
+
+                                const newInterval = calculateInterval(visibleLength, newStrategy);
+
+                                // 更新X轴配置
+                                myChart.setOption({
+                                    xAxis: {
+                                        axisLabel: {
+                                            interval: newInterval - 1,
+                                            formatter: function(value) {
+                                                return formatAxisLabel(value, newStrategy);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
                         },
                         {
                             type: 'slider',
                             start: 0,
                             end: 100,
-                            bottom: 10
+                            bottom: 10,
+                            height: 20
                         }
                     ],
-                    // 添加工具箱
                     toolbox: {
                         feature: {
                             dataZoom: {
@@ -568,7 +644,7 @@
                 };
 
                 myChart.setOption(option);
-                console.log('数据集时间图表初始化完成');
+                console.log(`数据集时间图表初始化完成，使用策略: ${axisStrategy}`);
             } catch (error) {
                 console.error('初始化数据集时间图表时出错:', error);
                 showErrorMessage('初始化数据集时间图表失败: ' + error.message);

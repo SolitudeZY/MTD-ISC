@@ -22,8 +22,18 @@ SECRET_KEY = "django-insecure-mb7tp&m_-9$n32n)ouvdkv^bm+ebt-ax$a*uvww*i&^-q@bg$@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Application definition
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'MTD_DMSE',  # 数据库名称，把这里改为你的数据库名称(我们建议您手动新建名为MTD_DMSE的数据库)
+        'USER': 'zhangyang',    # 数据库用户名，把这里改为你的数据库用户名（比如root）
+        'PASSWORD': '123456',  # 数据库密码，把这里改为你的数据库用户名对应的密码
+        'HOST': 'localhost',  # 或者你的数据库主机地址
+        'PORT': '3306',  # MySQL默认端口
+    }
+}
 
+# Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth", 
@@ -86,16 +96,6 @@ WSGI_APPLICATION = "APP_core.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'MTD_DMSE',
-        'USER': 'zhangyang',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',  # 或者你的数据库主机地址
-        'PORT': '3306',  # MySQL默认端口
-    }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
