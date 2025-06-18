@@ -5,9 +5,6 @@ from django.db import models
 from django.utils import timezone
 from django.conf import settings
 
-
-
-
 # 数据增强管理
 # class DataAugmentationTask(models.Model):
 #     STATUS_CHOICES = (
