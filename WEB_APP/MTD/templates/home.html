@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}基于数据增强和集成学习的网络入侵检测系统{% endblock %}
+{% block title %}SafeIDS:基于数据增强和集成学习的网络入侵检测系统{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -48,14 +48,25 @@
   .modal-content {
     border-radius: .5rem;
   }
+  
+  /* 添加光标样式 */
+  #cursor, #welcomeCursor {
+    font-weight: bold;
+    animation: blink 0.7s infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
 </style>
 {% endblock extra_css %}
 
 {% block content %}
 <div class="container py-4">
   <div class="jumbotron">
-    <h1 class="display-5 fw-bold text-center">SafeIDS:基于数据增强和集成学习的网络入侵检测系统</h1>
-    <p class="lead text-center mt-3">欢迎使用基于数据增强和集成学习的网络入侵检测系统，祝您使用愉快！</p>
+    <h1 class="display-5 fw-bold text-center"><span id="typewriter"></span><span id="cursor">|</span></h1>
+    <p class="lead text-center mt-3"><span id="welcomeTypewriter"></span><span id="welcomeCursor">|</span></p>
     <div class="text-center mt-4">
       <p>想要进一步了解该系统，请点击系统使用说明按钮：</p>
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#systemInfoModal">系统使用说明</button>
@@ -211,9 +222,9 @@
 
         <div class="mb-3">
           <h6 class="fw-bold">5. 检测记录及可视化模块：</h6>
-          <p>（1）用表格的形式展现出网络入侵检测模型在不同网络流量数据集上的检测结果；</p>
-          <p>（2）能展现出各网络入侵检测模型在不同网络流量数据集上不同指标（accuracy、precision、recall和FPR）上的对比柱状图和accuracy、precision、recall三项指标的综合性能雷达图；</p>
-          <p>（3）能展现出当前上传模型和数据集的分布饼状图以及数据集的上传时间折线图。</p>
+          <p>（1）用表格的形式展现各网络入侵检测模型在不同网络流量数据集上的检测结果；</p>
+          <p>（2）能呈现出各网络入侵检测模型在不同网络流量数据集上不同指标（accuracy、precision、recall和FPR）上的对比柱状图和accuracy、precision、recall三项指标的综合性能雷达图；</p>
+          <p>（3）能呈现出当前上传模型和数据集的分布饼状图以及数据集的上传时间折线图。</p>
         </div>
 
         <div class="mb-3">
@@ -235,3 +246,45 @@
   </div>
 </div>
 {% endblock content %}
+
+{% block javascripts %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // 标题打字机效果
+    const titleText = "SafeIDS:基于数据增强和集成学习的网络入侵检测系统";
+    const welcomeText = "欢迎使用基于数据增强和集成学习的网络入侵检测系统，祝您使用愉快！";
+    let titleIndex = 0;
+    let welcomeIndex = 0;
+    const speed = 100; // 打字速度，毫秒
+    
+    // 标题打字效果函数
+    function typeTitleWriter() {
+      if (titleIndex < titleText.length) {
+        document.getElementById("typewriter").innerHTML += titleText.charAt(titleIndex);
+        titleIndex++;
+        setTimeout(typeTitleWriter, speed);
+      } else {
+        // 标题打完后，开始显示欢迎文本
+        setTimeout(typeWelcomeWriter, 500); // 等待500毫秒后开始欢迎文本
+      }
+    }
+    
+    // 欢迎文本打字效果函数
+    function typeWelcomeWriter() {
+      if (welcomeIndex < welcomeText.length) {
+        document.getElementById("welcomeTypewriter").innerHTML += welcomeText.charAt(welcomeIndex);
+        welcomeIndex++;
+        setTimeout(typeWelcomeWriter, speed);
+      } else {
+        // 欢迎文本打完后，隐藏欢迎文本的光标
+        document.getElementById("welcomeCursor").style.display = "none";
+      }
+    }
+    
+    // 确保元素存在后再执行
+    if (document.getElementById("typewriter") && document.getElementById("welcomeTypewriter")) {
+      typeTitleWriter();
+    }
+  });
+</script>
+{% endblock javascripts %}
