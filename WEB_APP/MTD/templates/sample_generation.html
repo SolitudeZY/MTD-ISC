@@ -13,8 +13,8 @@
                     <form method="post" enctype="multipart/form-data" id="sample-generation-form">
                         {% csrf_token %}
                         <div class="form-group mb-4">
-                            <label>上传模型文件（可选）</label>
-                            <input type="file" name="model_file" class="form-control-file" accept=".pt, .pth">
+                            <label for="model_file">上传模型文件（可选）</label>
+                            <input type="file" name="model_file" id="model_file" class="form-control-file" accept=".pt, .pth">
                             <small class="form-text text-muted">如不上传，将使用系统默认模型</small>
                         </div>
                         <div class="d-grid">

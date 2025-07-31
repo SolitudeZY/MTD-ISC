@@ -3,7 +3,7 @@
 {% block title %} 攻击态势感知 {% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.staticfile.org/twitter-bootstrap/5.1.1/css/bootstrap.min.css" rel="stylesheet">
+<link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'CSS/fileinput.min.css' %}">
 <link href="{% static 'CSS/main.css' %}" rel="stylesheet" type="text/css"/>
 <link href="{% static 'CSS/test.css' %}" rel="stylesheet" type="text/css"/>
@@ -173,10 +173,10 @@
 
 {% block javascripts %}
 <!-- 引入 ECharts 5.x -->
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+<script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <!-- 引入世界地图数据 -->
-<script src="https://cdn.jsdelivr.net/npm/echarts@4.9.0/map/js/world.js"></script>
+<script src="{% static 'vendor/echarts/world.js' %}"></script>
 
 <script type="text/javascript">
 // 地理坐标数据
