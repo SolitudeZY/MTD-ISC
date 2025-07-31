@@ -11,13 +11,21 @@
         集成数据增强的恶意流量检测平台
         {% endblock %}
     </title>
+    
+    <!-- 核心JS库 - 只加载一次 -->
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'feather-icons/dist/feather.min.js' %}"></script>
+
+    <!-- ECharts库 -->
+    <script src="{% static 'echarts-5.6-dist/echarts.min.js' %}"></script>
+    <script src="{% static 'js/echarts-wordcloud.min.js' %}"></script>
+    <script src="{% static 'vendor/echarts/echarts-wordcloud.min.js' %}"></script>
 
     <!-- Favicon icon -->
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
 
     <!-- fontawesome icon -->
-    <link rel="stylesheet" href="{% static 'fonts/fontawesome/css/fontawesome-all.min.css' %}">
-
     <!-- animation css -->
     <link rel="stylesheet" href="{% static 'plugins/animation/css/animate.min.css' %}">
 
@@ -80,15 +88,6 @@
         </div>
     </div>
 
-    <!-- 核心JS库 - 只加载一次 -->
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="{% static 'feather-icons/dist/feather.min.js' %}"></script>
-
-    <!-- ECharts库 -->
-    <script src="{% static 'echarts-5.6-dist/echarts.min.js' %}"></script>
-    <script src="{% static 'js/echarts-wordcloud.min.js' %}"></script>
-    <script src="{% static 'vendor/echarts/echarts-wordcloud.min.js' %}"></script>
 
     <!-- 初始化Feather图标 -->
     <script>

@@ -118,10 +118,10 @@
 
                         <!-- 特效控制面板 -->
                         <div id="effect-controls" class="effect-controls">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" id="toggle-flylines" checked>
                                 飞线特效
-                            </label>
+                            </label> -->
                             <label>
                                 <input type="checkbox" id="toggle-heatmap" checked>
                                 热力图
@@ -179,6 +179,9 @@
 <script src="{% static 'vendor/echarts/world.js' %}"></script>
 
 <script type="text/javascript">
+// 统一的柱状图宽度
+const UNIFORM_BAR_WIDTH = 15;
+
 // 地理坐标数据
 const geoCoordMap = {
     '中国杭州': [120.1614, 30.2936],
@@ -211,6 +214,40 @@ const geoCoordMap = {
     '意大利': [12.56738, 41.87194],
     '荷兰': [5.291266, 52.132633],
     '墨西哥': [-102.552784, 23.634501]
+};
+
+// IP地址映射
+const ipAddressMap = {
+    '中国杭州': '192.168.1.100',
+    '美国芒廷维尤': '10.0.1.50',
+    '中国北京': '172.16.0.25',
+    '日本东京': '203.0.113.15',
+    '中国南京': '192.168.2.88',
+    '中国福州市': '10.10.10.33',
+    '美国马科尔蒂奥': '198.51.100.42',
+    '中国广州': '172.20.0.77',
+    '法国': '203.0.113.200',
+    '英国': '198.51.100.150',
+    '加拿大': '10.5.5.120',
+    '委内瑞拉': '172.25.0.90',
+    '土耳其': '192.168.5.45',
+    '澳大利亚': '10.20.30.60',
+    '白俄罗斯': '172.30.0.110',
+    '丹麦': '203.0.113.75',
+    '瑞士': '198.51.100.88',
+    '捷克共和国': '10.15.25.35',
+    '德国': '172.18.0.95',
+    '百慕大': '192.168.10.22',
+    '南非': '10.40.50.80',
+    '俄罗斯': '172.35.0.125',
+    '巴西': '203.0.113.180',
+    '印度': '198.51.100.210',
+    '新加坡': '10.60.70.90',
+    '韩国': '172.40.0.140',
+    '西班牙': '192.168.15.55',
+    '意大利': '10.80.90.100',
+    '荷兰': '172.45.0.160',
+    '墨西哥': '203.0.113.220'
 };
 
 // 国家名称映射
@@ -574,9 +611,6 @@ let showHeatmap = true;
 let show3DBars = true;
 let showBubbles = true;
 
-// 统一的柱状图宽度
-const UNIFORM_BAR_WIDTH = 15;
-
 function initMap() {
     if (myChart !== null) {
         myChart.dispose();
@@ -601,19 +635,44 @@ function initMap() {
             trigger: 'item',
             formatter: function(params) {
                 if (params.seriesType === 'lines') {
-                    return `${params.data.fromName} -> ${params.data.toName}<br/>攻击值: ${params.data.value}`;
+                    return `
+                        <div style="padding: 10px;">
+                            <div style="color: #ff6b6b; font-weight: bold; margin-bottom: 8px;">🚨 攻击路径</div>
+                            <div style="margin-bottom: 5px;">📍 攻击源: ${params.data.fromName}</div>
+                            <div style="margin-bottom: 5px; color: #ff9999;">🔗 源IP: ${params.data.sourceIP || ipAddressMap[params.data.fromName] || '未知IP'}</div>
+                            <div style="margin-bottom: 5px;">🎯 目标: ${params.data.toName}</div>
+                            <div style="margin-bottom: 5px; color: #ff9999;">🔗 目标IP: ${params.data.targetIP || ipAddressMap[params.data.toName] || '未知IP'}</div>
+                            <div style="color: #ffd700;">⚡ 攻击强度: ${params.data.value}</div>
+                        </div>
+                    `;
                 } else if (params.seriesName === '攻击源气泡图' || params.seriesName === '攻击目标气泡图') {
                     const type = params.data.category === 'source' ? '攻击源' : '攻击目标';
-                    return `${params.name}<br/>类型: ${type}<br/>活跃度: ${params.value[2]}`;
+                    const categoryColor = params.data.category === 'source' ? '#ff6b6b' : '#4ecdc4';
+                    return `
+                        <div style="padding: 10px;">
+                            <div style="color: ${categoryColor}; font-weight: bold; margin-bottom: 8px;">🔥 ${type}</div>
+                            <div style="margin-bottom: 5px;">📍 位置: ${params.name}</div>
+                            <div style="margin-bottom: 5px; color: #66d9ef;">🔗 IP地址: ${ipAddressMap[params.name] || '未知IP'}</div>
+                            <div style="color: #ffd700;">📈 活跃度: ${params.value[2]}</div>
+                        </div>
+                    `;
                 } else {
-                    return `${params.name}<br/>攻击值: ${params.value[2] || params.value}`;
+                    return `
+                        <div style="padding: 10px;">
+                            <div style="color: #4ecdc4; font-weight: bold; margin-bottom: 8px;">🎯 攻击节点</div>
+                            <div style="margin-bottom: 5px;">📍 位置: ${params.name}</div>
+                            <div style="margin-bottom: 5px; color: #66d9ef;">🔗 IP地址: ${ipAddressMap[params.name] || '未知IP'}</div>
+                            <div style="color: #ffd700;">📊 攻击次数: ${params.value[2] || params.value}</div>
+                        </div>
+                    `;
                 }
             },
             backgroundColor: 'rgba(0,0,0,0.8)',
-            borderColor: '#fff',
+            borderColor: '#00ff00',
             borderWidth: 1,
             textStyle: {
-                color: '#fff'
+                color: '#fff',
+                fontSize: 14
             }
         },
         geo: {
@@ -871,7 +930,9 @@ function updateMapData(dataset) {
                 fromName: path[0].name,
                 toName: path[1].name,
                 coords: [fromCoord, toCoord],
-                value: path[1].value
+                value: path[1].value,
+                sourceIP: ipAddressMap[path[0].name] || '未知IP',
+                targetIP: ipAddressMap[path[1].name] || '未知IP'
             };
         }
         return null;
@@ -884,89 +945,104 @@ function updateMapData(dataset) {
         if (coord) {
             return {
                 name: point.name,
-                value: [...coord, point.value]
+                value: [...coord, point.value],
+                ip: ipAddressMap[point.name] || '未知IP'
             };
         }
         return null;
     }).filter(item => item !== null);
 
+    // 转换气泡数据格式
+    const convertedBubbles = bubbleData.map(function(bubble) {
+        return {
+            name: bubble.name,
+            value: bubble.value,
+            category: bubble.category,
+            ip: ipAddressMap[bubble.name] || '未知IP'
+        };
+    });
+
     const series = [];
 
-    // 气泡图 - 攻击源
+    // 气泡图 - 攻击源和目标
     if (showBubbles) {
         const bubbleColors = getBubbleColors(dataset);
-        const sourceData = bubbleData.filter(item => item.category === 'source');
-        const targetData = bubbleData.filter(item => item.category === 'target');
+        const sourceData = convertedBubbles.filter(item => item.category === 'source');
+        const targetData = convertedBubbles.filter(item => item.category === 'target');
 
         // 攻击源气泡图
-        series.push({
-            name: '攻击源气泡图',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            data: sourceData,
-            symbolSize: function(val) {
-                return Math.max(val[2] / 3, 15);
-            },
-            itemStyle: {
-                color: bubbleColors.source,
-                borderColor: '#fff',
-                borderWidth: 2,
-                shadowBlur: 20,
-                shadowColor: bubbleColors.source,
-                opacity: 0.8
-            },
-            emphasis: {
+        if (sourceData.length > 0) {
+            series.push({
+                name: '攻击源气泡图',
+                type: 'scatter',
+                coordinateSystem: 'geo',
+                data: sourceData,
+                symbolSize: function(val) {
+                    return Math.max(val[2] / 3, 15);
+                },
                 itemStyle: {
-                    shadowBlur: 30,
-                    scale: 1.2
+                    color: bubbleColors.source,
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    shadowBlur: 20,
+                    shadowColor: bubbleColors.source,
+                    opacity: 0.8
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 30,
+                        scale: 1.2
+                    }
+                },
+                label: {
+                    show: false
+                },
+                zlevel: 0,
+                animation: true,
+                animationDelay: function(idx) {
+                    return idx * 200;
                 }
-            },
-            label: {
-                show: false
-            },
-            zlevel: 0,
-            animation: true,
-            animationDelay: function(idx) {
-                return idx * 200;
-            }
-        });
+            });
+        }
 
         // 攻击目标气泡图
-        series.push({
-            name: '攻击目标气泡图',
-            type: 'scatter',
-            coordinateSystem: 'geo',
-            data: targetData,
-            symbolSize: function(val) {
-                return Math.max(val[2] / 3, 15);
-            },
-            itemStyle: {
-                color: bubbleColors.target,
-                borderColor: '#fff',
-                borderWidth: 2,
-                shadowBlur: 20,
-                shadowColor: bubbleColors.target,
-                opacity: 0.8
-            },
-            emphasis: {
+        if (targetData.length > 0) {
+            series.push({
+                name: '攻击目标气泡图',
+                type: 'scatter',
+                coordinateSystem: 'geo',
+                data: targetData,
+                symbolSize: function(val) {
+                    return Math.max(val[2] / 3, 15);
+                },
                 itemStyle: {
-                    shadowBlur: 30,
-                    scale: 1.2
+                    color: bubbleColors.target,
+                    borderColor: '#fff',
+                    borderWidth: 2,
+                    shadowBlur: 20,
+                    shadowColor: bubbleColors.target,
+                    opacity: 0.8
+                },
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 30,
+                        scale: 1.2
+                    }
+                },
+                label: {
+                    show: false
+                },
+                zlevel: 0,
+                animation: true,
+                animationDelay: function(idx) {
+                    return idx * 200 + 100;
                 }
-            },
-            label: {
-                show: false
-            },
-            zlevel: 0,
-            animation: true,
-            animationDelay: function(idx) {
-                return idx * 200 + 100;
-            }
-        });
+            });
+        }
     }
 
-    // 攻击点柱状图（统一宽度）
-    if (show3DBars) {
+    // 攻击点柱状图（3D柱状图效果）
+    if (show3DBars && convertedPoints.length > 0) {
         series.push({
             name: '攻击强度柱状图',
             type: 'scatter',
@@ -979,6 +1055,7 @@ function updateMapData(dataset) {
                     name: point.name,
                     value: point.value,
                     symbolSize: [UNIFORM_BAR_WIDTH, height], // 统一宽度，变化高度
+                    ip: point.ip,
                     itemStyle: {
                         color: color,
                         shadowBlur: 15,
@@ -1018,35 +1095,38 @@ function updateMapData(dataset) {
     }
 
     // 攻击点效果散点图
-    series.push({
-        type: 'effectScatter',
-        coordinateSystem: 'geo',
-        data: convertedPoints,
-        symbolSize: function(val) {
-            return Math.max(val[2] / 8 + 3, 5);
-        },
-        showEffectOn: 'render',
-        rippleEffect: {
-            brushType: 'stroke',
-            scale: 3,
-            period: 4
-        },
-        hoverAnimation: true,
-        label: {
-            show: false
-        },
-        itemStyle: {
-            color: function(params) {
-                return getColorByValue(params.value[2], dataset);
+    if (convertedPoints.length > 0) {
+        series.push({
+            name: '攻击节点',
+            type: 'effectScatter',
+            coordinateSystem: 'geo',
+            data: convertedPoints,
+            symbolSize: function(val) {
+                return Math.max(val[2] / 8 + 3, 5);
             },
-            shadowBlur: 10,
-            shadowColor: '#333'
-        },
-        zlevel: 2
-    });
+            showEffectOn: 'render',
+            rippleEffect: {
+                brushType: 'stroke',
+                scale: 3,
+                period: 4
+            },
+            hoverAnimation: true,
+            label: {
+                show: false
+            },
+            itemStyle: {
+                color: function(params) {
+                    return getColorByValue(params.value[2], dataset);
+                },
+                shadowBlur: 10,
+                shadowColor: '#333'
+            },
+            zlevel: 2
+        });
+    }
 
     // 飞线效果
-    if (showFlylines) {
+    if (showFlylines && convertedPaths.length > 0) {
         series.push({
             name: '攻击路径',
             type: 'lines',
@@ -1128,10 +1208,53 @@ function updateMapData(dataset) {
         });
     }
 
-    // 更新地图数据
-    myChart.setOption({
+    // 更新地图配置，包含tooltip
+    const option = {
+        tooltip: {
+            trigger: 'item',
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            borderColor: '#00ff00',
+            borderWidth: 1,
+            textStyle: {
+                color: '#fff',
+                fontSize: 14
+            },
+            formatter: function(params) {
+                if (params.seriesType === 'lines') {
+                    // 飞线tooltip - 显示攻击路径和IP
+                    return `
+                        <div style="padding: 10px;">
+                            <div style="color: #ff6b6b; font-weight: bold; margin-bottom: 8px;">🚨 攻击路径</div>
+                            <div style="margin-bottom: 5px;">📍 攻击源: ${params.data.fromName}</div>
+                            <div style="margin-bottom: 5px; color: #ff9999;">🔗 源IP: ${params.data.sourceIP}</div>
+                            <div style="margin-bottom: 5px;">🎯 目标: ${params.data.toName}</div>
+                            <div style="margin-bottom: 5px; color: #ff9999;">🔗 目标IP: ${params.data.targetIP}</div>
+                            <div style="color: #ffd700;">⚡ 攻击强度: ${params.data.value}</div>
+                        </div>
+                    `;
+                } else if (params.seriesType === 'scatter' || params.seriesType === 'effectScatter') {
+                    // 散点tooltip - 显示攻击点和IP
+                    const isSource = params.data.category === 'source';
+                    const categoryText = isSource ? '攻击源' : (params.data.category === 'target' ? '攻击目标' : '攻击节点');
+                    const categoryColor = isSource ? '#ff6b6b' : '#4ecdc4';
+                    
+                    return `
+                        <div style="padding: 10px;">
+                            <div style="color: ${categoryColor}; font-weight: bold; margin-bottom: 8px;">🎯 ${categoryText}</div>
+                            <div style="margin-bottom: 5px;">📍 位置: ${params.data.name}</div>
+                            <div style="margin-bottom: 5px; color: #66d9ef;">🔗 IP地址: ${params.data.ip}</div>
+                            <div style="color: #ffd700;">📊 攻击强度: ${params.data.value[2] || params.data.value}</div>
+                        </div>
+                    `;
+                }
+                return params.name;
+            }
+        },
         series: series
-    });
+    };
+
+    // 更新地图数据
+    myChart.setOption(option);
 }
 
 // 根据数据集更新地图
