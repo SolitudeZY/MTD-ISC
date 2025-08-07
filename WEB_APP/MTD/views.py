@@ -1,9 +1,15 @@
 import logging
 import mimetypes
-
+import os
+import re  # 添加这个导入
+import uuid
+import random
+import shutil
+import json
 from django.contrib.auth import logout, get_user_model
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404, StreamingHttpResponse, FileResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.conf import settings
 from .models import ModelManagement, DetectionHistory, DatasetManagement
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
@@ -15,8 +21,8 @@ from django.db.models import Count
 from django.db.models.functions import TruncMonth, TruncDay
 from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
-import json
-
+from django.http import HttpResponse, Http404
+from django.conf import settings
 # from APP_core import settings
 
 User = get_user_model()
@@ -304,14 +310,14 @@ def model_detail(request, model_id):
     return render(request, 'model_detail.html', {'model': model})
 
 
-@login_required
-def malicious_model_introduction(request):
-    return render(request, 'malicious_model_introduction.html')
+# @login_required
+# def malicious_model_introduction(request):
+#     return render(request, 'malicious_model_introduction.html')
 
 
-@login_required
-def data_augmentation_introduction(request):
-    return render(request, 'data_augmentation_introduction.html')
+# @login_required
+# def data_augmentation_introduction(request):
+#     return render(request, 'data_augmentation_introduction.html')
 
 
 def data_augmentation(request):
@@ -791,3 +797,12 @@ def fullscreen_image(request):
     alt = request.GET.get('alt', '框架图')
 
     return render(request, 'fullscreen_image.html', {'src': src, 'alt': alt})
+
+# 为了向后兼容，保持原有的视图函数不变
+@login_required
+def malicious_model_introduction(request):
+    return render(request, 'malicious_model_introduction.html')
+
+@login_required
+def data_augmentation_introduction(request):
+    return render(request, 'data_augmentation_introduction.html')

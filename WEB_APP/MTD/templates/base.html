@@ -17,10 +17,11 @@
     <script src="{% static 'bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'feather-icons/dist/feather.min.js' %}"></script>
 
-    <!-- ECharts库 -->
-    <script src="{% static 'echarts-5.6-dist/echarts.min.js' %}"></script>
-    <script src="{% static 'js/echarts-wordcloud.min.js' %}"></script>
+    <!-- ECharts库 - 统一使用一个版本 -->
+    <script src="{% static 'vendor/echarts/echarts.min.js' %}"></script>
     <script src="{% static 'vendor/echarts/echarts-wordcloud.min.js' %}"></script>
+    <!-- 删除重复的这行 -->
+    <!-- <script src="{% static 'vendor/echarts/echarts-wordcloud.min.js' %}"></script> -->
 
     <!-- Favicon icon -->
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">

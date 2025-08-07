@@ -49,10 +49,10 @@
     }
 
     // 确保echarts已加载
-    // if (typeof echarts === 'undefined') {
-    //   console.error("ECharts未定义，请检查是否正确加载了echarts.min.js");
-    //   return;
-    // }
+    if (typeof echarts === 'undefined') {
+      console.error("ECharts library not loaded");
+      return;
+    }
 
     // 预定义一组鲜艳的颜色
     var vibrantColors = [

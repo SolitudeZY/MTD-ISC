@@ -6,14 +6,13 @@ from django.conf import settings
 urlpatterns = [
     # path('', views.test, name='index'),  # 空字符串''：表示根URL路径，用于匹配用户访问的根URL（例如http://127.0.0.1:8000/）。
 
-    path('model_management/', views.model_management, name='model_management'),  # 添加模型管理 model_management URL
+    path('model_management/', views.model_management, name='model_management'),  # 模型管理 model_management URL
     path('delete_model/<int:model_id>/', views.delete_model, name='delete_model'),  # 删除模型
     path('model_detail/<int:model_id>/', views.model_detail, name='model_detail'),  # 查看模型描述
 
-    path('malicious_model_introduction/', views.malicious_model_introduction,
-         name='malicious_model_introduction'),  # 恶意流量检测模型介绍
-    path('data_augmentation_introduction/', views.data_augmentation_introduction,
-         name='data_augmentation_introduction'),  # 数据增强模型介绍
+    path('malicious_model_introduction/', views.malicious_model_introduction,name='malicious_model_introduction'),  # 恶意流量检测模型介绍
+    path('data_augmentation_introduction/', views.data_augmentation_introduction,name='data_augmentation_introduction'),  # 数据增强模型介绍
+
     path('model_introduction/', views.model_introduction,
          name='model_introduction'),  # 模型介绍
     path('fullscreen-image/', views.fullscreen_image, name='fullscreen_image'),  # 全屏查看图片
