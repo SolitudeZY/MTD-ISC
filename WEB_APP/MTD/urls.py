@@ -12,9 +12,11 @@ urlpatterns = [
 
     path('malicious_model_introduction/', views.malicious_model_introduction,name='malicious_model_introduction'),  # 恶意流量检测模型介绍
     path('data_augmentation_introduction/', views.data_augmentation_introduction,name='data_augmentation_introduction'),  # 数据增强模型介绍
+    
+    path('edit_model/<int:model_id>/', views.edit_model, name='edit_model'), # 编辑功能URL
+    path('edit_dataset/<int:dataset_id>/', views.edit_dataset, name='edit_dataset'),
 
-    path('model_introduction/', views.model_introduction,
-         name='model_introduction'),  # 模型介绍
+    path('model_introduction/', views.model_introduction,name='model_introduction'),  # 模型介绍
     path('fullscreen-image/', views.fullscreen_image, name='fullscreen_image'),  # 全屏查看图片
 
     path('data_augmentation/', views.data_augmentation, name='data_augmentation'),  # 数据增强部分urls

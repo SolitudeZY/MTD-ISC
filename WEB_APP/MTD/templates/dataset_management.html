@@ -29,7 +29,10 @@
                 <td>{{ dataset.upload_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ dataset.size }}条</td>
                 <td>
-                    <form action="{% url 'dataset_management' %}" method="post" class="delete-form">
+                    <a href="{% url 'edit_dataset' dataset.id %}" class="btn btn-warning btn-sm">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    <form action="{% url 'dataset_management' %}" method="post" class="delete-form" style="display: inline;">
                         {% csrf_token %}
                         <input type="hidden" name="delete_id" value="{{ dataset.id }}">
                         <button type="submit" class="btn btn-danger btn-sm">

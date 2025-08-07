@@ -806,3 +806,112 @@ def malicious_model_introduction(request):
 @login_required
 def data_augmentation_introduction(request):
     return render(request, 'data_augmentation_introduction.html')
+
+# 在文件末尾添加以下函数
+
+@login_required
+def edit_model(request, model_id):
+    """编辑模型信息"""
+    model = get_object_or_404(ModelManagement, pk=model_id)
+    
+    if request.method == 'POST':
+        # 获取表单数据
+        name = request.POST.get('name')
+        category = request.POST.get('category')
+        description = request.POST.get('description')
+        model_file = request.FILES.get('model_file')
+        
+        # 验证必填字段
+        if not all([name, category]):
+            messages.error(request, '模型名称和类别为必填项')
+            return render(request, 'edit_model.html', {
+                'model': model,
+                'MODEL_TYPE_CHOICES': ModelManagement.MODEL_TYPE_CHOICES
+            })
+        
+        # 检查模型名称是否重复（排除当前模型）
+        if ModelManagement.objects.filter(name=name).exclude(pk=model_id).exists():
+            messages.error(request, '该模型名称已存在')
+            return render(request, 'edit_model.html', {
+                'model': model,
+                'MODEL_TYPE_CHOICES': ModelManagement.MODEL_TYPE_CHOICES
+            })
+        
+        # 更新模型信息
+        model.name = name
+        model.category = category
+        model.description = description
+        
+        # 如果上传了新文件，则更新文件
+        if model_file:
+            model.model_file = model_file
+        
+        model.save()
+        messages.success(request, '模型信息已更新')
+        return redirect('model_management')
+    
+    # GET请求，显示编辑表单
+    return render(request, 'edit_model.html', {
+        'model': model,
+        'MODEL_TYPE_CHOICES': ModelManagement.MODEL_TYPE_CHOICES
+    })
+
+
+@login_required
+def edit_dataset(request, dataset_id):
+    """编辑数据集信息"""
+    dataset = get_object_or_404(DatasetManagement, pk=dataset_id)
+    
+    if request.method == 'POST':
+        # 获取表单数据
+        name = request.POST.get('name')
+        category = request.POST.get('category')
+        size = request.POST.get('size')
+        data_file = request.FILES.get('data_file')
+        
+        # 验证必填字段
+        if not all([name, category, size]):
+            messages.error(request, '数据集名称、类别和数据量为必填项')
+            return render(request, 'edit_dataset.html', {
+                'dataset': dataset,
+                'DATASET_TYPE_CHOICES': DatasetManagement.DATASET_TYPE_CHOICES
+            })
+        
+        # 验证数据量为正整数
+        try:
+            size = int(size)
+            if size <= 0:
+                raise ValueError
+        except ValueError:
+            messages.error(request, '数据量必须为正整数')
+            return render(request, 'edit_dataset.html', {
+                'dataset': dataset,
+                'DATASET_TYPE_CHOICES': DatasetManagement.DATASET_TYPE_CHOICES
+            })
+        
+        # 检查数据集名称是否重复（排除当前数据集）
+        if DatasetManagement.objects.filter(name=name).exclude(pk=dataset_id).exists():
+            messages.error(request, '该数据集名称已存在')
+            return render(request, 'edit_dataset.html', {
+                'dataset': dataset,
+                'DATASET_TYPE_CHOICES': DatasetManagement.DATASET_TYPE_CHOICES
+            })
+        
+        # 更新数据集信息
+        dataset.name = name
+        dataset.category = category
+        dataset.size = size
+        
+        # 如果上传了新文件，则更新文件
+        if data_file:
+            dataset.data_file = data_file
+        
+        dataset.save()
+        messages.success(request, '数据集信息已更新')
+        return redirect('dataset_management')
+    
+    # GET请求，显示编辑表单
+    return render(request, 'edit_dataset.html', {
+        'dataset': dataset,
+        'DATASET_TYPE_CHOICES': DatasetManagement.DATASET_TYPE_CHOICES
+    })
