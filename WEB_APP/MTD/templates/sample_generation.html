@@ -17,10 +17,39 @@
                             <input type="file" name="model_file" id="model_file" class="form-control-file" accept=".pt, .pth">
                             <small class="form-text text-muted">如不上传，将使用系统默认模型</small>
                         </div>
+                        
+                        <!-- 进度条容器 -->
+                        <div id="progress-container" class="mb-4" style="display: none;">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted">生成进度</span>
+                                <span id="progress-text" class="text-primary font-weight-bold">0%</span>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                                     role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                                    <span id="progress-percentage">0%</span>
+                                </div>
+                            </div>
+                            <div id="progress-status" class="text-center mt-2 text-muted">
+                                准备开始生成...
+                            </div>
+                        </div>
+                        
+                        <!-- 结果显示区域 -->
+                        <div id="result-container" class="mb-4" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-check-circle"></i> 生成完成！</h5>
+                                <p class="mb-2">样本已成功生成，您可以下载生成的样本文件。</p>
+                                <a href="{% url 'download_samples' %}" class="btn btn-success">
+                                    <i class="fas fa-download"></i> 下载样本文件
+                                </a>
+                            </div>
+                        </div>
+                        
                         <div class="d-grid">
-                            <a href="{% url 'download_samples' %}" class="btn btn-primary btn-lg">
-                                <i class="fas fa-cogs"></i> 样本生成
-                            </a>
+                            <button type="button" id="generate-btn" class="btn btn-primary btn-lg">
+                                <i class="fas fa-cogs"></i> <span id="btn-text">开始生成样本</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -28,4 +57,154 @@
         </div>
     </div>
 </div>
+
+<!-- 添加JavaScript代码 -->
+<script src="{% static 'vendor/jquery/jquery-3.6.0.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+    let isGenerating = false;
+    let progressInterval;
+    
+    $('#generate-btn').click(function() {
+        if (isGenerating) {
+            return; // 防止重复点击
+        }
+        
+        startGeneration();
+    });
+    
+    function startGeneration() {
+        isGenerating = true;
+        
+        // 更新按钮状态
+        $('#generate-btn').prop('disabled', true);
+        $('#btn-text').html('<i class="fas fa-spinner fa-spin"></i> 生成中...');
+        
+        // 显示进度条
+        $('#progress-container').show();
+        $('#result-container').hide();
+        
+        // 重置进度
+        updateProgress(0, '初始化生成任务...');
+        
+        // 模拟生成过程（实际项目中应该调用后端API）
+        simulateGeneration();
+    }
+    
+    function simulateGeneration() {
+        let progress = 0;
+        const stages = [
+            { progress: 10, message: '加载模型文件...' },
+            { progress: 25, message: '初始化生成参数...' },
+            { progress: 40, message: '开始样本生成...' },
+            { progress: 60, message: '生成样本数据...' },
+            { progress: 80, message: '处理生成结果...' },
+            { progress: 95, message: '保存样本文件...' },
+            { progress: 100, message: '生成完成！' }
+        ];
+        
+        let currentStage = 0;
+        
+        progressInterval = setInterval(function() {
+            if (currentStage < stages.length) {
+                const stage = stages[currentStage];
+                updateProgress(stage.progress, stage.message);
+                
+                if (stage.progress === 100) {
+                    completeGeneration();
+                }
+                
+                currentStage++;
+            }
+        }, 1500); // 每1.5秒更新一次进度
+    }
+    
+    function updateProgress(percentage, message) {
+        $('#progress-bar').css('width', percentage + '%');
+        $('#progress-bar').attr('aria-valuenow', percentage);
+        $('#progress-percentage').text(percentage + '%');
+        $('#progress-text').text(percentage + '%');
+        $('#progress-status').text(message);
+        
+        // 进度条颜色变化
+        if (percentage < 30) {
+            $('#progress-bar').removeClass('bg-warning bg-success').addClass('bg-primary');
+        } else if (percentage < 70) {
+            $('#progress-bar').removeClass('bg-primary bg-success').addClass('bg-warning');
+        } else {
+            $('#progress-bar').removeClass('bg-primary bg-warning').addClass('bg-success');
+        }
+    }
+    
+    function completeGeneration() {
+        clearInterval(progressInterval);
+        isGenerating = false;
+        
+        // 隐藏进度条，显示结果
+        setTimeout(function() {
+            $('#progress-container').hide();
+            $('#result-container').show();
+            
+            // 恢复按钮状态
+            $('#generate-btn').prop('disabled', false);
+            $('#btn-text').html('<i class="fas fa-cogs"></i> 重新生成样本');
+        }, 1000);
+    }
+    
+    // 实际项目中的API调用示例（注释掉的代码）
+    /*
+    function callGenerationAPI() {
+        $.ajax({
+            url: '{% url "start_training" %}',
+            method: 'POST',
+            data: new FormData($('#sample-generation-form')[0]),
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    // 开始轮询进度
+                    pollProgress(response.task_id);
+                } else {
+                    alert('生成失败：' + response.error);
+                    resetGeneration();
+                }
+            },
+            error: function() {
+                alert('请求失败，请重试');
+                resetGeneration();
+            }
+        });
+    }
+    
+    function pollProgress(taskId) {
+        progressInterval = setInterval(function() {
+            $.ajax({
+                url: '{% url "get_progress" %}',
+                method: 'GET',
+                data: { task_id: taskId },
+                success: function(response) {
+                    updateProgress(response.progress, '生成进度：' + response.progress + '%');
+                    
+                    if (response.progress >= 100) {
+                        completeGeneration();
+                    }
+                },
+                error: function() {
+                    console.log('获取进度失败');
+                }
+            });
+        }, 1000);
+    }
+    */
+    
+    function resetGeneration() {
+        isGenerating = false;
+        clearInterval(progressInterval);
+        $('#generate-btn').prop('disabled', false);
+        $('#btn-text').html('<i class="fas fa-cogs"></i> 开始生成样本');
+        $('#progress-container').hide();
+        $('#result-container').hide();
+    }
+});
+</script>
 {% endblock %}
