@@ -94,8 +94,36 @@
         <div class="card-block">
           <a href="{% url 'dataset_management' %}" class="text-decoration-none text-dark">
             <div class="text-center">
-              <i class="feather icon-command f-40"></i>
+              <i class="feather icon-database f-40"></i>
               <h5 class="card-title">数据集管理</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 网络入侵检测 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'model_detection' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-shield f-40"></i>
+              <h5 class="card-title">网络入侵检测</h5>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 攻击态势感知 -->
+    <div class="col-md-3 col-sm-6">
+      <div class="card">
+        <div class="card-block">
+          <a href="{% url 'attack_situation_awareness' %}" class="text-decoration-none text-dark">
+            <div class="text-center">
+              <i class="feather icon-activity f-40"></i>
+              <h5 class="card-title">态势感知</h5>
             </div>
           </a>
         </div>
@@ -123,7 +151,7 @@
           <a href="{% url 'model_detection' %}" class="text-decoration-none text-dark">
             <div class="text-center">
               <i class="feather icon-anchor f-40"></i>
-              <h5 class="card-title">流量检测</h5>
+              <h5 class="card-title">网络入侵检测</h5>
             </div>
           </a>
         </div>
@@ -151,7 +179,7 @@
           <a href="{% url 'visualization' %}?chapter_id=-1" class="text-decoration-none text-dark">
             <div class="text-center">
               <i class="feather icon-bar-chart f-40"></i>
-              <h5 class="card-title">结果展示</h5>
+              <h5 class="card-title">结果展示与分析</h5>
             </div>
           </a>
         </div>
@@ -165,7 +193,7 @@
           <a href="{% url 'attack_situation_awareness' %}" class="text-decoration-none text-dark">
             <div class="text-center">
               <i class="feather icon-trending-down f-40"></i>
-              <h5 class="card-title">恶意流量展示</h5>
+              <h5 class="card-title">态势感知</h5>
             </div>
           </a>
         </div>
@@ -203,16 +231,16 @@
         </div>
 
         <div class="mb-3">
-          <h6 class="fw-bold">2. 数据增强模块：</h6>
+          <h6 class="fw-bold">2. 数据集管理模块：</h6>
+          <p>（1）管理上传系统的网络流量数据集信息；</p>
+          <p>（2）编辑网络流量数据集信息。</p>
+        </div>
+        
+        <div class="mb-3">
+          <h6 class="fw-bold">3. 数据增强模块：</h6>
           <p>支持使用数据增强技术对网络流量数据集进行增强，包含的功能有：</p>
           <p>（1）根据输入的数据集训练Improved-Diffusion扩散模型；</p>
           <p>（2）使用预训练的去噪扩散模型对数据集进行增强，生成扩散后的数据集样本；</p>
-        </div>
-
-        <div class="mb-3">
-          <h6 class="fw-bold">3. 数据集管理模块：</h6>
-          <p>（1）管理上传系统的网络流量数据集信息；</p>
-          <p>（2）编辑网络流量数据集信息。</p>
         </div>
 
         <div class="mb-3">
@@ -229,9 +257,9 @@
 
         <div class="mb-3">
           <h6 class="fw-bold">6. 攻击态势感知模块：</h6>
-          <p>更加直观地反应网络流量的流向以及所属的物理地址以便于用户加强自身安全建设和防控意识。</p>
+          <p>（1）更加直观地反应网络流量的流向以及所属的物理地址以便于用户加强自身安全建设和防控意识。</p>
         </div>
-
+ 
         <div class="mb-3">
           <h6 class="fw-bold">7. 个人信息管理：</h6>
           <p>（1）查看用户个人信息；</p>

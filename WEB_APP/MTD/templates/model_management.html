@@ -78,7 +78,8 @@
                 <td>{{ model.upload_time|date:"Y-m-d H:i" }}</td>
                 <td>
                     <a href="{% url 'model_detail' model.id %}" class="btn btn-info btn-sm">查看描述</a>
-                    <a href="{% url 'edit_model' model.id %}" class="btn btn-warning btn-sm">
+                    <!-- 在显示编辑按钮的地方，避免访问 model.model_file 的属性 -->
+                    <a href="{% url 'edit_model' model.id %}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-edit"></i> 编辑
                     </a>
                     <a href="{% url 'delete_model' model.id %}"

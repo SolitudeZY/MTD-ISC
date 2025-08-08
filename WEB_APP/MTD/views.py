@@ -625,27 +625,59 @@ def dataset_management(request):
             except DatasetManagement.DoesNotExist:
                 return JsonResponse({'status': 'error', 'message': '数据集不存在'})
 
-        # 原有文件上传逻辑保持不变
+        # 修改文件上传逻辑，添加自动计算数据量功能
         else:
             form = request.POST
             files = request.FILES
             name = form.get('name')
             category = form.get('category')
             data_file = files.get('data_file')
-            size = form.get('size')
+            size = form.get('size')  # 用户输入的数据量（可选）
 
-            if not all([name, category, data_file, size]):
+            if not all([name, category, data_file]):
                 return JsonResponse({'status': 'error', 'message': '必填字段不能为空'})
 
             try:
+                # 根据文件大小自动计算数据量
+                file_size_bytes = data_file.size  # 文件大小（字节）
+                
+                # 如果用户没有输入数据量，则根据文件大小自动计算
+                if not size or size == '':
+                    # 根据文件类型和大小估算数据量
+                    if category == 'CSV':
+                        # CSV文件：假设每行平均100字节
+                        estimated_size = max(1, file_size_bytes // 100)
+                    elif category in ['GRAY', 'RGB']:
+                        # 图像文件：假设每张图片平均1KB
+                        estimated_size = max(1, file_size_bytes // (1 * 1024))
+                    elif category == 'PCAP':
+                        # PCAP文件：假设每个数据包平均1KB
+                        estimated_size = max(1, file_size_bytes // 1024)
+                    else:
+                        # 其他类型：假设每条记录平均200字节
+                        estimated_size = max(1, file_size_bytes // 200)
+                    
+                    calculated_size = estimated_size
+                else:
+                    # 使用用户输入的数据量
+                    calculated_size = int(size)
+
                 dataset = DatasetManagement(
                     name=name,
                     category=category,
                     data_file=data_file,
-                    size=size
+                    size=calculated_size
                 )
                 dataset.save()
-                return JsonResponse({'status': 'success', 'message': '数据集上传成功'})
+                
+                # 返回成功信息，包含计算出的数据量
+                message = f'数据集上传成功！文件大小：{file_size_bytes / (1024*1024):.2f}MB，估算数据量：{calculated_size}条'
+                return JsonResponse({
+                    'status': 'success', 
+                    'message': message,
+                    'file_size': file_size_bytes,
+                    'calculated_size': calculated_size
+                })
             except Exception as e:
                 return JsonResponse({'status': 'error', 'message': str(e)})
 

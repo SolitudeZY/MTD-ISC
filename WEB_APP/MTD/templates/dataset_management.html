@@ -29,7 +29,8 @@
                 <td>{{ dataset.upload_time|date:"Y-m-d H:i" }}</td>
                 <td>{{ dataset.size }}条</td>
                 <td>
-                    <a href="{% url 'edit_dataset' dataset.id %}" class="btn btn-warning btn-sm">
+                    <!-- 同样避免访问 dataset.data_file 的属性 -->
+                    <a href="{% url 'edit_dataset' dataset.id %}" class="btn btn-sm btn-outline-primary">
                         <i class="fas fa-edit"></i> 编辑
                     </a>
                     <form action="{% url 'dataset_management' %}" method="post" class="delete-form" style="display: inline;">
@@ -84,9 +85,9 @@
         </div>
     </div>
 
-    <!-- 上传表单保持不变 -->
+    <!-- 上传表单 -->
     <h3>上传新数据集</h3>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
         {% csrf_token %}
         <div class="mb-3">
             <label>名称</label>
@@ -94,7 +95,7 @@
         </div>
         <div class="mb-3">
             <label>类别</label>
-            <select name="category" class="form-select" required>
+            <select name="category" class="form-select" id="categorySelect" required>
                 {% for choice in DATASET_TYPE_CHOICES %}
                 <option value="{{ choice.0 }}">{{ choice.1 }}</option>
                 {% endfor %}
@@ -102,21 +103,98 @@
         </div>
         <div class="mb-3">
             <label>数据文件</label>
-            <input type="file" name="data_file" class="form-control" required>
+            <input type="file" name="data_file" class="form-control" id="dataFile" required>
+            <div class="form-text">文件大小：<span id="fileSize">未选择文件</span></div>
         </div>
         <div class="mb-3">
             <label>数据量</label>
-            <input type="number" name="size" class="form-control" required>
+            <div class="input-group">
+                <input type="number" name="size" class="form-control" id="sizeInput" placeholder="留空将自动计算">
+                <span class="input-group-text">条</span>
+            </div>
+            <div class="form-text">
+                <span id="estimatedSize">选择文件后将显示估算数据量</span>
+            </div>
         </div>
         <button type="submit" class="btn btn-primary">上传</button>
     </form>
 </div>
 
-<!-- 保留原有删除操作的JavaScript -->
+<!-- JavaScript代码 -->
 <script src="{% static 'vendor/jquery/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script>
 $(document).ready(function() {
+    // 文件选择时计算估算数据量
+    $('#dataFile').change(function() {
+        const file = this.files[0];
+        const category = $('#categorySelect').val();
+        
+        if (file) {
+            const fileSizeBytes = file.size;
+            const fileSizeMB = (fileSizeBytes / (1024 * 1024)).toFixed(2);
+            $('#fileSize').text(fileSizeMB + ' MB');
+            
+            // 根据文件类型估算数据量
+            let estimatedSize;
+            switch(category) {
+                case 'CSV':
+                    estimatedSize = Math.max(1, Math.floor(fileSizeBytes / 100));
+                    break;
+                case 'GRAY':
+                case 'RGB':
+                    estimatedSize = Math.max(1, Math.floor(fileSizeBytes / (1 * 1024)));
+                    break;
+                case 'PCAP':
+                    estimatedSize = Math.max(1, Math.floor(fileSizeBytes / 1024));
+                    break;
+                default:
+                    estimatedSize = Math.max(1, Math.floor(fileSizeBytes / 200));
+            }
+            
+            $('#estimatedSize').text('估算数据量：' + estimatedSize + ' 条');
+            
+            // 如果用户没有输入数据量，自动填入估算值
+            if (!$('#sizeInput').val()) {
+                $('#sizeInput').attr('placeholder', '自动计算：' + estimatedSize + ' 条');
+            }
+        } else {
+            $('#fileSize').text('未选择文件');
+            $('#estimatedSize').text('选择文件后将显示估算数据量');
+        }
+    });
+    
+    // 类别改变时重新计算
+    $('#categorySelect').change(function() {
+        $('#dataFile').trigger('change');
+    });
+    
+    // 表单提交处理
+    $('#uploadForm').submit(function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        $.ajax({
+            url: '',
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    location.reload(); // 刷新页面显示新上传的数据集
+                } else {
+                    alert('上传失败: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('请求失败，请重试');
+            }
+        });
+    });
+    
+    // 删除操作保持不变
     $('.delete-form').submit(function(e) {
         e.preventDefault();
         const form = $(this);

@@ -51,6 +51,7 @@
                         <div class="mb-3">
                             <label for="data_file" class="form-label">数据文件</label>
                             <input type="file" class="form-control" id="data_file" name="data_file">
+                            <!-- 避免访问文件属性 -->
                             <div class="form-text">
                                 当前文件: 
                                 {% if dataset.data_file %}
@@ -59,7 +60,7 @@
                                     无文件
                                 {% endif %}
                                 <br>
-                                <small class="text-muted">如不需要更换文件，请留空</small>
+                                <small class="text-muted">选择新文件以替换当前数据文件，如不需要更换请留空</small>
                             </div>
                         </div>
                         

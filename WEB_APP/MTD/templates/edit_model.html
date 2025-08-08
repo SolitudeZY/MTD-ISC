@@ -50,10 +50,11 @@
                         <div class="mb-3">
                             <label for="model_file" class="form-label">模型文件</label>
                             <input type="file" class="form-control" id="model_file" name="model_file">
+                            <!-- 避免访问文件属性 -->
                             <div class="form-text">
                                 当前文件: 
                                 {% if model.model_file %}
-                                    {{ model.model_file.name }}
+                                    已上传文件
                                 {% else %}
                                     无文件
                                 {% endif %}
