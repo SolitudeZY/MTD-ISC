@@ -1,0 +1,629 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Linux流量抓包{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .capture-info {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .btn-action {
+        margin-right: 10px;
+        margin-bottom: 10px;
+        min-width: 120px;
+    }
+    .interface-badge {
+        display: inline-block;
+        background-color: #e9ecef;
+        color: #495057;
+        padding: 4px 8px;
+        margin: 2px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    .log-container {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+    }
+    .log-entry {
+        padding: 2px 5px;
+        border-bottom: 1px solid #eee;
+    }
+    .log-info { color: #17a2b8; }
+    .log-success { color: #28a745; }
+    .log-error { color: #dc3545; }
+    .timestamp { color: #6c757d; font-weight: bold; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pcoded-content">
+    <div class="pcoded-inner-content">
+        <div class="main-body">
+            <div class="page-wrapper">
+                <div class="page-body">
+                    <div class="container-fluid">
+                        <!-- 页面标题 -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="page-header">
+                                    <h2><i class="fas fa-network-wired text-primary"></i> Linux流量抓包系统</h2>
+                                    <p class="text-muted">基于tshark/tcpdump的专业网络流量捕获工具，生成标准PCAP文件</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 抓包信息提示 -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="capture-info">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            <h5><i class="fas fa-info-circle"></i> 流量抓包说明</h5>
+                                            <p class="mb-0">本系统使用专业的网络抓包工具捕获网络流量，生成标准的PCAP格式文件，可用于网络分析、安全检测等用途。</p>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <i class="fas fa-file-archive fa-3x opacity-75"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 控制面板 -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-cogs"></i> 抓包控制</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="captureForm">
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="interface">网络接口：</label>
+                                                        <select class="form-control" id="interface" name="interface">
+                                                            {% for interface in interfaces %}
+                                                                <option value="{{ interface }}">{{ interface }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="duration">抓包时长（秒）：</label>
+                                                        <input type="number" class="form-control" id="duration" name="duration" value="30" min="10" max="3600">
+                                                        <small class="form-text text-muted">建议10-3600秒之间</small>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="form-group">
+                                                        <label for="filter">过滤规则（可选）：</label>
+                                                        <input type="text" class="form-control" id="filter" name="filter" placeholder="如：port 80 or port 443">
+                                                        <small class="form-text text-muted">BPF过滤语法</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mt-3">
+                                                <div class="col-12">
+                                                    <button type="button" class="btn btn-success btn-action" id="startBtn">
+                                                        <i class="fas fa-play"></i> 开始抓包
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger btn-action" id="stopBtn" disabled>
+                                                        <i class="fas fa-stop"></i> 停止抓包
+                                                    </button>
+                                                    <button type="button" class="btn btn-info btn-action" id="refreshBtn">
+                                                        <i class="fas fa-sync-alt"></i> 刷新文件列表
+                                                    </button>
+                                                    <!-- 添加跳转到中转页面的按钮 -->
+                                                    <a href="{% url 'traffic_capture_hub' %}" class="btn btn-outline-primary btn-action">
+                                                        <i class="fas fa-exchange-alt"></i> 切换捕获工具
+                                                    </a>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- 抓包进度条 -->
+                                            <div class="row mt-3" id="progressContainer" style="display: none;">
+                                                <div class="col-12">
+                                                    <div class="card">
+                                                        <div class="card-body">
+                                                            <h6><i class="fas fa-clock"></i> 抓包进度</h6>
+                                                            <div class="progress mb-2" style="height: 25px;">
+                                                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                                                     id="captureProgress" 
+                                                                     role="progressbar" 
+                                                                     style="width: 0%" 
+                                                                     aria-valuenow="0" 
+                                                                     aria-valuemin="0" 
+                                                                     aria-valuemax="100">
+                                                                    <span id="progressText">0%</span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between">
+                                                                <small class="text-muted">已用时间: <span id="elapsedTime">00:00</span></small>
+                                                                <small class="text-muted">总时长: <span id="totalTime">00:00</span></small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 系统信息 -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-info-circle"></i> 系统信息</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p><strong>抓包工具：</strong> <span class="badge badge-primary">{{ capture_tool|default:"tshark/tcpdump" }}</span></p>
+                                                <p><strong>可用接口：</strong></p>
+                                                <div>
+                                                    {% for interface in interfaces %}
+                                                        <span class="interface-badge">{{ interface }}</span>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p><strong>捕获类型：</strong> 网络数据包捕获</p>
+                                                <p><strong>输出格式：</strong> PCAP格式 (.pcap)</p>
+                                                <p><strong>权限要求：</strong> <span class="text-warning">需要sudo权限</span></p>
+                                                <p><strong>支持工具：</strong> tshark, tcpdump</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 实时日志 -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5><i class="fas fa-terminal"></i> 抓包日志</h5>
+                                        <button class="btn btn-sm btn-outline-secondary" id="clearLogBtn">
+                                            <i class="fas fa-trash"></i> 清空日志
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="log-container p-3" id="logContainer">
+                                            <div class="text-muted">等待抓包开始...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PCAP文件下载 -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h5><i class="fas fa-download"></i> PCAP文件管理</h5>
+                                        <button class="btn btn-sm btn-outline-danger" id="deleteAllBtn">
+                                            <i class="fas fa-trash-alt"></i> 清空所有文件
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <strong>提示：</strong> 生成的PCAP文件可以使用Wireshark、tcpdump等工具进行分析。文件包含完整的网络数据包信息。
+                                        </div>
+                                        <div id="fileList">
+                                            <p class="text-muted">暂无可下载的PCAP文件</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 提示模态框 -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alertModalTitle">提示</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+            </div>
+            <div class="modal-body" id="alertModalBody">
+                <!-- 消息内容 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+$(document).ready(function() {
+    // 纯前端控制的全局变量
+    let progressTimer = null;
+    let captureStartTime = null;
+    let captureDuration = 0;
+    let isCapturing = false; // 前端状态控制
+
+    // 显示提示消息
+    function showAlert(message, type = 'info', title = '提示') {
+        $('#alertModalTitle').text(title);
+        $('#alertModalBody').html(`<div class="alert alert-${type}">${message}</div>`);
+        $('#alertModal').modal('show');
+    }
+
+    // 添加日志
+    function addLog(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = `<div class="log-entry log-${type}"><span class="timestamp">[${timestamp}]</span> ${message}</div>`;
+        
+        const logContainer = $('#logContainer');
+        if (logContainer.children().first().hasClass('text-muted')) {
+            logContainer.empty();
+        }
+        logContainer.append(logEntry);
+        logContainer.scrollTop(logContainer[0].scrollHeight);
+        
+        // 限制日志条数
+        const logEntries = logContainer.find('.log-entry');
+        if (logEntries.length > 100) {
+            logEntries.first().remove();
+        }
+    }
+
+    // 格式化时间显示
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // 纯前端进度条更新
+    function updateProgress() {
+        if (!captureStartTime || !isCapturing) return;
+        
+        const now = new Date();
+        const elapsed = Math.floor((now - captureStartTime) / 1000);
+        const progress = Math.min((elapsed / captureDuration) * 100, 100);
+        
+        $('#captureProgress').css('width', progress + '%').attr('aria-valuenow', progress);
+        $('#progressText').text(Math.round(progress) + '%');
+        $('#elapsedTime').text(formatTime(elapsed));
+        $('#totalTime').text(formatTime(captureDuration));
+        
+        console.log(`进度更新: ${elapsed}/${captureDuration}秒 (${Math.round(progress)}%)`);
+        
+        // 如果时间到了，自动完成
+        if (elapsed >= captureDuration) {
+            finishProgress();
+        }
+    }
+
+    // 启动进度条 - 纯前端版本
+    function startProgress(duration) {
+        console.log('启动进度条，时长:', duration);
+        
+        // 清理之前的定时器
+        if (progressTimer) {
+            clearInterval(progressTimer);
+        }
+        
+        // 设置参数
+        captureDuration = duration;
+        captureStartTime = new Date();
+        isCapturing = true;
+        
+        // 显示并初始化进度条
+        $('#progressContainer').show();
+        $('#captureProgress')
+            .removeClass('bg-danger bg-warning bg-success')
+            .addClass('bg-primary progress-bar-striped progress-bar-animated')
+            .css('width', '0%')
+            .attr('aria-valuenow', 0);
+        $('#progressText').text('0%');
+        $('#totalTime').text(formatTime(duration));
+        
+        // 每秒更新进度
+        progressTimer = setInterval(updateProgress, 1000);
+        updateProgress(); // 立即更新一次
+        
+        addLog(`进度条已启动，预计运行 ${duration} 秒`, 'info');
+        console.log('进度条容器已显示，开始定时更新');
+    }
+
+    // 完成进度条
+    function finishProgress() {
+        console.log('进度条完成');
+        
+        if (progressTimer) {
+            clearInterval(progressTimer);
+            progressTimer = null;
+        }
+        
+        isCapturing = false;
+        
+        // 设置为完成状态
+        $('#captureProgress')
+            .removeClass('bg-primary progress-bar-striped progress-bar-animated')
+            .addClass('bg-success')
+            .css('width', '100%')
+            .attr('aria-valuenow', 100);
+        $('#progressText').text('已完成');
+        
+        addLog('抓包任务已完成', 'success');
+        
+        // 重置按钮状态
+        $('#startBtn').prop('disabled', false).html('<i class="fas fa-play"></i> 开始抓包');
+        $('#stopBtn').prop('disabled', true);
+        
+        // 3秒后隐藏进度条
+        setTimeout(() => {
+            $('#progressContainer').hide();
+            captureStartTime = null;
+            captureDuration = 0;
+        }, 3000);
+    }
+
+    // 停止进度条
+    function stopProgress() {
+        console.log('手动停止进度条');
+        
+        if (progressTimer) {
+            clearInterval(progressTimer);
+            progressTimer = null;
+        }
+        
+        isCapturing = false;
+        
+        // 设置为停止状态
+        $('#captureProgress')
+            .removeClass('bg-primary progress-bar-striped progress-bar-animated')
+            .addClass('bg-warning')
+            .css('width', $('#captureProgress').css('width')) // 保持当前进度
+            .attr('aria-valuenow', $('#captureProgress').attr('aria-valuenow'));
+        $('#progressText').text('已停止');
+        
+        addLog('抓包任务已手动停止', 'info');
+        
+        // 重置按钮状态
+        $('#startBtn').prop('disabled', false).html('<i class="fas fa-play"></i> 开始抓包');
+        $('#stopBtn').prop('disabled', true);
+        
+        // 3秒后隐藏进度条
+        setTimeout(() => {
+            $('#progressContainer').hide();
+            captureStartTime = null;
+            captureDuration = 0;
+        }, 3000);
+    }
+
+    // 获取文件列表（不影响进度条）
+    function fetchFileList() {
+        $.get('/linux-traffic/status/', function(data) {
+            updateFileList(data.files || []);
+        }).fail(function() {
+            console.log('获取文件列表失败');
+        });
+    }
+
+    // 更新文件列表
+    function updateFileList(files = []) {
+        const fileList = $('#fileList');
+        fileList.empty();
+        
+        if (files && files.length > 0) {
+            const table = $(`
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>文件名</th>
+                                <th>大小</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fileTableBody"></tbody>
+                    </table>
+                </div>
+            `);
+            
+            const tbody = table.find('#fileTableBody');
+            files.forEach(file => {
+                const row = $(`
+                    <tr>
+                        <td>${file.name}</td>
+                        <td>${file.size}</td>
+                        <td>${file.created}</td>
+                        <td>
+                            <a href="/linux-traffic/download/${file.name}/" class="btn btn-sm btn-primary me-2">
+                                <i class="fas fa-download"></i> 下载
+                            </a>
+                            <button class="btn btn-sm btn-danger" onclick="deleteFile('${file.name}')">
+                                <i class="fas fa-trash"></i> 删除
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                tbody.append(row);
+            });
+            
+            fileList.append(table);
+        } else {
+            fileList.html('<p class="text-muted">暂无可下载的PCAP文件</p>');
+        }
+    }
+
+    // 删除文件
+    window.deleteFile = function(filename) {
+        if (!confirm(`确定要删除文件 ${filename} 吗？`)) {
+            return;
+        }
+        
+        $.ajax({
+            url: `/linux-traffic/delete/${filename}/`,
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(data) {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    addLog(`文件 ${filename} 已删除`, 'success');
+                    fetchFileList();
+                } else {
+                    showAlert(data.message, 'danger');
+                    addLog(`删除文件 ${filename} 失败: ${data.message}`, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('删除文件失败', 'danger');
+                addLog(`删除文件 ${filename} 失败: ${error}`, 'error');
+            }
+        });
+    };
+
+    // 事件绑定
+    $('#startBtn').click(function() {
+        if (isCapturing) {
+            addLog('抓包正在进行中，请勿重复启动', 'error');
+            return;
+        }
+        
+        const interface = $('#interface').val();
+        const duration = parseInt($('#duration').val()) || 30;
+        const filter = $('#filter').val();
+        
+        // 立即更新按钮状态和启动进度条
+        $('#startBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> 抓包中...');
+        $('#stopBtn').prop('disabled', false);
+        startProgress(duration);
+        
+        $.ajax({
+            url: '/linux-traffic/start/',
+            method: 'POST',
+            data: {
+                interface: interface,
+                duration: duration,
+                filter: filter,
+                csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(data) {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    addLog('抓包已启动', 'success');
+                } else {
+                    showAlert(data.message, 'danger');
+                    addLog(`启动抓包失败: ${data.message}`, 'error');
+                    // 如果启动失败，停止进度条
+                    stopProgress();
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('启动抓包失败', 'danger');
+                addLog(`启动抓包失败: ${error}`, 'error');
+                // 如果启动失败，停止进度条
+                stopProgress();
+            }
+        });
+    });
+
+    $('#stopBtn').click(function() {
+        if (!isCapturing) {
+            addLog('当前没有正在进行的抓包任务', 'error');
+            return;
+        }
+        
+        // 立即停止进度条
+        stopProgress();
+        
+        $.ajax({
+            url: '/linux-traffic/stop/',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(data) {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    addLog('抓包已停止', 'info');
+                } else {
+                    showAlert(data.message, 'danger');
+                    addLog(`停止抓包失败: ${data.message}`, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('停止抓包失败', 'danger');
+                addLog(`停止抓包失败: ${error}`, 'error');
+            }
+        });
+    });
+
+    $('#refreshBtn').click(function() {
+        fetchFileList();
+        addLog('文件列表已刷新', 'info');
+    });
+
+    $('#clearLogBtn').click(function() {
+        $('#logContainer').html('<div class="text-muted">日志已清空</div>');
+    });
+
+    $('#deleteAllBtn').click(function() {
+        if (!confirm('确定要删除所有PCAP文件吗？此操作不可恢复！')) {
+            return;
+        }
+        
+        $.ajax({
+            url: '/linux-traffic/delete-all/',
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(data) {
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    addLog('所有文件已删除', 'success');
+                    fetchFileList();
+                } else {
+                    showAlert(data.message, 'danger');
+                    addLog(`删除所有文件失败: ${data.message}`, 'error');
+                }
+            },
+            error: function(xhr, status, error) {
+                showAlert('删除所有文件失败', 'danger');
+                addLog(`删除所有文件失败: ${error}`, 'error');
+            }
+        });
+    });
+
+    // 页面加载时只获取一次文件列表，不启动定时状态检查
+    fetchFileList();
+});
+</script>
+{% endblock %}

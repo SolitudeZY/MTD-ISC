@@ -307,12 +307,12 @@
             </a>
         </li>
 
-{#        <!-- 展示大地球 基于WEBGL  但是不会用这玩意，AI也写不出能用的代码，放弃了 -->#}
-{#        <li class="{% if request.resolver_match.url_name == 'globe' %}active{% endif %}">#}
-{#            <a href="{% url 'globe' %}">#}
-{#                <i data-feather="shield" class="sidebar-icon"></i> 地球#}
-{#            </a>#}
-{#        </li>#}
+        <!-- 流量捕获 -->
+        <li class="{% if request.resolver_match.url_name == 'traffic_capture_redirect' or request.resolver_match.url_name == 'traffic_capture' or request.resolver_match.url_name == 'traffic_capture_hub' %}active{% endif %}">
+            <a href="{% url 'traffic_capture_redirect' %}">
+                <i data-feather="activity" class="sidebar-icon"></i> 流量捕获
+            </a>
+        </li>
 
         <!-- 个人信息 -->
         <li class="{% if request.resolver_match.url_name == 'personal_information' %}active{% endif %}">

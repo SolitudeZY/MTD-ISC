@@ -1,0 +1,166 @@
+[2025-08-09 23:11:34] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:15:44] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:15:45] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:27:16] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:27:17] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:28:52] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:28:53] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:29:01] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:29:02] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:30:00] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:30:01] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:30:11] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:30:12] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:30:58] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:30:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:31:10] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:31:10] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:31:22] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:31:22] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:45:16] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:45:17] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:45:27] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\urls.py changed, reloading.
+[2025-08-09 23:45:27] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:50:31] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:50:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:53:11] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:53:12] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:57:34] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:57:35] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-09 23:57:49] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-09 23:57:49] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:00:04] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:00:04] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:00:19] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:00:19] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:06:37] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:06:37] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:06:48] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:06:48] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:12:42] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\urls.py changed, reloading.
+[2025-08-10 00:12:42] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:13:25] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:13:26] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:15:41] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:15:42] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:31:48] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:31:49] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:39:47] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:39:48] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:39:51] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\urls.py changed, reloading.
+[2025-08-10 00:39:52] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 00:47:16] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 00:47:17] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:00:59] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:01:00] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:14:32] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:14:32] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:17:58] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:17:59] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:27:58] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:27:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:30:07] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:30:08] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:33:02] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:33:02] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:33:22] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:33:23] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:35:58] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:35:59] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:36:14] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:36:15] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:43:22] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\urls.py changed, reloading.
+[2025-08-10 01:43:22] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:43:48] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:43:49] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:44:17] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:44:17] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:45:49] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:45:49] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:46:22] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:46:23] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:48:03] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:48:04] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:54:28] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:54:29] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 01:56:18] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 01:56:18] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:00:11] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\views.py changed, reloading.
+[2025-08-10 02:00:11] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:01:57] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 02:01:58] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:02:14] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 02:02:15] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:05:39] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 02:05:39] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:06:02] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 02:06:03] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:13:16] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 02:13:17] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 02:13:28] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\linux_traffic\views.py changed, reloading.
+[2025-08-10 02:13:29] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 23:44:29] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2025-08-10 23:44:30] INFO django.server: "GET / HTTP/1.1" 200 10937
+[2025-08-10 23:44:30] INFO django.server: "GET / HTTP/1.1" 200 10937
+[2025-08-10 23:44:31] INFO django.server: "GET /static/images/hero-glow.svg HTTP/1.1" 200 1871
+[2025-08-10 23:44:31] INFO django.server: "GET /static/CSS/signup.css HTTP/1.1" 200 19349
+[2025-08-10 23:44:31] INFO django.server: "GET /static/vendor/fontawesome/css/all.min.css HTTP/1.1" 200 102033
+[2025-08-10 23:44:31] INFO django.server: "GET /static/CSS/site.css HTTP/1.1" 200 81358
+[2025-08-10 23:44:31] INFO django.server: "GET /static/CSS/primer.css HTTP/1.1" 200 395805
+[2025-08-10 23:44:31] INFO django.server: "GET /static/vendor/fontawesome/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 150124
+[2025-08-10 23:44:32] WARNING django.request: Not Found: /favicon.ico
+[2025-08-10 23:44:32] WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 9181
+[2025-08-10 23:44:32] WARNING django.request: Not Found: /favicon.ico
+[2025-08-10 23:44:32] WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 9181
+[2025-08-10 23:44:33] INFO django.server: "POST / HTTP/1.1" 302 0
+[2025-08-10 23:44:33] INFO django.server: "GET /home/ HTTP/1.1" 200 30163
+[2025-08-10 23:44:33] INFO django.server: "GET /static/js/jquery.min.js HTTP/1.1" 200 116344
+[2025-08-10 23:44:33] INFO django.server: "GET /static/vendor/echarts/echarts-wordcloud.min.js HTTP/1.1" 200 16552
+[2025-08-10 23:44:33] INFO django.server: "GET /static/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js HTTP/1.1" 200 80721
+[2025-08-10 23:44:33] INFO django.server: "GET /static/feather-icons/dist/feather.min.js HTTP/1.1" 200 76059
+[2025-08-10 23:44:33] INFO django.server: "GET /static/plugins/animation/css/animate.min.css HTTP/1.1" 200 57902
+[2025-08-10 23:44:33] INFO django.server: "GET /static/images/logo-thumb.png HTTP/1.1" 200 1529
+[2025-08-10 23:44:33] INFO django.server: "GET /static/CSS/style.css HTTP/1.1" 200 327721
+[2025-08-10 23:44:33] INFO django.server: "GET /static/bootstrap-5.3.5-dist/css/bootstrap.min.css HTTP/1.1" 200 231913
+[2025-08-10 23:44:33] INFO django.server: "GET /static/images/bird-6831573_640.png HTTP/1.1" 200 552967
+[2025-08-10 23:44:33] INFO django.server: "GET /static/vendor/echarts/echarts.min.js HTTP/1.1" 200 1016624
+[2025-08-10 23:44:33] INFO django.server: "GET /static/images/user/avatar-2.jpg HTTP/1.1" 200 9372
+[2025-08-10 23:44:33] INFO django.server: "GET /static/plugins/jquery-scrollbar/css/jquery.scrollbar.min.css HTTP/1.1" 200 2850
+[2025-08-10 23:44:33] INFO django.server: "GET /static/fonts/feather/css/feather.css HTTP/1.1" 200 11848
+[2025-08-10 23:44:33] INFO django.server: "GET /static/fonts/datta/datta-icon.css HTTP/1.1" 200 1544
+[2025-08-10 23:44:33] INFO django.server: "GET /static/plugins/bootstrap/css/bootstrap.min.css HTTP/1.1" 200 141126
+[2025-08-10 23:44:34] INFO django.server: "GET /static/fonts/feather/fonts/feather.woff?t=1501841394106 HTTP/1.1" 200 26432
+[2025-08-10 23:44:34] INFO django.server: "GET /static/images/favicon.ico HTTP/1.1" 200 15406
+[2025-08-10 23:44:34] INFO django.server: "GET /static/vendor/echarts/echarts-wordcloud.min.js HTTP/1.1" 200 16552
+[2025-08-10 23:44:34] INFO django.server: "GET /static/feather-icons/dist/feather.min.js HTTP/1.1" 200 76059
+[2025-08-10 23:44:35] INFO django.server: "GET /traffic_capture_redirect/ HTTP/1.1" 302 0
+[2025-08-10 23:44:36] INFO django.server: "GET /traffic_capture/ HTTP/1.1" 200 35194
+[2025-08-10 23:44:37] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 84
+[2025-08-10 23:44:37] INFO django.server: "GET /traffic_capture/ HTTP/1.1" 200 35194
+[2025-08-10 23:44:49] INFO django.server: "GET /traffic_capture_hub/ HTTP/1.1" 200 39061
+[2025-08-10 23:44:49] INFO django.server: "GET /static/vendor/fontawesome/webfonts/fa-brands-400.woff2 HTTP/1.1" 200 108020
+[2025-08-10 23:45:39] INFO django.server: "GET /traffic_capture_hub/ HTTP/1.1" 200 39061
+[2025-08-10 23:45:52] INFO django.server: "GET /traffic_capture_hub/ HTTP/1.1" 200 39052
+[2025-08-10 23:46:03] INFO django.server: "GET /traffic_capture/ HTTP/1.1" 200 35194
+[2025-08-10 23:46:03] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 84
+[2025-08-10 23:46:03] INFO django.server: "GET /traffic_capture/ HTTP/1.1" 200 35194
+[2025-08-10 23:46:21] INFO django.server: "POST /start_capture/ HTTP/1.1" 200 186
+[2025-08-10 23:46:22] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 141
+[2025-08-10 23:46:23] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 142
+[2025-08-10 23:46:24] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 142
+[2025-08-10 23:46:25] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 142
+[2025-08-10 23:46:26] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 142
+[2025-08-10 23:46:27] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 142
+[2025-08-10 23:46:28] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 143
+[2025-08-10 23:46:29] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 143
+[2025-08-10 23:46:30] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 143
+[2025-08-10 23:46:31] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 144
+[2025-08-10 23:46:32] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 144
+[2025-08-10 23:46:33] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 145
+[2025-08-10 23:46:34] INFO django.server: "GET /download_capture/traffic_capture_1754840781.pcap/ HTTP/1.1" 200 123632
+[2025-08-10 23:47:29] INFO django.server: "GET /traffic_capture_redirect/ HTTP/1.1" 302 0
+[2025-08-10 23:47:29] INFO django.server: "GET /traffic_capture/ HTTP/1.1" 200 35194
+[2025-08-10 23:47:29] INFO django.server: "GET /capture_status/ HTTP/1.1" 200 145
+[2025-08-10 23:47:30] INFO django.server: "GET /traffic_capture/ HTTP/1.1" 200 35194
+[2025-08-11 00:02:15] INFO django.utils.autoreload: D:\Python Project\MTD-ISC\MTD-ISC\WEB_APP\MTD\views.py changed, reloading.
+[2025-08-11 00:02:16] INFO django.utils.autoreload: Watching for file changes with StatReloader

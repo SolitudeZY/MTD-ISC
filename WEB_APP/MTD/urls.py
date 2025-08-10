@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf.urls.static import static
 from django.conf import settings
+from django.urls import path, include
 
 urlpatterns = [
     # path('', views.test, name='index'),  # 空字符串''：表示根URL路径，用于匹配用户访问的根URL（例如http://127.0.0.1:8000/）。
@@ -40,5 +41,17 @@ urlpatterns = [
 
     path('personal_information/', views.personal_information, name='personal_information'),  # 个人信息
     path('dataset_management/', views.dataset_management, name='dataset_management'),  # 数据集管理
+    
+    # 流量捕获功能
+    path('traffic_capture/', views.traffic_capture, name='traffic_capture'),  # Windows流量捕获页面
+    path('traffic_capture_redirect/', views.traffic_capture_redirect, name='traffic_capture_redirect'),  # 自动跳转
+    path('traffic_capture_hub/', views.traffic_capture_hub, name='traffic_capture_hub'),  # 中转页面
+    path('start_capture/', views.start_capture, name='start_capture'),  # 开始捕获
+    path('stop_capture/', views.stop_capture, name='stop_capture'),  # 停止捕获
+    path('capture_status/', views.capture_status_api, name='capture_status'),  # 捕获状态API
+    path('download_capture/<str:filename>/', views.download_capture, name='download_capture'),  # 下载捕获文件
+    
+    # Linux流量捕获
+    path('linux-traffic/', include('MTD.linux_traffic.urls')),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

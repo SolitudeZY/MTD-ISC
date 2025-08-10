@@ -1,0 +1,31 @@
+// 修改 updateButtonStates 函数
+function updateButtonStates(status) {
+    console.log('更新按钮状态:', status);
+    
+    if (status.is_running) {
+        $('#startBtn').prop('disabled', true).text('抓包中...');
+        $('#stopBtn').prop('disabled', false);
+        
+        // 确保进度条显示
+        if (!progressInterval && status.duration) {
+            console.log('启动进度条，时长:', status.duration, '来源: 后端');
+            startProgress(status.duration);
+        }
+    } else {
+        $('#startBtn').prop('disabled', false).text('开始抓包');
+        $('#stopBtn').prop('disabled', true);
+        
+        // 停止进度条
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+            $('#progressContainer').hide();
+        }
+    }
+    
+    // 更新状态显示
+    $('#runningTime').text(status.running_time || '00:00:00');
+    $('#packetCount').text(status.packet_count || 0);
+    $('#startTime').text(status.start_time || '-');
+    $('#endTime').text(status.end_time || '-');
+}

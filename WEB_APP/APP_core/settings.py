@@ -135,13 +135,71 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+        'detailed': {
+            'format': '[{asctime}] {levelname} {name}: {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'django.log',
+            'formatter': 'detailed',
+            'encoding': 'utf-8',
+        },
+        'linux_traffic_file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'linux_traffic.log',
+            'formatter': 'detailed',
+            'encoding': 'utf-8',
+        },
+        'error_file': {
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'error.log',
+            'formatter': 'verbose',
+            'level': 'ERROR',
+            'encoding': 'utf-8',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'MTD.linux_traffic': {
+            'handlers': ['console', 'linux_traffic_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'MTD': {
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+            'propagate': True,
         },
     },
     'root': {
-        'handlers': ['console'],
-        'level': 'INFO',
+        'handlers': ['console', 'error_file'],
+        'level': 'WARNING',
     },
 }
+
+# 确保日志目录存在
+import os
+LOGS_DIR = BASE_DIR / 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)

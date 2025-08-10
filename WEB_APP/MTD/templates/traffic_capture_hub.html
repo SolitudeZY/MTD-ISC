@@ -1,0 +1,677 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}流量捕获中转页面{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --accent-color: #3498db;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --text-primary: #2c3e50;
+        --text-secondary: #7f8c8d;
+        --text-muted: #95a5a6;
+        --bg-primary: #ffffff;
+        --bg-secondary: #ecf0f1;
+        --bg-dark: #2c3e50;
+        --border-color: #bdc3c7;
+        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+        --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+        --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+        --border-radius: 6px;
+        --transition: all 0.3s ease;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--text-primary);
+        min-height: 100vh;
+    }
+
+    .hub-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+        opacity: 0.3;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.025em;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .page-header .subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 0;
+        font-weight: 300;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .page-header .icon {
+        margin-right: 0.75rem;
+        font-size: 2.2rem;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .system-info-section {
+        background: var(--bg-primary);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: var(--shadow-md);
+        border: 1px solid var(--border-color);
+        position: relative;
+    }
+    
+    .system-info-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 3px solid var(--accent-color);
+    }
+    
+    .system-info-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .system-info-title h3 {
+        font-size: 1.6rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: 0;
+    }
+    
+    .system-info-title .icon {
+        color: var(--accent-color);
+        font-size: 1.6rem;
+    }
+    
+    .os-icon {
+        font-size: 3.5rem;
+        color: var(--accent-color);
+        opacity: 0.8;
+        transition: var(--transition);
+    }
+    
+    .os-icon:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    
+    .system-details {
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, #ffffff 100%);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .system-details h5 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .system-details .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(189, 195, 199, 0.3);
+        transition: var(--transition);
+    }
+    
+    .system-details .info-item:hover {
+        background: rgba(52, 152, 219, 0.05);
+        padding-left: 0.5rem;
+        border-radius: 4px;
+    }
+    
+    .system-details .info-item:last-child {
+        border-bottom: none;
+    }
+    
+    .system-details .info-label {
+        font-weight: 500;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+    
+    .system-details .info-value {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+        background: var(--bg-primary);
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-sm);
+        font-size: 0.9rem;
+    }
+    
+    .capture-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+        gap: 2.5rem;
+        margin-bottom: 2.5rem;
+    }
+    
+    .capture-option {
+        background: var(--bg-primary);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        box-shadow: var(--shadow-md);
+        border: 2px solid var(--border-color);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .capture-option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--accent-color), var(--success-color));
+        transform: scaleX(0);
+        transition: var(--transition);
+    }
+    
+    .capture-option:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--accent-color);
+    }
+    
+    .capture-option:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .capture-option-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .capture-option .icon-large {
+        font-size: 3.5rem;
+        color: var(--accent-color);
+        margin-bottom: 1.5rem;
+        display: block;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: var(--transition);
+    }
+    
+    .capture-option:hover .icon-large {
+        transform: scale(1.1);
+        color: var(--success-color);
+    }
+    
+    .capture-option h4 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+    }
+    
+    .capture-option .description {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+    
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 2.5rem;
+        background: linear-gradient(135deg, var(--bg-secondary) 0%, #ffffff 100%);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .feature-list li {
+        padding: 0.75rem 0;
+        color: var(--text-secondary);
+        position: relative;
+        padding-left: 2rem;
+        font-size: 0.95rem;
+        border-bottom: 1px solid rgba(189, 195, 199, 0.2);
+        transition: var(--transition);
+    }
+    
+    .feature-list li:hover {
+        color: var(--text-primary);
+        padding-left: 2.5rem;
+    }
+    
+    .feature-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .feature-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 0;
+        color: var(--success-color);
+        font-weight: bold;
+        font-size: 1rem;
+        background: rgba(39, 174, 96, 0.1);
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+    
+    .btn-capture {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+        border: 2px solid var(--primary-color);
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: var(--border-radius);
+        font-weight: 600;
+        font-size: 1rem;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: var(--shadow-md);
+        width: 100%;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-capture::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn-capture:hover::before {
+        left: 100%;
+    }
+    
+    .btn-capture:hover {
+        background: linear-gradient(135deg, var(--accent-color) 0%, var(--success-color) 100%);
+        border-color: var(--accent-color);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+    
+    .recommendation-section {
+        margin-top: 2.5rem;
+    }
+    
+    .recommendation-alert {
+        border: none;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-md);
+        border-left: 5px solid;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .recommendation-alert::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100px;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1));
+        transform: translateX(100px);
+        animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100px); }
+        100% { transform: translateX(100px); }
+    }
+    
+    .recommendation-alert.alert-info {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        color: #1565c0;
+        border-left-color: var(--accent-color);
+    }
+    
+    .recommendation-alert.alert-success {
+        background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%);
+        color: #2e7d32;
+        border-left-color: var(--success-color);
+    }
+    
+    .recommendation-alert.alert-warning {
+        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+        color: #ef6c00;
+        border-left-color: var(--warning-color);
+    }
+    
+    .recommendation-alert .icon {
+        margin-right: 1rem;
+        font-size: 1.3rem;
+    }
+    
+    .back-section {
+        margin-top: 3rem;
+        text-align: center;
+        padding-top: 2.5rem;
+        border-top: 3px solid var(--border-color);
+    }
+    
+    .btn-back {
+        background: transparent;
+        border: 2px solid var(--text-muted);
+        color: var(--text-muted);
+        padding: 1rem 2rem;
+        border-radius: var(--border-radius);
+        font-weight: 500;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 1rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-back::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 100%;
+        background: var(--text-muted);
+        transition: width 0.3s ease;
+        z-index: -1;
+    }
+    
+    .btn-back:hover::before {
+        width: 100%;
+    }
+    
+    .btn-back:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+        .hub-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .page-header {
+            padding: 2rem 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header h1 {
+            font-size: 2rem;
+        }
+        
+        .system-info-section {
+            padding: 2rem;
+        }
+        
+        .system-info-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 1.5rem;
+        }
+        
+        .capture-options {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .capture-option {
+            padding: 2rem;
+        }
+        
+        .capture-option .icon-large {
+            font-size: 3rem;
+        }
+        
+        .os-icon {
+            font-size: 3rem;
+        }
+    }
+    
+    /* 动画效果 */
+    .capture-option {
+        animation: fadeInUp 0.6s ease-out;
+    }
+    
+    .capture-option:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* 深色模式兼容 */
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-primary: #2c3e50;
+            --bg-secondary: #34495e;
+            --text-primary: #ecf0f1;
+            --text-secondary: #bdc3c7;
+            --border-color: #7f8c8d;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hub-container">
+    <!-- 页面标题 -->
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-network-wired icon"></i>
+            流量捕获中转页面
+        </h1>
+        <p class="subtitle">网络流量分析工具选择平台</p>
+    </div>
+    
+    <!-- 当前系统信息 -->
+    <div class="system-info-section">
+        <div class="system-info-header">
+            <div class="system-info-title">
+                <i class="fas fa-server icon"></i>
+                <h3>系统环境检测</h3>
+            </div>
+            <div>
+                {% if current_os == 'Windows' %}
+                    <i class="fab fa-microsoft os-icon"></i>
+                {% elif current_os == 'Linux' %}
+                    <i class="fab fa-linux os-icon"></i>
+                {% else %}
+                    <i class="fas fa-desktop os-icon"></i>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="system-details">
+            <h5>
+                <i class="fas fa-info-circle"></i>
+                系统详细信息
+            </h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="info-item">
+                        <span class="info-label">操作系统</span>
+                        <span class="info-value">{{ os_info.system }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">系统版本</span>
+                        <span class="info-value">{{ os_info.release }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">系统架构</span>
+                        <span class="info-value">{{ os_info.machine }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="info-item">
+                        <span class="info-label">处理器</span>
+                        <span class="info-value">{{ os_info.processor|default:"未知" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">详细版本</span>
+                        <span class="info-value">{{ os_info.version|truncatechars:30 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 流量捕获选项 -->
+    <div class="capture-options">
+        <div class="capture-option">
+            <div class="capture-option-header">
+                <i class="fab fa-microsoft icon-large"></i>
+                <h4>Windows 流量捕获</h4>
+                <p class="description">
+                    专业的 Windows 平台网络流量捕获解决方案，支持企业级网络监控和分析需求
+                </p>
+            </div>
+            
+            <ul class="feature-list">
+                <li>Wireshark/tshark 专业工具支持</li>
+                <li>Windows netsh trace 原生支持</li>
+                <li>企业级图形化管理界面</li>
+                <li>实时捕获进度监控</li>
+                <li>自动网络接口检测</li>
+                <li>PCAP 标准格式输出</li>
+            </ul>
+            
+            <a href="{% url 'traffic_capture' %}" class="btn btn-capture">
+                <i class="fas fa-arrow-right"></i>
+                <span>进入 Windows 捕获平台</span>
+            </a>
+        </div>
+        
+        <div class="capture-option">
+            <div class="capture-option-header">
+                <i class="fab fa-linux icon-large"></i>
+                <h4>Linux 流量捕获</h4>
+                <p class="description">
+                    高性能 Linux 平台网络流量捕获工具，为服务器环境和高并发场景优化设计
+                </p>
+            </div>
+            
+            <ul class="feature-list">
+                <li>tshark 命令行工具集成</li>
+                <li>tcpdump 原生工具支持</li>
+                <li>服务器环境优化</li>
+                <li>高性能数据包捕获</li>
+                <li>灵活的过滤规则配置</li>
+                <li>批量处理能力</li>
+            </ul>
+            
+            <a href="{% url 'linux_traffic:capture' %}" class="btn btn-capture">
+                <i class="fas fa-arrow-right"></i>
+                <span>进入 Linux 捕获平台</span>
+            </a>
+        </div>
+    </div>
+    
+    <!-- 推荐提示 -->
+    <div class="recommendation-section">
+        {% if current_os == 'Windows' %}
+        <div class="alert alert-info recommendation-alert">
+            <i class="fas fa-lightbulb icon"></i>
+            <strong>系统推荐：</strong>检测到您正在使用 Windows 系统，建议使用 <strong>Windows 流量捕获平台</strong> 以获得最佳兼容性和性能表现。
+        </div>
+        {% elif current_os == 'Linux' %}
+        <div class="alert alert-success recommendation-alert">
+            <i class="fas fa-lightbulb icon"></i>
+            <strong>系统推荐：</strong>检测到您正在使用 Linux 系统，建议使用 <strong>Linux 流量捕获平台</strong> 以获得最佳性能和稳定性。
+        </div>
+        {% else %}
+        <div class="alert alert-warning recommendation-alert">
+            <i class="fas fa-exclamation-triangle icon"></i>
+            <strong>系统提示：</strong>检测到未知操作系统环境，请根据您的实际系统环境选择相应的捕获工具平台。
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- 返回导航 -->
+    <div class="back-section">
+        <a href="{% url 'home' %}" class="btn-back">
+            <i class="fas fa-arrow-left"></i>
+            <span>返回主控制台</span>
+        </a>
+    </div>
+</div>
+{% endblock %}
