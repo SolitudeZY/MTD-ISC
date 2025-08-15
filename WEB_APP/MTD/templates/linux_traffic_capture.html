@@ -432,12 +432,60 @@ $(document).ready(function() {
         });
     }
 
+    // 从文件名提取创建时间
+    function extractTimeFromFilename(filename) {
+        // 匹配文件名中的时间戳格式：traffic_capture_YYYYMMDD_HHMMSS.pcap
+        const match = filename.match(/traffic_capture_(\d{8})_(\d{6})\.pcap$/);
+        if (match) {
+            const dateStr = match[1]; // YYYYMMDD
+            const timeStr = match[2]; // HHMMSS
+            
+            // 解析日期和时间
+            const year = dateStr.substring(0, 4);
+            const month = dateStr.substring(4, 6);
+            const day = dateStr.substring(6, 8);
+            const hour = timeStr.substring(0, 2);
+            const minute = timeStr.substring(2, 4);
+            const second = timeStr.substring(4, 6);
+            
+            // 格式化为可读的时间格式
+            return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        }
+        
+        // 如果无法从文件名提取时间，返回默认值
+        return '未知时间';
+    }
+
+    // 从文件名提取时间戳用于排序
+    function extractTimestampFromFilename(filename) {
+        const match = filename.match(/traffic_capture_(\d{8})_(\d{6})\.pcap$/);
+        if (match) {
+            const dateStr = match[1]; // YYYYMMDD
+            const timeStr = match[2]; // HHMMSS
+            
+            // 转换为可比较的时间戳字符串：YYYYMMDDHHMMSS
+            return dateStr + timeStr;
+        }
+        
+        // 如果无法提取时间戳，返回文件名用于排序
+        return filename;
+    }
+
     // 更新文件列表
     function updateFileList(files = []) {
         const fileList = $('#fileList');
         fileList.empty();
         
         if (files && files.length > 0) {
+            // 对文件进行排序：按创建时间降序（最新的在前）
+            const sortedFiles = files.sort((a, b) => {
+                const timestampA = extractTimestampFromFilename(a.name);
+                const timestampB = extractTimestampFromFilename(b.name);
+                
+                // 降序排序：最新的文件在前
+                return timestampB.localeCompare(timestampA);
+            });
+            
             const table = $(`
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -455,12 +503,15 @@ $(document).ready(function() {
             `);
             
             const tbody = table.find('#fileTableBody');
-            files.forEach(file => {
+            sortedFiles.forEach(file => {
+                // 从文件名提取创建时间，而不是使用后端返回的时间
+                const createdTime = extractTimeFromFilename(file.name);
+                
                 const row = $(`
                     <tr>
                         <td>${file.name}</td>
                         <td>${file.size}</td>
-                        <td>${file.created}</td>
+                        <td>${createdTime}</td>
                         <td>
                             <a href="/linux-traffic/download/${file.name}/" class="btn btn-sm btn-primary me-2">
                                 <i class="fas fa-download"></i> 下载

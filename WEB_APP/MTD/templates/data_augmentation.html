@@ -40,10 +40,46 @@
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data" id="training-form">
                         {% csrf_token %}
+                        
+                        <!-- 数据集选择方式 -->
                         <div class="form-group">
-                            <label>选择数据集文件（ZIP格式）</label>
-                            <input type="file" name="dataset" class="form-control-file" accept=".zip" required>
+                            <label>数据集选择方式</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="dataset_source" id="upload_dataset" value="upload" checked>
+                                <label class="form-check-label" for="upload_dataset">
+                                    上传数据集文件
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="dataset_source" id="select_dataset" value="select">
+                                <label class="form-check-label" for="select_dataset">
+                                    选择已有数据集
+                                </label>
+                            </div>
                         </div>
+                        
+                        <!-- 上传数据集文件 -->
+                        <div class="form-group" id="upload_section">
+                            <label>选择数据集文件（ZIP格式）</label>
+                            <input type="file" name="dataset" class="form-control-file" accept=".zip" id="dataset_file">
+                        </div>
+                        
+                        <!-- 选择已有数据集 -->
+                        <div class="form-group" id="select_section" style="display: none;">
+                            <label>选择数据集</label>
+                            <select name="existing_dataset" class="form-control" id="existing_dataset">
+                                <option value="">请选择数据集...</option>
+                                {% if datasets %}
+                                    {% for dataset in datasets %}
+                                        <option value="{{ dataset.id }}">{{ dataset.name }} ({{ dataset.description }})</option>
+                                    {% endfor %}
+                                {% else %}
+                                    <option value="" disabled>暂无可用数据集</option>
+                                {% endif %}
+                            </select>
+                            <small class="form-text text-muted">选择系统中已有的数据集进行增强处理</small>
+                        </div>
+                        
                         <div class="form-group">
                             <label>噪声调度类型</label>
                             <select name="noise_schedule" class="form-control" required>
@@ -90,7 +126,7 @@
 </div>
     <!-- 在表单卡片和进度条卡片之间新增警告提示 -->
     <div class="alert alert-warning mt-3" role="alert">
-        <strong>注意：</strong> 平台GPU资源有限，生成样本可能较慢。建议下载源码自行运行：
+        <strong>注意：</strong> 平台GPU资源有限，生成样本可能较慢。可以下载源码自行运行：
         <ul>
             <li>访问项目仓库：<a href="https://github.com/openai/improved-diffusion">Improved Diffusion</a></li>
             <li>执行生成指令：
@@ -155,6 +191,36 @@
 <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
 
 <script>
+// 数据集选择方式切换
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadRadio = document.getElementById('upload_dataset');
+    const selectRadio = document.getElementById('select_dataset');
+    const uploadSection = document.getElementById('upload_section');
+    const selectSection = document.getElementById('select_section');
+    const datasetFile = document.getElementById('dataset_file');
+    const existingDataset = document.getElementById('existing_dataset');
+    
+    function toggleDatasetSource() {
+        if (uploadRadio.checked) {
+            uploadSection.style.display = 'block';
+            selectSection.style.display = 'none';
+            datasetFile.required = true;
+            existingDataset.required = false;
+        } else {
+            uploadSection.style.display = 'none';
+            selectSection.style.display = 'block';
+            datasetFile.required = false;
+            existingDataset.required = true;
+        }
+    }
+    
+    uploadRadio.addEventListener('change', toggleDatasetSource);
+    selectRadio.addEventListener('change', toggleDatasetSource);
+    
+    // 初始化
+    toggleDatasetSource();
+});
+
 document.getElementById('training-form').addEventListener('submit', function(e) {
     e.preventDefault();
     const form = this;

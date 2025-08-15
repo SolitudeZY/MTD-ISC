@@ -898,7 +898,12 @@ def model_detail(request, model_id):
 
 
 def data_augmentation(request):
-    return render(request, 'data_augmentation.html')
+    # 获取所有可用的数据集
+    datasets = DatasetManagement.objects.all().order_by('-upload_time')
+    
+    return render(request, 'data_augmentation.html', {
+        'datasets': datasets
+    })
 
 
 #  ************ 模型检测部分后端代码 ************
@@ -1275,14 +1280,75 @@ from django.http import StreamingHttpResponse
 
 @csrf_exempt
 def start_training(request):
-    if request.method == 'POST' and request.FILES.get('dataset'):
-        dataset_file = request.FILES['dataset']
-        dataset_name, _ = os.path.splitext(dataset_file.name)
+    if request.method == 'POST':
+        # 获取数据集选择方式
+        dataset_source = request.POST.get('dataset_source')
+        
+        if dataset_source == 'upload':
+            # 上传文件方式
+            if not request.FILES.get('dataset'):
+                return JsonResponse({'success': False, 'error': '请选择数据集文件'}, status=400)
+            
+            dataset_file = request.FILES['dataset']
+            dataset_name, _ = os.path.splitext(dataset_file.name)
+            
+            # 保存上传的数据集文件
+            upload_dir = os.path.join(settings.MEDIA_ROOT, 'uploaded_datasets')
+            os.makedirs(upload_dir, exist_ok=True)
+            dataset_path = os.path.join(upload_dir, dataset_file.name)
+            
+            with open(dataset_path, 'wb+') as destination:
+                for chunk in dataset_file.chunks():
+                    destination.write(chunk)
+                    
+        elif dataset_source == 'select':
+            # 选择已有数据集方式
+            existing_dataset_id = request.POST.get('existing_dataset')
+            if not existing_dataset_id:
+                return JsonResponse({'success': False, 'error': '请选择数据集'}, status=400)
+            
+            try:
+                dataset = DatasetManagement.objects.get(id=existing_dataset_id)
+                dataset_name = dataset.name
+                dataset_path = dataset.data_file.path
+            except DatasetManagement.DoesNotExist:
+                return JsonResponse({'success': False, 'error': '选择的数据集不存在'}, status=400)
+        else:
+            return JsonResponse({'success': False, 'error': '无效的数据集选择方式'}, status=400)
+        
+        # 获取其他训练参数
+        noise_schedule = request.POST.get('noise_schedule')
+        learning_rate = request.POST.get('learning_rate')
+        batch_size = request.POST.get('batch_size')
+        
+        # 验证参数
+        if not all([noise_schedule, learning_rate, batch_size]):
+            return JsonResponse({'success': False, 'error': '请填写完整的训练参数'}, status=400)
+        
+        try:
+            learning_rate = float(learning_rate)
+            batch_size = int(batch_size)
+            if learning_rate <= 0 or batch_size <= 0:
+                raise ValueError("参数必须大于0")
+        except (ValueError, TypeError):
+            return JsonResponse({'success': False, 'error': '训练参数格式不正确'}, status=400)
 
+        # 生成任务ID
         task_id = str(uuid.uuid4())
         request.session[f'progress_{task_id}'] = 0
-        request.session[f'dataset_name_{task_id}'] = dataset_name  # 存储数据集名称
+        request.session[f'dataset_name_{task_id}'] = dataset_name
+        
+        # 存储训练参数到session中（可选）
+        request.session[f'training_params_{task_id}'] = {
+            'dataset_source': dataset_source,
+            'dataset_name': dataset_name,
+            'dataset_path': dataset_path,
+            'noise_schedule': noise_schedule,
+            'learning_rate': learning_rate,
+            'batch_size': batch_size
+        }
 
+        # 复制模型文件（这里保持原有逻辑，实际项目中可以根据参数进行真实的训练）
         source_file = os.path.join(settings.MEDIA_ROOT, 'source', 'ema_0.9999_017000.pt')
         target_dir = os.path.join(settings.MEDIA_ROOT, 'models')
         os.makedirs(target_dir, exist_ok=True)
@@ -1291,14 +1357,19 @@ def start_training(request):
 
         try:
             shutil.copy2(source_file, target_path)
+            
+            # 这里可以启动实际的训练任务
+            # start_actual_training_task(task_id, training_params)
+            
             return JsonResponse({
                 'success': True,
-                'task_id': task_id
+                'task_id': task_id,
+                'message': f'开始处理数据集: {dataset_name}'
             })
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+            return JsonResponse({'success': False, 'error': f'处理失败: {str(e)}'}, status=500)
     else:
-        return JsonResponse({'success': False, 'error': '无效请求'}, status=400)
+        return JsonResponse({'success': False, 'error': '无效请求方法'}, status=405)
 
 
 def get_progress(request):
