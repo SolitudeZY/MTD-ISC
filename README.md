@@ -1,6 +1,14 @@
 # SafeIDF: 基于数据增强和集成学习的网络入侵检测系统项目说明
 # 目前本项目已经部署在阿里云服务器上，欢迎大家来玩，同时**也请不要删除模型、数据集和检测记录等数据**，这只是一个本科生作品，没有完善的网络安全防护机制，也不是靶场
 地址：www.detection.xin,
+截图：
+<img width="1397" height="973" alt="image" src="https://github.com/user-attachments/assets/72abc09b-0ebb-4b8e-8650-dbe3c4952d4a" />
+<img width="2525" height="1334" alt="image" src="https://github.com/user-attachments/assets/c2745719-d06a-426a-a3d8-f437d7a271d8" />
+<img width="2096" height="3800" alt="image" src="https://github.com/user-attachments/assets/2df9000f-524f-4643-8d52-935da3a0c474" />
+<img width="2066" height="2581" alt="image" src="https://github.com/user-attachments/assets/ba40e9b2-5ef3-4919-80e2-84bc97838c2a" />
+<img width="2085" height="3290" alt="image" src="https://github.com/user-attachments/assets/02fcc813-fca9-42b3-9efe-1ab44177ae15" />
+<img width="2067" height="2572" alt="image" src="https://github.com/user-attachments/assets/c76bb849-8452-4044-b9b3-f8a2ca983afe" />
+
 ## 项目概述
 MTD(Malicious Traffic Detection) 是一个基于深度学习和集成学习的网络入侵检测系统。该系统提供恶意流量检测、数据增强、模型管理、实时流量监控等功能。
 
