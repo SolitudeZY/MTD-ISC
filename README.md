@@ -64,7 +64,7 @@ python manage.py runserver
 访问: http://127.0.0.1:8000
 
 ### 额外说明
-由于本项目依赖于一些其他资源文件（如数据增强模块），请自行创建响应的同名文件在`WEB_APP\media` 文件夹中。
+由于本项目依赖于一些其他资源文件（如数据增强模块），请自行创建相应的同名文件在`WEB_APP\media` 文件夹中。
 1. 在`media\source`中，请确保`ema_0.9999_017000.pt`、`samples.npz`、`Improved_diffusion_module.zip`等文件存在，这是保证数据增强模块正常运行的必须文件；
 2. 在`\media\models`文件夹中，请**使用本系统来上传文件并确保文件存在**，Django会自动检查文件是否存在，若没有则会报错；
 3. 在`media\datasets`也请**确保使用本系统上传数据集文件**（可以是同名文件，只要存在即可），不然Django会报错
