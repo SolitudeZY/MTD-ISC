@@ -1,110 +1,171 @@
 # SafeIDF: 基于数据增强和集成学习的网络入侵检测系统项目说明
-## 1. 运行项目
-我们在github上上传了项目代码，地址为：https://github.com/SolitudeZY/MTD-ISC
-### 安装依赖项--首先确保终端位于项目根目录下（例如 MTD-ISC)
-我们使用的系统为Windows系统，请按照如下指引安装：
-```bash
-pip install -r requirements.txt
-```
-然后使用以下命令启动项目：
-```bash
-python .\WEB_APP\manage.py runserver
-```
-如果报错可能是因为没有调整到正确的目录，可以先使用以下命令：
-```bash
- cd .\MTD-ISC
-```
-然后再：
-```bash
-python .\WEB_APP\manage.py runserver
-```
+# MTD-ISC 网络入侵检测系统
+## 项目概述
+MTD(Malicious Traffic Detection) 是一个基于深度学习和集成学习的网络入侵检测系统。该系统提供恶意流量检测、数据增强、模型管理、实时流量监控等功能。
 
-## 2. 导入数据库
-- 我们使用的是MySQL（数据库版本号为：8.0.32，编码模式为utf8mb4）数据库，请先安装MySQL并创建名为MTD_DMSE的数据库，然后修改WEB_APP/APP_core/settings.py中的数据库配置项。
-- 需要修改的代码部分如下：
-```python
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'MTD_DMSE',  # 数据库名称，把这里改为你的数据库名称(我们建议您手动新建名为MTD_DMSE的数据库)
-        'USER': 'zhangyang',    # 数据库用户名，把这里改为你的数据库用户名（比如root）
-        'PASSWORD': '123456',  #  数据库密码，把这里改为你的数据库用户名对应的密码
-        'HOST': 'localhost',  # 或者你的数据库主机地址
-        'PORT': '3306',  # MySQL默认端口
-    }
+## 技术架构
+- 后端框架 : Django 3.2.12
+- 数据库 : MySQL 8.0+
+- 前端 : Bootstrap 5.3.5 + ECharts + Three.js
+- 机器学习 : 支持CNN、RNN、LSTM、TCN、BiLSTM、BiTCN等模型
+- 数据增强 : 基于改进扩散模型的数据增强技术
+## 快速开始
+### 环境准备
+1. Python 3.9+
+2. MySQL 8.0+
+3. Git
+### 安装步骤
+
+```
+# 1. 克隆项目
+git clone https://github.com/SolitudeZY/
+MTD-ISC.git
+cd MTD-ISC
+
+# 2. 创建虚拟环境
+python -m venv venv
+venv\Scripts\activate  # Windows
+
+# 3. 安装依赖
+pip install -r requirements.txt
+```
+### 数据库配置
+1. 创建数据库 :
+```
+CREATE DATABASE MTD_DMSE CHARACTER SET 
+utf8mb4;
+```
+2. 修改配置 : 编辑 WEB_APP/APP_core/settings.py
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'MTD_DMSE',
+        'USER': '你的用户名',
+        'PASSWORD': '你的密码',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    }
 }
 ```
-- 我们使用Navicat 数据库管理工具进行数据库导入,您可以在项目根目录找到mtd_dmse.sql文件，使用Navicat打开该文件并运行，即可完成数据库导入。
-- 以下是导入文件的的部分参数
+3. 导入数据 : 使用Navicat等工具导入 mtd-dmse_mysql_data.sql
+4. 执行迁移 :
+
 ```
- Navicat Premium Data Transfer
-
- Source Server         : link_by_zy
- Source Server Type    : MySQL
- Source Server Version : 80032 (8.0.32)
- Source Host           : localhost:3306
- Source Schema         : mtd_dmse
-
- Target Server Type    : MySQL
- Target Server Version : 80032 (8.0.32)
- File Encoding         : 65001
+cd WEB_APP
+python manage.py makemigrations
+python manage.py migrate
 ```
+### 启动项目
 
-## 3. 运行迁移
-```bash
-cd .\WEB_APP
-python manage.py makemigrations
-python manage.py migrate
 ```
-
-## 项目内容介绍
-
--  [WEB_APP](WEB_APP)/APP_CORE : 存放项目配置文件（settings.py，urls.py，wsgi.py）
- -  [WEB_APP](WEB_APP)/MTD : 恶意流量检测平台应用，template存放的是各种模版文件(html)，static存放的是各种静态文件(css,js,img)，views存放的是各种视图函数，models存放的是各种模型，urls存放的是各种url
- -  [WEB_APP](WEB_APP)/media: 存放各种媒体文件和平台上传的模型、数据集文件 
-
-## 额外说明
-- 本系统的数据增强模块位于WEB_APP/MTD/Improved_diffusion_module
-- 本项目的模型检测模块位于WEB_APP/MTD/detection_module
-
-
-## 项目一览
+python manage.py runserver
 ```
-Malicious_Detection_Platform/
-├── WEB_APP/  # Django项目根目录
-│   ├── APP_core/  # 项目核心配置目录
-│   │   ├── settings.py  # 项目全局配置（数据库、静态文件路径、安全设置等）
-│   │   ├── urls.py      # 项目URL路由总入口
-│   │   ├── wsgi.py      # WSGI服务器配置
-│   │   └── __init__.py  # 初始化文件
-│   │
-│   ├── MTD/  # 流量检测平台主应用
-│   │   ├── migrations/  # 数据库迁移文件（如0001_initial.py）
-│   │   ├── static/  # 静态资源目录
-│   │   │   ├── echarts-2.27/  # ECharts可视化库（图表模板、示例）
-│   │   │   │   ├── src/        # ECharts源代码
-│   │   │   │   ├── doc/        # 文档和示例页面
-│   │   │   │   └── example/    # 可视化示例（如动态图表、地图）
-│   │   │   │
-│   │   │   ├── bootstrap-5.3.5-dist/  # Bootstrap前端框架
-│   │   │   ├── feather-icons/  # 简洁图标库（CSS/JS）
-│   │   │   └── ...  # 其他静态资源（CSS/JS/图片）
-│   │   │
-│   │   ├── templates/  # HTML模板文件（如登录页、检测结果展示页）
-│   │   │   └── ...     # 各视图对应的HTML文件
-│   │   │
-│   │   ├── models.py  # 数据库模型定义（如用户表UserInfo）
-│   │   ├── views.py   # 视图函数（处理请求与业务逻辑）
-│   │   ├── urls.py    # 应用内URL路由配置
-│   │   └── apps.py    # 应用配置类
-│   │
-│   ├── staticfiles/  # 通过collectstatic收集的静态文件（生产环境使用）
-│   │
-│   ├── manage.py  # Django项目启动入口
-│   │
-│   └── Readme.md  # 项目说明文档（运行、测试、迁移指令）
-│
-├── requirements.txt  # 项目依赖包列表（如Django、decouple等）
-│
-└── ...  # 其他辅助文件（如日志配置、测试用例）
+访问: http://127.0.0.1:8000
+
+### 额外说明
+由于本项目依赖于一些其他资源文件（如数据增强模块），请自行创建响应的同名文件在`WEB_APP\media` 文件夹中。
+1. 在`media\source`中，请确保`ema_0.9999_017000.pt`、`samples.npz`、`Improved_diffusion_module.zip`等文件存在，这是保证数据增强模块正常运行的必须文件；
+2. 在`\media\models`文件夹中，请**使用本系统来上传文件并确保文件存在**，Django会自动检查文件是否存在，若没有则会报错；
+3. 在`media\datasets`也请**确保使用本系统上传数据集文件**（可以是同名文件，只要存在即可），不然Django会报错
+4. `media\avatars`是存放各个用户头像的文件夹
+5. 模型介绍用的PDF和滚动播放的图片在`MTD-ISC/WEB_APP/MTD/static/assets/`下，如有需要请修改对应代码和图片
+6. 数据库若使用本仓库提供的SQL文件可能导致模型管理和数据集管理模块报错（也可能一登录就报错），因为你的本地文件中没有我上文提到的一些数据集和模型的真实文件
+7. 模型的检测效果是随机数，可以在views.py中修改相关代码
+## 项目结构
 ```
+MTD-ISC/
+├── WEB_APP/                    # Django项目根
+目录
+│   ├── APP_core/              # 项目配置
+│   │   ├── settings.py        # 主配置文件
+│   │   └── urls.py           # 主路由
+│   ├── MTD/                   # 主应用
+│   │   ├── detection_module/  # 检测算法模块
+│   │   ├── Improved_diffusion_module/  # 数据增强模块
+│   │   ├── linux_traffic/     # Linux流量捕获
+│   │   ├── static/           # 静态文件
+│   │   ├── templates/        # HTML模板
+│   │   ├── models.py         # 数据模型
+│   │   ├── views.py          # 视图函数
+│   │   └── urls.py           # 应用路由
+│   └── media/                # 上传文件存储
+├── requirements.txt          # 依赖包列表
+├── mtd-dmse_mysql_data.sql  # 数据库初始化脚本
+└── README.md                # 项目说明
+```
+## 核心功能模块
+
+### 1. 用户管理
+- 用户注册、登录、个人信息管理
+- 基于Django内置认证系统
+### 2. 模型管理
+- 支持多种深度学习模型上传和管理
+- 模型性能评估和版本控制
+- 文件位置: MTD/detection_module/
+### 3. 数据集管理
+- 支持PCAP、CSV、图像等多种格式
+- 数据集上传、编辑、删除功能
+- 数据统计和可视化
+### 4. 恶意流量检测
+- 实时流量分析和威胁检测
+- 多模型集成检测
+- 检测结果可视化和报告生成
+### 5. 数据增强
+- 基于改进扩散模型的数据增强
+- 支持自定义训练参数
+- 文件位置: MTD/Improved_diffusion_module/
+### 6. 流量捕获
+- Windows: 基于WinPcap/Npcap
+- Linux: 基于tcpdump
+- 实时流量监控和存储
+### 7. 可视化分析
+- ECharts图表展示
+- 3D态势感知界面
+- 实时数据更新
+## 开发指南
+### 添加新功能
+1. 创建新视图 : 在 views.py 中添加视图函数
+2. 配置路由 : 在 urls.py 中添加URL映射
+3. 创建模板 : 在 templates/ 中添加HTML文件
+4. 添加静态文件 : 在 static/ 中添加CSS/JS文件
+### 数据库操作
+1. 修改模型 : 编辑 models.py
+2. 生成迁移 : python manage.py makemigrations
+3. 执行迁移 : python manage.py migrate
+### 调试技巧
+1.  开启调试模式 : settings.py 中设置 DEBUG = True
+2.  查看日志 : 检查 logs/ 目录下的日志文件
+3.  使用Django shell : python manage.py shell
+
+## 常见问题
+### 数据库连接失败
+- 检查MySQL服务是否启动
+- 验证数据库配置信息
+- 确认用户权限
+### 静态文件加载失败
+- 运行 python manage.py collectstatic
+- 检查 STATIC_URL 和 STATIC_ROOT 配置
+### 模型加载错误
+- 检查模型文件格式和路径
+- 验证文件权限
+- 查看错误日志
+### 流量捕获失败
+- Windows: 安装WinPcap或Npcap
+- Linux: 确认tcpdump权限
+- 检查网络接口配置
+## 部署说明
+### 开发环境
+- 使用Django内置服务器
+- 设置 DEBUG = True
+### 生产环境
+- 使用Nginx + uWSGI
+- 设置 DEBUG = False
+- 配置HTTPS和安全设置
+- 参考 docker-compose.yml 和 nginx.conf
+## 技术支持
+- GitHub Issues: https://github.com/SolitudeZY/MTD-ISC/issues
+- 项目文档: 查看各模块的README文件
+- 代码注释: 关键函数都有详细注释
+## 许可证
+本项目采用MIT许可证，详见LICENSE文件。
