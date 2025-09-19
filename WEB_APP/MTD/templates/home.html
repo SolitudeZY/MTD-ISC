@@ -59,10 +59,56 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
+
+  /* Paper Plane Animation */
+  .paper-plane {
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    color: #0d6efd; /* Bootstrap primary blue */
+    cursor: pointer;
+    animation: fly 20s linear infinite;
+    z-index: 1000;
+  }
+
+  .paper-plane svg {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+    animation: hue-rotate 3s linear infinite;
+  }
+
+  @keyframes fly {
+    0% { top: 10%; left: -10%; transform: rotate(0deg); }
+    25% { top: 50%; left: 110%; transform: rotate(45deg); }
+    50% { top: 90%; left: -10%; transform: rotate(90deg); }
+    75% { top: 50%; left: 110%; transform: rotate(135deg); }
+    100% { top: 10%; left: -10%; transform: rotate(180deg); }
+  }
+
+  @keyframes hue-rotate {
+      0% { filter: hue-rotate(0deg); }
+      100% { filter: hue-rotate(360deg); }
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background-color: #f00;
+    opacity: 0;
+    animation: confetti-fall 2s ease-out forwards;
+  }
 </style>
 {% endblock extra_css %}
 
 {% block content %}
+<div class="paper-plane" id="paper-plane">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+  </svg>
+</div>
 <div class="container py-4">
   <div class="jumbotron">
     <h1 class="display-5 fw-bold text-center"><span id="typewriter"></span><span id="cursor">|</span></h1>
@@ -245,6 +291,24 @@
     </div>
   </div>
 </div>
+
+<!-- GitHub Modal -->
+<div class="modal fade" id="githubModal" tabindex="-1" aria-labelledby="githubModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="githubModalLabel">小彩蛋</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>本项目的github地址是：<a href="https://github.com/SolitudeZY/MTD-ISC" target="_blank">https://github.com/SolitudeZY/MTD-ISC</a></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}
 
 {% block javascripts %}
@@ -285,6 +349,64 @@
     if (document.getElementById("typewriter") && document.getElementById("welcomeTypewriter")) {
       typeTitleWriter();
     }
+
+    // Paper Plane Animation
+    const paperPlane = document.getElementById('paper-plane');
+    paperPlane.addEventListener('click', function() {
+      // Confetti effect
+      for (let i = 0; i < 100; i++) {
+        createConfetti(paperPlane.getBoundingClientRect().left, paperPlane.getBoundingClientRect().top);
+      }
+
+      // Show modal
+      var myModal = new bootstrap.Modal(document.getElementById('githubModal'), {});
+      myModal.show();
+    });
+
+    paperPlane.addEventListener('mouseenter', () => {
+        paperPlane.style.animationPlayState = 'paused';
+        const svg = paperPlane.querySelector('svg');
+        if (svg) {
+            svg.style.animationPlayState = 'paused';
+        }
+    });
+
+    paperPlane.addEventListener('mouseleave', () => {
+        paperPlane.style.animationPlayState = 'running';
+        const svg = paperPlane.querySelector('svg');
+        if (svg) {
+            svg.style.animationPlayState = 'running';
+        }
+    });
+
+    function createConfetti(x, y) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = x + 'px';
+      confetti.style.top = y + 'px';
+      confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      document.body.appendChild(confetti);
+
+      const angle = Math.random() * 2 * Math.PI;
+      const velocity = Math.random() * 200 + 100;
+      const dx = Math.cos(angle) * velocity;
+      const dy = Math.sin(angle) * velocity - 200;
+
+      let startTime;
+      function animate(time) {
+        if (!startTime) startTime = time;
+        const progress = (time - startTime) / 2000;
+        if (progress > 1) {
+          confetti.remove();
+          return;
+        }
+        confetti.style.opacity = 1 - progress;
+        confetti.style.transform = `translate(${dx * progress}px, ${dy * progress + 100 * progress * progress}px)`;
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+    }
   });
 </script>
 {% endblock javascripts %}
+
