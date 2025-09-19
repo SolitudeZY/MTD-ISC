@@ -4,6 +4,10 @@
 截图：
 <img width="1397" height="973" alt="image" src="https://github.com/user-attachments/assets/72abc09b-0ebb-4b8e-8650-dbe3c4952d4a" />
 <img width="2525" height="1334" alt="image" src="https://github.com/user-attachments/assets/c2745719-d06a-426a-a3d8-f437d7a271d8" />
+## 2025.9.19 加了个小彩蛋
+点击主页中的小飞机会出现项目的网址：
+<img width="1499" height="726" alt="image" src="https://github.com/user-attachments/assets/60a08d0f-787e-4c2c-a8d6-55cac484a5a0" />
+
 ## 2025.8.27 发现漏洞
 观察到当项目部署在linux服务器上时，由于tcpdump程序存在退出异常问题，导致其抓到的pcap文件包无法被系统自动清除，可能导致服务器磁盘爆满的情况，需要手动在控制台输入`sudo pkill tcpdump`来停止抓包进程，然后将抓包的文件（存放于/var/log/traffic_captures/）进行删除，即可成功释放空间
 ## 项目概述
