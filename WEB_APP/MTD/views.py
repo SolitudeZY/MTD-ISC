@@ -15,7 +15,7 @@ import signal
 from django.contrib.auth import logout, get_user_model
 from django.http import HttpResponse, Http404, StreamingHttpResponse, FileResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import ModelManagement, DetectionHistory, DatasetManagement
+from .models import ModelManagement, DetectionHistory, DatasetManagement, FileShare
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
 from django.core.paginator import Paginator
@@ -1590,3 +1590,78 @@ def edit_dataset(request, dataset_id):
         'dataset': dataset,
         'DATASET_TYPE_CHOICES': DatasetManagement.DATASET_TYPE_CHOICES
     })
+
+
+# ************ 文件共享功能 ************
+@login_required
+def file_share(request):
+    """文件共享页面"""
+    files = FileShare.objects.all()
+    return render(request, 'file_share.html', {'files': files})
+
+@login_required
+def upload_file(request):
+    """上传文件"""
+    if request.method == 'POST':
+        file = request.FILES.get('file')
+        if not file:
+            messages.error(request, '请选择要上传的文件')
+            return redirect('file_share')
+        
+        # 计算文件大小
+        size_in_bytes = file.size
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size_in_bytes < 1024.0:
+                file_size = f"{size_in_bytes:.2f} {unit}"
+                break
+            size_in_bytes /= 1024.0
+        else:
+            file_size = f"{size_in_bytes:.2f} PB"
+            
+        # 获取文件扩展名
+        file_name = file.name
+        file_type = os.path.splitext(file_name)[1].lower()
+        if not file_type:
+            file_type = "未知"
+            
+        FileShare.objects.create(
+            user=request.user,
+            file=file,
+            file_name=file_name,
+            file_size=file_size,
+            file_type=file_type
+        )
+        messages.success(request, '文件上传成功')
+        return redirect('file_share')
+    
+    return redirect('file_share')
+
+@login_required
+def delete_file(request, file_id):
+    """删除文件"""
+    file_obj = get_object_or_404(FileShare, id=file_id)
+    
+    # 检查权限：只有上传者可以删除
+    if request.user != file_obj.user:
+        messages.error(request, '您没有权限删除此文件')
+        return redirect('file_share')
+        
+    file_obj.delete()
+    messages.success(request, '文件删除成功')
+    return redirect('file_share')
+
+@login_required
+def download_file(request, file_id):
+    """下载文件"""
+    file_obj = get_object_or_404(FileShare, id=file_id)
+    file_path = file_obj.file.path
+    
+    if os.path.exists(file_path):
+        from django.utils.encoding import escape_uri_path
+        response = FileResponse(open(file_path, 'rb'))
+        response['Content-Type'] = 'application/octet-stream'
+        # 使用 escape_uri_path 处理中文文件名
+        response['Content-Disposition'] = f"attachment; filename*=UTF-8''{escape_uri_path(file_obj.file_name)}"
+        return response
+    else:
+        raise Http404("文件不存在")

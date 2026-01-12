@@ -93,6 +93,34 @@ class DatasetManagement(models.Model):
             super().delete(*args, **kwargs)
 
 
+class FileShare(models.Model):
+    """文件共享"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="上传用户")
+    file = models.FileField(upload_to='file_share/', verbose_name="文件")
+    upload_time = models.DateTimeField(auto_now_add=True, verbose_name="上传时间")
+    file_name = models.CharField(max_length=255, verbose_name="文件名")
+    file_size = models.CharField(max_length=50, verbose_name="文件大小")
+    file_type = models.CharField(max_length=50, verbose_name="文件类型")
+
+    class Meta:
+        ordering = ['-upload_time']
+        verbose_name = "文件共享"
+        verbose_name_plural = "文件共享"
+
+    def __str__(self):
+        return self.file_name
+
+    def delete(self, *args, **kwargs):
+        # 删除文件内容
+        if self.file:
+            storage = self.file.storage
+            path = self.file.path
+            super().delete(*args, **kwargs)
+            storage.delete(path)
+        else:
+            super().delete(*args, **kwargs)
+
+
 class DetectionHistory(models.Model):
     """模型检测历史"""
     model = models.ForeignKey(ModelManagement, on_delete=models.CASCADE, verbose_name="检测模型")

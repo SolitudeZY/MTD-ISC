@@ -321,6 +321,13 @@
             </a>
         </li>
 
+        <!-- 文件共享 -->
+        <li class="{% if request.resolver_match.url_name == 'file_share' %}active{% endif %}">
+            <a href="{% url 'file_share' %}">
+                <i data-feather="folder" class="sidebar-icon"></i> 文件共享
+            </a>
+        </li>
+
         <!-- 退出登录--直接重定向到登录界面 -->
         <li>
             <a href="{% url 'login' %}">

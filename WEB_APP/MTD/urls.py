@@ -42,6 +42,12 @@ urlpatterns = [
     path('personal_information/', views.personal_information, name='personal_information'),  # 个人信息
     path('dataset_management/', views.dataset_management, name='dataset_management'),  # 数据集管理
     
+    # 文件共享功能
+    path('file_share/', views.file_share, name='file_share'),
+    path('file_share/upload/', views.upload_file, name='upload_file'),
+    path('file_share/delete/<int:file_id>/', views.delete_file, name='delete_file'),
+    path('file_share/download/<int:file_id>/', views.download_file, name='download_file'),
+
     # 流量捕获功能
     path('traffic_capture/', views.traffic_capture, name='traffic_capture'),  # Windows流量捕获页面
     path('traffic_capture_redirect/', views.traffic_capture_redirect, name='traffic_capture_redirect'),  # 自动跳转
