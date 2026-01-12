@@ -866,3 +866,37 @@ django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 382: '
 [2025-09-19 11:33:07] INFO django.server: "GET /home/ HTTP/1.1" 200 33318
 [2025-09-19 11:36:48] INFO django.server: "GET /home/ HTTP/1.1" 200 34100
 [2025-09-19 11:38:22] INFO django.server: "GET /home/ HTTP/1.1" 200 34092
+[2026-01-12 19:12:56] INFO django.utils.autoreload: Watching for file changes with StatReloader
+[2026-01-12 19:12:57] INFO django.server: "GET / HTTP/1.1" 200 10937
+[2026-01-12 19:12:58] INFO django.server: "GET /static/CSS/signup.css HTTP/1.1" 200 19349
+[2026-01-12 19:12:58] INFO django.server: "GET /static/images/hero-glow.svg HTTP/1.1" 200 1871
+[2026-01-12 19:12:58] INFO django.server: "GET /static/vendor/fontawesome/css/all.min.css HTTP/1.1" 200 102033
+[2026-01-12 19:12:58] INFO django.server: "GET /static/CSS/site.css HTTP/1.1" 200 81358
+[2026-01-12 19:12:58] INFO django.server: "GET /static/CSS/primer.css HTTP/1.1" 200 395805
+[2026-01-12 19:12:58] INFO django.server: "GET /static/vendor/fontawesome/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 150124
+[2026-01-12 19:12:58] WARNING django.request: Not Found: /favicon.ico
+[2026-01-12 19:12:58] WARNING django.server: "GET /favicon.ico HTTP/1.1" 404 9957
+[2026-01-12 19:12:59] INFO django.server: "POST / HTTP/1.1" 302 0
+[2026-01-12 19:12:59] INFO django.server: "GET /home/ HTTP/1.1" 200 34300
+[2026-01-12 19:12:59] INFO django.server: "GET /static/vendor/echarts/echarts-wordcloud.min.js HTTP/1.1" 200 16552
+[2026-01-12 19:12:59] INFO django.server: "GET /static/plugins/animation/css/animate.min.css HTTP/1.1" 200 57902
+[2026-01-12 19:12:59] INFO django.server: "GET /static/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js HTTP/1.1" 200 80721
+[2026-01-12 19:12:59] INFO django.server: "GET /static/feather-icons/dist/feather.min.js HTTP/1.1" 200 76059
+[2026-01-12 19:12:59] INFO django.server: "GET /static/js/jquery.min.js HTTP/1.1" 200 116344
+[2026-01-12 19:12:59] INFO django.server: "GET /static/bootstrap-5.3.5-dist/css/bootstrap.min.css HTTP/1.1" 200 231913
+[2026-01-12 19:12:59] INFO django.server: "GET /static/CSS/style.css HTTP/1.1" 200 327721
+[2026-01-12 19:12:59] INFO django.server: "GET /static/images/logo-thumb.png HTTP/1.1" 200 1529
+[2026-01-12 19:12:59] INFO django.server: "GET /static/vendor/echarts/echarts.min.js HTTP/1.1" 200 1016624
+[2026-01-12 19:12:59] INFO django.server: "GET /static/images/bird-6831573_640.png HTTP/1.1" 200 552967
+[2026-01-12 19:12:59] INFO django.server: "GET /static/vendor/echarts/echarts-wordcloud.min.js HTTP/1.1" 200 16552
+[2026-01-12 19:12:59] INFO django.server: "GET /static/images/user/avatar-2.jpg HTTP/1.1" 200 9372
+[2026-01-12 19:12:59] INFO django.server: "GET /static/feather-icons/dist/feather.min.js HTTP/1.1" 200 76059
+[2026-01-12 19:12:59] INFO django.server: "GET /static/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js HTTP/1.1" 200 80721
+[2026-01-12 19:12:59] INFO django.server: "GET /static/js/jquery.min.js HTTP/1.1" 200 116344
+[2026-01-12 19:12:59] INFO django.server: "GET /static/fonts/datta/datta-icon.css HTTP/1.1" 200 1544
+[2026-01-12 19:12:59] INFO django.server: "GET /static/plugins/jquery-scrollbar/css/jquery.scrollbar.min.css HTTP/1.1" 200 2850
+[2026-01-12 19:12:59] INFO django.server: "GET /static/fonts/feather/css/feather.css HTTP/1.1" 200 11848
+[2026-01-12 19:12:59] INFO django.server: "GET /static/plugins/bootstrap/css/bootstrap.min.css HTTP/1.1" 200 141126
+[2026-01-12 19:12:59] INFO django.server: "GET /static/fonts/feather/fonts/feather.woff?t=1501841394106 HTTP/1.1" 200 26432
+[2026-01-12 19:13:00] INFO django.server: "GET /static/images/favicon.ico HTTP/1.1" 200 15406
+[2026-01-12 19:13:01] INFO django.server: "GET /file_share/ HTTP/1.1" 200 25184
